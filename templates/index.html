@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Golden Lera 👑 - Light Pink Edition 2026</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-primary: #ff66a3;
+            --pink-light: #ffb3d9;
+            --pink-soft: #fff0f5;
+            --pink-bright: #ff1a75;
+            --pink-glow: rgba(255, 26, 117, 0.6);
+            --gold: #d4af37;
+            --gold-light: #fff3a1;
+            --gold-glow: rgba(212, 175, 55, 0.8);
+            --bg-main: radial-gradient(circle at center, #ffffff 0%, #ffe4e1 50%, #f8bbd0 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #3a001e;
+            --text-light: #ffffff;
+            --pink-border: #ff80bf;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- 1. واجهة الدخول باللون الزهري الفاتح --- */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #ffffff 0%, #ffc0cb 60%, #ffb6c1 100%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .splash-box {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2.5px solid var(--pink-primary);
+            box-shadow: 0 0 35px var(--pink-glow), inset 0 0 15px rgba(255, 182, 193, 0.5);
+            padding: 40px 30px;
+            border-radius: 28px;
+            text-align: center;
+            max-width: 330px;
+            width: 90%;
+            position: relative;
+        }
+
+        .splash-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--pink-bright);
+            text-shadow: 0 0 15px var(--pink-light);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        .splash-subtitle {
+            font-size: 13px;
+            color: var(--gold);
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+            text-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        .loader-container {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            background: #ffe4e1;
+            border: 1.5px solid var(--pink-primary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px var(--pink-glow);
+        }
+
+        .loader-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff99c8, var(--pink-bright), var(--gold));
+            box-shadow: 0 0 12px var(--pink-bright);
+            transition: width 0.1s linear;
+        }
+
+        /* --- 2. الشريط العلوي للجائزة والرصيد --- */
+        .jackpot-bar {
+            background: linear-gradient(90deg, #ffb6c1, #ff66a3, #ffb6c1);
+            border-bottom: 1.5px solid var(--gold);
+            text-align: center;
+            padding: 5px 0;
+            font-size: 13px;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1.5px solid var(--pink-primary);
+            backdrop-filter: blur(15px);
+        }
+
+        .buy-bonus-btn {
+            background: linear-gradient(135deg, var(--pink-bright) 0%, #ff99cc 100%);
+            border: 1.5px solid var(--gold);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 0 12px var(--pink-glow);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.15s;
+        }
+        .buy-bonus-btn:active { transform: scale(0.92); }
+
+        .logo {
+            text-align: center;
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--pink-bright);
+            text-shadow: 0 0 12px var(--pink-light);
+            line-height: 1.1;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 6px; }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--pink-bright), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 0 10px var(--pink-glow);
+        }
+
+        .balance-badge {
+            background: #fff0f5;
+            border: 1.5px solid var(--pink-primary);
+            color: var(--text-dark);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(255, 102, 163, 0.2);
+        }
+
+        .top-widgets {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 14px;
+        }
+
+        .mini-badge {
+            border: 1px solid var(--pink-primary);
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 10px;
+            background: #ffffff;
+            color: var(--pink-bright);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .active-bonus-indicator {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(90deg, var(--pink-bright), var(--gold));
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin: 2px auto;
+            box-shadow: 0 0 12px var(--pink-glow);
+        }
+
+        /* --- 3. إطار البكرات وتصميم الجرة 3D --- */
+        .game-container {
+            position: relative;
+            width: 95%;
+            max-width: 420px;
+            margin: 2px auto 0;
+            perspective: 1200px;
+        }
+
+        .slots-frame {
+            display: flex;
+            flex-direction: row;
+            direction: ltr;
+            background: rgba(255, 240, 245, 0.95);
+            border: 3.5px solid var(--pink-primary);
+            box-shadow: 0 8px 30px var(--pink-glow), inset 0 0 15px rgba(255, 105, 180, 0.3);
+            border-radius: 20px;
+            padding: 6px;
+            position: relative;
+            overflow: visible; /* لسمح ببروز الجرة الـ 3D */
+            height: 252px;
+            touch-action: none;
+            cursor: grab;
+            transform-style: preserve-3d;
+        }
+
+        .slots-frame.shake {
+            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes screenShake {
+            10%, 90% { transform: translate3d(-4px, 0, 0) rotate(-0.5deg); }
+            20%, 80% { transform: translate3d(6px, 0, 0) rotate(1deg); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0) rotate(-1deg); }
+            40%, 60% { transform: translate3d(8px, 0, 0) rotate(0.5deg); }
+        }
+
+        .reel {
+            flex: 1;
+            height: 240px;
+            background: radial-gradient(circle at center, #ffffff 0%, #fff0f5 100%);
+            border-radius: 10px;
+            overflow: visible; /* سمح للبروز الخارجي */
+            position: relative;
+            box-shadow: inset 0 0 12px rgba(255, 182, 193, 0.5);
+        }
+
+        .reel:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--pink-light);
+            z-index: 10;
+        }
+
+        .reel-strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+        }
+
+        .reel-strip.spinning {
+            animation: fastSpinSmoothReverse 0.1s linear infinite;
+        }
+
+        .reel-strip.decelerate-stop {
+            animation: reelSlowdownAndStop 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fastSpinSmoothReverse {
+            0% { transform: translateY(0px); filter: blur(3px); }
+            100% { transform: translateY(-240px); filter: blur(3px); }
+        }
+
+        @keyframes reelSlowdownAndStop {
+            0% { transform: translateY(-160px); filter: blur(2px); }
+            60% { transform: translateY(-8px); filter: blur(0px); }
+            80% { transform: translateY(6px); }
+            100% { transform: translateY(0); }
+        }
+
+        .symbol {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0;
+            padding: 2px;
+        }
+
+        .symbol-badge {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 46px;
+            background: transparent;
+            transition: all 0.2s ease-out;
+        }
+
+        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); }
+        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); }
+        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); }
+        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); }
+        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); }
+        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); }
+        
+        .symbol.star-sym .symbol-badge { filter: drop-shadow(0 0 14px #fbbf24); }
+        .symbol.dollar-sym .symbol-badge { filter: drop-shadow(0 0 14px #10b981); font-weight: 900; color: #10b981; font-size: 50px; }
+
+        .symbol.seven .symbol-badge {
+            color: var(--pink-bright);
+            text-shadow: 0 0 15px var(--pink-bright);
+            font-weight: 900;
+            font-style: italic;
+            font-size: 52px;
+        }
+
+        .symbol.jar-rare .symbol-badge {
+            font-size: 52px;
+            filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 10px var(--pink-bright));
+            animation: jarGlowPulse 0.9s infinite alternate ease-in-out;
+        }
+
+        @keyframes jarGlowPulse {
+            0% { transform: scale(0.96); filter: drop-shadow(0 0 12px var(--gold)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 25px var(--gold)) drop-shadow(0 0 12px var(--pink-bright)); }
+        }
+
+        .symbol.jar-stopped {
+            z-index: 50;
+            animation: jarLockStop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+        }
+
+        /* --- تأثير الجرة الممتدة 3D المتطورة خارج البكرة --- */
+        .reel-jar-expanded {
+            position: absolute;
+            top: -12px;
+            bottom: -12px;
+            left: -6px;
+            right: -6px;
+            background: radial-gradient(circle at center, #ffffff 0%, #ffc0cb 50%, var(--pink-primary) 100%);
+            z-index: 120;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 18px;
+            border: 3.5px solid var(--gold);
+            box-shadow: 0 15px 35px var(--pink-glow), 0 0 25px var(--gold-glow), inset 0 0 15px #ffffff;
+            transform: translateZ(40px) scale(1.08);
+            animation: jarExpand3D 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            overflow: visible;
+        }
+
+        @keyframes jarExpand3D {
+            0% { transform: translateZ(0) scaleY(0.2) scaleX(0.5); opacity: 0; }
+            100% { transform: translateZ(40px) scale(1.08); opacity: 1; }
+        }
+
+        .jar-expanded-body {
+            font-size: 88px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25)) drop-shadow(0 0 25px #ffffff);
+            animation: jarPulse3D 0.8s infinite alternate ease-in-out;
+            position: relative;
+        }
+
+        .jar-expanded-body::before {
+            content: '✨🌸✨';
+            position: absolute;
+            top: -38px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            animation: goldSpout 0.5s infinite alternate ease-in-out;
+        }
+
+        .jar-expanded-mult {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: linear-gradient(135deg, var(--pink-bright), #ff0055);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 15px var(--pink-bright);
+            z-index: 130;
+            animation: popMult 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popMult {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes goldSpout {
+            0% { transform: translate(-50%, 0) scale(0.8); opacity: 0.7; }
+            100% { transform: translate(-50%, -18px) scale(1.3); opacity: 1; filter: drop-shadow(0 0 15px var(--gold)); }
+        }
+
+        @keyframes jarPulse3D {
+            0% { transform: scale(0.96) translateZ(0); }
+            100% { transform: scale(1.06) translateZ(15px); filter: drop-shadow(0 0 35px var(--gold)); }
+        }
+
+        .jar-mult-tag {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: linear-gradient(135deg, var(--pink-bright), #cc0052);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 10px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 10px var(--pink-bright);
+            z-index: 95;
+        }
+
+        .symbol.win-pop-red .symbol-badge {
+            animation: symbolWinPink 0.35s infinite alternate ease-in-out;
+            z-index: 10;
+        }
+
+        @keyframes symbolWinPink {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--pink-bright)); }
+            100% { transform: scale(1.25); filter: drop-shadow(0 0 25px var(--pink-primary)) brightness(1.3); }
+        }
+
+        .jar-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, rgba(255,102,163,0.98), rgba(255,240,245,0.98));
+            border: 3px solid var(--gold);
+            padding: 16px 30px;
+            border-radius: 24px;
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--text-dark);
+            box-shadow: 0 0 50px var(--pink-glow);
+            z-index: 200;
+            pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+        .jar-banner.show { transform: translate(-50%, -50%) scale(1.15); }
+
+        .info-panel {
+            text-align: center;
+            margin: 6px 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1.5px solid var(--pink-primary);
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(255, 102, 163, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .line-info {
+            color: var(--pink-bright);
+            font-size: 13px;
+            font-weight: 800;
+            min-height: 20px;
+        }
+
+        .win-display {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-dark);
+        }
+
+        .bets-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            padding: 0 10px;
+        }
+        .bet-chip {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1.5px solid var(--pink-primary);
+            background: #ffffff;
+            color: var(--text-dark);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .bet-chip.active {
+            background: var(--pink-bright);
+            color: #fff;
+            box-shadow: 0 0 18px var(--pink-glow);
+            font-weight: 900;
+            transform: scale(1.08);
+            border-color: var(--gold);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 14px;
+            margin-bottom: 6px;
+        }
+        .spin-btn {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            border: 3.5px solid var(--gold);
+            background: radial-gradient(circle, var(--pink-bright) 0%, var(--pink-primary) 100%);
+            box-shadow: 0 0 30px var(--pink-glow);
+            color: #fff;
+            font-size: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .spin-btn:active { transform: scale(0.9); }
+
+        .sub-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1.5px solid var(--pink-primary);
+            background: #ffffff;
+            color: var(--pink-bright);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .sub-btn.active-sub {
+            background: var(--gold);
+            color: #fff;
+            border-color: var(--gold);
+        }
+
+        .history-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1.5px solid var(--pink-light);
+            border-bottom: 1.5px solid var(--pink-light);
+            padding: 6px 0;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-around;
+            background: #ffffff;
+            padding: 8px 0;
+            border-top: 1px solid var(--pink-light);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--pink-bright); font-weight: bold; }
+
+        .king-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 240, 245, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 950;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .king-box {
+            background: radial-gradient(circle, #ffffff 0%, #ffe4e1 100%);
+            border: 3px solid var(--gold);
+            border-radius: 28px;
+            padding: 30px 20px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 0 50px var(--pink-glow);
+            animation: zoomKing 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes zoomKing {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .king-crown { font-size: 65px; margin-bottom: 5px; filter: drop-shadow(0 0 20px var(--gold)); }
+        .king-title { font-size: 28px; font-weight: 900; color: var(--pink-bright); text-shadow: 0 0 10px var(--pink-light); }
+        .king-mult { font-size: 20px; color: var(--gold); font-weight: 900; margin-top: 4px; }
+        .king-amount {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin: 15px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 800;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-body {
+            background: #ffffff;
+            border-radius: 22px;
+            border: 2px solid var(--pink-primary);
+            padding: 24px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 10px 30px var(--pink-glow);
+            max-height: 85vh;
+            overflow-y: auto;
+            color: var(--text-dark);
+        }
+        .modal-btn {
+            background: var(--pink-bright);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 900;
+            margin-top: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--pink-glow);
+        }
+
+        .paytable-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+            text-align: right;
+        }
+
+        .paytable-card {
+            background: #fff0f5;
+            border: 1px solid var(--pink-light);
+            border-radius: 12px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .paytable-card .sym { font-size: 26px; }
+        .paytable-card .desc { font-size: 11px; color: var(--text-dark); line-height: 1.25; }
+
+        .bonus-option-card {
+            background: #fff0f5;
+            border: 1.5px solid var(--pink-primary);
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .bonus-option-card:hover, .bonus-option-card:active {
+            background: var(--pink-light);
+            transform: scale(1.02);
+        }
+
+        .level-menu-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 920;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .level-menu-box {
+            background: #ffffff;
+            border: 2.5px solid var(--pink-primary);
+            border-radius: 24px;
+            padding: 22px 18px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            box-shadow: 0 10px 30px var(--pink-glow);
+            animation: zoomKing 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .level-btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin: 18px 0;
+        }
+        .level-btn {
+            flex: 1;
+            padding: 10px 0;
+            background: #fff0f5;
+            border: 1.5px solid var(--pink-primary);
+            color: var(--text-dark);
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .level-btn.active {
+            background: var(--pink-bright);
+            color: #fff;
+            box-shadow: 0 0 15px var(--pink-glow);
+            border-color: var(--gold);
+        }
+
+        @keyframes ultraFastCoinFly {
+            0% {
+                transform: translate(0, 105vh) rotate(0deg) scale(0.6);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), -25vh) rotate(1440deg) scale(1.6);
+                opacity: 1;
+            }
+        }
+
+        .ultra-gold-coin {
+            position: fixed;
+            bottom: 0;
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 42px;
+            filter: drop-shadow(0 0 15px #ffdf00) drop-shadow(0 0 25px var(--pink-bright));
+            animation: ultraFastCoinFly var(--duration) linear forwards;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. شاشة الدخول الزهرية -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-box">
+            <h1 class="splash-title">GOLDEN LERA</h1>
+            <p class="splash-subtitle">PINK ROYAL MASTER 2026</p>
+            <div class="loader-container">
+                <div class="loader-bar" id="loaderBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط الجائزة الكبرى -->
+    <div class="jackpot-bar">
+        <span>🏆 MEGA JACKPOT:</span>
+        <span id="jackpotAmount">124,850.00 NSP</span>
+    </div>
+
+    <!-- 2. الشريط العلوي -->
+    <div class="top-bar">
+        <button class="buy-bonus-btn" onclick="openBonusModal()">🛒 شراء مكافأة</button>
+        <div class="logo">Golden Lera<br><span style="font-size: 10px; color: var(--gold);">Pink Edition 2026</span></div>
+        <div class="user-info">
+            <div class="avatar" id="u-avatar">U</div>
+            <div class="balance-badge">
+                <span id="u-balance">100.00</span>
+                <span style="font-size: 9px; color: var(--pink-bright);">NSP</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-widgets">
+        <div class="mini-badge" onclick="loadUserData()">
+            <span>🔄 تحديث</span>
+        </div>
+        <div class="mini-badge" style="border-color: var(--gold); color: var(--gold);" onclick="openPaytableModal()">
+            <span>📖 جدول الأرباح</span>
+        </div>
+        <div class="mini-badge" onclick="showModal('مهام البوت', 'أكمل المهام اليومية في البوت واحصل على مكافآت!')">
+            <span>🎁 المهام</span>
+        </div>
+    </div>
+
+    <div class="active-bonus-indicator" id="bonusActiveBadge">
+        🔥 مكافأة جرات مفعلة: متبقي 5 ضربات
+    </div>
+
+    <!-- 3. إطار اللعبة والبكرات -->
+    <div class="game-container">
+        <div class="jar-banner" id="jarBanner"><span id="jarWinRating">ربح كبير! 🔥</span><br><span id="jarMultText" style="font-size: 28px; color: var(--pink-bright);">5x</span></div>
+        <div class="slots-frame" id="slotsFrame"></div>
+    </div>
+
+    <div class="info-panel">
+        <div class="line-info" id="lineInfo">اختر الرهان واضغط ↻ أو اسحب للبدء</div>
+        <div class="win-display">ربح <span id="winAmount">0.00</span> NSP</div>
+    </div>
+
+    <div class="bets-container" id="betsContainer"></div>
+
+    <div class="controls">
+        <div class="sub-btn" id="menuBtn" onclick="openLevelMenu()" style="font-size:18px; font-weight:900;">☰</div>
+        <div class="sub-btn" id="autoBtn" onclick="toggleAutoSpin()">▶</div>
+        <div class="sub-btn" id="speedBtn" onclick="cycleSpeed()">🐢</div>
+        <button class="spin-btn" id="spinBtn" onclick="handleSpinButton()">↻</button>
+        <div class="sub-btn" onclick="maxBet()" style="font-size: 11px; font-weight: 900;">MAX</div>
+        <div class="sub-btn" onclick="doubleBet()">x2</div>
+    </div>
+
+    <div class="history-bar">
+        <div>🏆 أفضل ربح: <span id="bestWin" style="color: var(--pink-bright);">0.00</span> NSP</div>
+        <div>⏱️ آخر ربح: <span id="lastWin" style="color: var(--gold);">0.00</span> NSP</div>
+    </div>
+
+    <div class="footer-nav">
+        <div class="nav-item active">
+            <span>🎰</span>
+            <span>اللعبة</span>
+        </div>
+        <div class="nav-item" onclick="openBonusModal()">
+            <span>🛒</span>
+            <span>المكافآت</span>
+        </div>
+        <div class="nav-item" onclick="openPaytableModal()">
+            <span>📖</span>
+            <span>الأرباح</span>
+        </div>
+        <div class="nav-item" onclick="showModal('حسابي', 'الحساب موصول تلقائياً بـ Telegram WebApp.')">
+            <span>👤</span>
+            <span>حسابي</span>
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة لشراء المكافأة -->
+    <div class="modal" id="bonus-modal">
+        <div class="modal-body">
+            <div style="font-size: 1.15rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 6px;">🛒 شراء مكافأة الجرات (5 ضربات)</div>
+            <p style="color: #666; font-size: 0.8rem; margin-bottom: 12px;">أسعار المكافأة لرهانك الحالي (<span id="bonusBetLabel" style="color:var(--pink-bright); font-weight:bold;">3</span> NSP):</p>
+            
+            <div class="bonus-option-card" onclick="confirmBuyBonus(1)">
+                <div>
+                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺 ظهور جرة واحدة</div>
+                    <div style="font-size: 0.75rem; color: #777;">ظهور جرة لكل ضربة (5 ضربات)</div>
+                </div>
+                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price1">150 NSP</div>
+            </div>
+
+            <div class="bonus-option-card" onclick="confirmBuyBonus(2)">
+                <div>
+                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺🏺 ظهور جرتين</div>
+                    <div style="font-size: 0.75rem; color: #777;">ظهور جرتين لكل ضربة (5 ضربات)</div>
+                </div>
+                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price2">300 NSP</div>
+            </div>
+
+            <div class="bonus-option-card" onclick="confirmBuyBonus(3)">
+                <div>
+                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺🏺🏺 ظهور 3 جرات + 5x</div>
+                    <div style="font-size: 0.75rem; color: #777;">3 جرات مع احتمال حصري لمضاعف 5x!</div>
+                </div>
+                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price3">750 NSP</div>
+            </div>
+
+            <button class="modal-btn" style="background: #ccc; color: #333;" onclick="closeBonusModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- نافذة جدول الأرباح -->
+    <div class="modal" id="paytable-modal">
+        <div class="modal-body">
+            <div style="font-size: 1.2rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 6px;">📖 جدول أرباح الرموز</div>
+            <p style="color: #666; font-size: 0.78rem; margin-bottom: 10px;">تحتسب الأرباح عند اكتمال خطوط الربح المحددة:</p>
+            
+            <div class="paytable-grid">
+                <div class="paytable-card">
+                    <div class="sym">🍋/🍍/🍊</div>
+                    <div class="desc"><b>الفواكه العادية</b><br>3x = 1x | 4x = 1.5x | 5x = 5x</div>
+                </div>
+                <div class="paytable-card">
+                    <div class="sym">🍉/🍇</div>
+                    <div class="desc"><b>البطيخ / العنب</b><br>3x = 4x | 4x = 5x | 5x = 8x</div>
+                </div>
+                <div class="paytable-card">
+                    <div class="sym">🔔</div>
+                    <div class="desc"><b>الأجراس</b><br>3x = 2x | 4x = 3x | 5x = 6x</div>
+                </div>
+                <div class="paytable-card">
+                    <div class="sym">7️⃣</div>
+                    <div class="desc"><b>السبيعات</b><br>2x = 1x | 3x = 3x | 4x = 5x | 5x = 50x!!</div>
+                </div>
+                <div class="paytable-card">
+                    <div class="sym">⭐</div>
+                    <div class="desc"><b>النجمة</b><br>3x = 20x الرهان</div>
+                </div>
+                <div class="paytable-card">
+                    <div class="sym">💲</div>
+                    <div class="desc"><b>الدولار</b><br>3x = 5x الرهان</div>
+                </div>
+            </div>
+
+            <div style="background: #fff0f5; border: 1px solid var(--pink-primary); border-radius: 12px; padding: 8px; font-size: 11px; color: var(--pink-bright); text-align: right; margin-top: 6px;">
+                🏺 <b>الجرة (Wild):</b> تتوسع وتبرز بشكل 3D لإكمال الرموز الناقصة أو زيادة قيمة الخط الفائز بمضاعفاتها.
+            </div>
+
+            <button class="modal-btn" onclick="closePaytableModal()">فهمت 🚀</button>
+        </div>
+    </div>
+
+    <!-- نافذة مستويات الرهان -->
+    <div class="level-menu-modal" id="levelMenuModal">
+        <div class="level-menu-box">
+            <div style="font-size: 1.2rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 4px;">🎚️ حدد مستوى الرهان</div>
+            <div style="font-size: 0.8rem; color: #666;">اختر المستويات لتغيير قيم الرهان</div>
+            <div class="level-btn-group">
+                <button class="level-btn active" onclick="selectBetLevel(1)">1</button>
+                <button class="level-btn" onclick="selectBetLevel(2)">2</button>
+                <button class="level-btn" onclick="selectBetLevel(3)">3</button>
+                <button class="level-btn" onclick="selectBetLevel(4)">4</button>
+                <button class="level-btn" onclick="selectBetLevel(5)">5</button>
+            </div>
+            <button class="modal-btn" style="width: 100%;" onclick="closeLevelMenu()">تم</button>
+        </div>
+    </div>
+
+    <!-- نافذة الملك احتفال الربح الكبير -->
+    <div class="king-modal" id="kingModal">
+        <div class="king-box">
+            <div class="king-crown">👑</div>
+            <div class="king-title">مبروك يا ملك</div>
+            <div class="king-mult" id="kingMultText">مضاعف 10x! 🔥</div>
+            <div class="king-amount" id="kingWinCounter">0.00 NSP</div>
+            <button class="modal-btn" onclick="closeKingModal()">استلام الأرباح 🪙</button>
+        </div>
+    </div>
+
+    <!-- نافذة الرسائل العامة -->
+    <div class="modal" id="msg-modal">
+        <div class="modal-body">
+            <div id="modal-status" style="font-size: 1.15rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 8px;">تنبيه</div>
+            <p id="modal-desc" style="color: #555; font-size: 0.95rem; line-height: 1.5;"></p>
+            <button class="modal-btn" onclick="closeModal()">استمرار 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.expand(); tg.ready(); }
+
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function dismissSplashScreen() {
+            const splash = document.getElementById('splashScreen');
+            if (splash && splash.style.display !== 'none') {
+                splash.style.transition = 'opacity 0.6s ease';
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.display = 'none'; }, 600);
+            }
+        }
+
+        const splashWaitTime = 8000; 
+        let loadProgress = 0;
+        const intervalTime = splashWaitTime / 100;
+
+        const loaderInterval = setInterval(() => {
+            loadProgress += 1;
+            const loaderBar = document.getElementById('loaderBar');
+            if (loaderBar) loaderBar.style.width = loadProgress + '%';
+            
+            if (loadProgress >= 100) {
+                clearInterval(loaderInterval);
+                dismissSplashScreen();
+                initAudio();
+            }
+        }, intervalTime);
+
+        setTimeout(() => { dismissSplashScreen(); }, 8000);
+
+        let jackpotCurrent = 124850.00;
+        setInterval(() => {
+            jackpotCurrent += (Math.random() * 0.45);
+            document.getElementById('jackpotAmount').innerText = jackpotCurrent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " NSP";
+        }, 1500);
+
+        const betLevels = {
+            1: [3, 6, 9, 15, 50],
+            2: [60, 70, 80, 90, 100],
+            3: [110, 130, 150, 180, 200],
+            4: [250, 300, 350, 400, 500],
+            5: [600, 700, 800, 900, 1000]
+        };
+
+        let currentLevel = 1;
+        let currentBet = 3;
+        let isSpinning = false;
+        let forceStopRequested = false;
+        let currentBalance = parseFloat(localStorage.getItem('gl_balance')) || 100.00;
+        let autoSpinActive = false;
+        let speedLevel = 1;
+        let autoInterval = null;
+
+        let activeBonus = null;
+
+        const reelsCount = 5;
+        const reelStrips = [];
+        const slotsFrame = document.getElementById('slotsFrame');
+
+        function playProSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            let now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, now);
+                osc.frequency.exponentialRampToValueAtTime(450, now + 0.035);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.035);
+            } 
+            else if (type === 'spin_tick') {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.02);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.02);
+            }
+            else if (type === 'reel_stop') {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.08);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.08);
+            }
+            else if (type === 'jar_drop') {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+                gain.gain.setValueAtTime(0.65, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.25);
+            }
+            else if (type === 'win_sound') {
+                let notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + (i * 0.04));
+                    gain.gain.setValueAtTime(0.2, now + (i * 0.04));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.04) + 0.25);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now + (i * 0.04)); osc.stop(now + (i * 0.04) + 0.25);
+                });
+            }
+            else if (type === 'big_win_music') {
+                let fanfareNotes = [
+                    { f: 523.25, t: 0.0, d: 0.15 },
+                    { f: 659.25, t: 0.12, d: 0.15 },
+                    { f: 783.99, t: 0.24, d: 0.15 },
+                    { f: 1046.50, t: 0.36, d: 0.35 },
+                    { f: 880.00, t: 0.55, d: 0.15 },
+                    { f: 1046.50, t: 0.70, d: 0.50 }
+                ];
+                fanfareNotes.forEach(n => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(n.f, now + n.t);
+                    gain.gain.setValueAtTime(0.35, now + n.t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now + n.t); osc.stop(now + n.t + n.d);
+                });
+            }
+            else if (type === 'coins_flying') {
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        if (!audioCtx) return;
+                        let nowTime = audioCtx.currentTime;
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        let freq = 1800 + Math.random() * 1200;
+                        osc.frequency.setValueAtTime(freq, nowTime);
+                        gain.gain.setValueAtTime(0.18, nowTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, nowTime + 0.04);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(nowTime); osc.stop(nowTime + 0.04);
+                    }, i * 20);
+                }
+            }
+        }
+
+        let touchStartY = 0;
+        slotsFrame.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        slotsFrame.addEventListener('touchend', (e) => {
+            let touchEndY = e.changedTouches[0].clientY;
+            let diffY = touchEndY - touchStartY;
+            if (Math.abs(diffY) > 35) {
+                initAudio();
+                if (!isSpinning) startSpin();
+            }
+        }, { passive: true });
+
+        async function loadUserData() {
+            let tgUser = tg?.initDataUnsafe?.user;
+            let userId = tgUser?.id || "demo_user";
+            let name = tgUser?.first_name || "اللاعب";
+
+            document.getElementById('u-avatar').innerText = name[0].toUpperCase();
+            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
+
+            try {
+                let response = await fetch('/api/get_user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, name: name })
+                });
+                if (response.ok) {
+                    let data = await response.json();
+                    if (data.success) {
+                        currentBalance = parseFloat(data.balance);
+                        localStorage.setItem('gl_balance', currentBalance);
+                        document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
+                    }
+                }
+            } catch (e) {
+                console.warn("المحاكاة المحلية تعمل بدون اتصال المباشر:", e);
+            }
+        }
+        loadUserData();
+
+        function generateInitialList(count) {
+            const fruits = ['🍉', '🍇', '🍊', '🍍', '🍋', '🔔'];
+            let list = [];
+            for (let i = 0; i < count; i++) {
+                let rand = Math.random();
+                let sym = '';
+                let mult = 1;
+
+                if (rand < 0.002) { 
+                    sym = '🏺';
+                    let mRand = Math.random();
+                    if (mRand < 0.50) mult = 1;
+                    else if (mRand < 0.80) mult = 2;
+                    else mult = 3;
+                } else if (rand < 0.022) {
+                    sym = '7'; 
+                } else if (rand < 0.032) {
+                    sym = '⭐';
+                } else if (rand < 0.042) {
+                    sym = '$';
+                } else {
+                    sym = fruits[Math.floor(Math.random() * fruits.length)];
+                }
+
+                list.push({ sym: sym, mult: mult });
+            }
+            return list;
+        }
+
+        function createSymbolNode(symObj) {
+            const div = document.createElement('div');
+            div.className = 'symbol';
+            
+            const badge = document.createElement('div');
+            badge.className = 'symbol-badge';
+
+            if (symObj.sym === '🍉') { div.classList.add('fruit-watermelon'); badge.innerText = '🍉'; }
+            else if (symObj.sym === '🍇') { div.classList.add('fruit-grape'); badge.innerText = '🍇'; }
+            else if (symObj.sym === '🍊') { div.classList.add('fruit-orange'); badge.innerText = '🍊'; }
+            else if (symObj.sym === '🍍') { div.classList.add('fruit-pineapple'); badge.innerText = '🍍'; }
+            else if (symObj.sym === '🍋') { div.classList.add('fruit-lemon'); badge.innerText = '🍋'; }
+            else if (symObj.sym === '🔔') { div.classList.add('bell'); badge.innerText = '🔔'; }
+            else if (symObj.sym === '⭐') { div.classList.add('star-sym'); badge.innerText = '⭐'; }
+            else if (symObj.sym === '$') { div.classList.add('dollar-sym'); badge.innerText = '$'; }
+            else if (symObj.sym === '7') {
+                div.classList.add('seven');
+                badge.innerText = '7';
+            } else if (symObj.sym === '🏺') {
+                div.classList.add('jar-rare');
+                badge.innerText = '🏺';
+                if (symObj.mult > 1) {
+                    const multTag = document.createElement('div');
+                    multTag.className = 'jar-mult-tag';
+                    multTag.innerText = symObj.mult + 'x';
+                    badge.appendChild(multTag);
+                }
+            } else {
+                badge.innerText = symObj.sym;
+            }
+
+            div.appendChild(badge);
+            return div;
+        }
+
+        function populateStrip(strip, symbolsArray) {
+            strip.innerHTML = '';
+            symbolsArray.forEach(symObj => {
+                strip.appendChild(createSymbolNode(symObj));
+            });
+        }
+
+        for (let i = 0; i < reelsCount; i++) {
+            const reel = document.createElement('div');
+            reel.className = 'reel';
+
+            const reelStrip = document.createElement('div');
+            reelStrip.className = 'reel-strip';
+            reel.appendChild(reelStrip);
+            slotsFrame.appendChild(reel);
+            
+            reelStrips.push(reelStrip);
+            populateStrip(reelStrip, generateInitialList(6));
+        }
+
+        function openLevelMenu() {
+            if (isSpinning) return;
+            playProSound('click');
+            document.getElementById('levelMenuModal').style.display = 'flex';
+        }
+
+        function closeLevelMenu() {
+            playProSound('click');
+            document.getElementById('levelMenuModal').style.display = 'none';
+        }
+
+        function selectBetLevel(lvl) {
+            playProSound('click');
+            currentLevel = lvl;
+            let bets = betLevels[lvl];
+            currentBet = bets[0];
+
+            document.querySelectorAll('.level-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', (idx + 1) === lvl);
+            });
+
+            renderBetChips();
+            closeLevelMenu();
+        }
+
+        function renderBetChips() {
+            const container = document.getElementById('betsContainer');
+            container.innerHTML = '';
+            let bets = betLevels[currentLevel];
+            
+            bets.forEach((b) => {
+                const chip = document.createElement('div');
+                chip.className = 'bet-chip' + (b === currentBet ? ' active' : '');
+                chip.innerText = b + ' NSP';
+                chip.onclick = function() { setBet(b, this); };
+                container.appendChild(chip);
+            });
+        }
+
+        renderBetChips();
+
+        function openBonusModal() {
+            if (isSpinning) return;
+            playProSound('click');
+            let ratio = currentBet / 3;
+            document.getElementById('bonusBetLabel').innerText = currentBet;
+            document.getElementById('price1').innerText = (150 * ratio).toFixed(0) + ' NSP';
+            document.getElementById('price2').innerText = (300 * ratio).toFixed(0) + ' NSP';
+            document.getElementById('price3').innerText = (750 * ratio).toFixed(0) + ' NSP';
+            document.getElementById('bonus-modal').style.display = 'flex';
+        }
+
+        function closeBonusModal() {
+            playProSound('click');
+            document.getElementById('bonus-modal').style.display = 'none';
+        }
+
+        function openPaytableModal() {
+            playProSound('click');
+            document.getElementById('paytable-modal').style.display = 'flex';
+        }
+
+        function closePaytableModal() {
+            playProSound('click');
+            document.getElementById('paytable-modal').style.display = 'none';
+        }
+
+        function confirmBuyBonus(jarCount) {
+            let ratio = currentBet / 3;
+            let prices = { 1: 150, 2: 300, 3: 750 };
+            let cost = prices[jarCount] * ratio;
+
+            if (currentBalance < cost) {
+                closeBonusModal();
+                showModal("❌ رصيد غير كافٍ", `شراء مكافأة ${jarCount} جرة لرهان ${currentBet} يتطلب ${cost} NSP.`);
+                return;
+            }
+
+            currentBalance -= cost;
+            localStorage.setItem('gl_balance', currentBalance);
+            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
+            activeBonus = { jars: jarCount, remaining: 5, totalWin: 0 };
+            
+            updateBonusBadgeUI();
+            closeBonusModal();
+            showModal("🎁 تم شراء المكافأة!", `تم خصم ${cost} NSP. تبدأ الآن 5 ضربات متتالية!`);
+            
+            setTimeout(() => { if (!isSpinning) startSpin(); }, 500);
+        }
+
+        function updateBonusBadgeUI() {
+            let badge = document.getElementById('bonusActiveBadge');
+            if (activeBonus && activeBonus.remaining > 0) {
+                badge.style.display = 'flex';
+                badge.innerText = `🔥 مكافأة جرات (${activeBonus.jars}): متبقي ${activeBonus.remaining} ضربات`;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function setBet(amount, el) {
+            if (isSpinning) return;
+            playProSound('click');
+            currentBet = amount;
+            document.querySelectorAll('.bet-chip').forEach(b => b.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+
+        function maxBet() {
+            if (isSpinning) return;
+            playProSound('click');
+            currentLevel = 5;
+            let bets = betLevels[5];
+            currentBet = bets[bets.length - 1];
+            
+            document.querySelectorAll('.level-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === 4);
+            });
+            renderBetChips();
+            document.getElementById('lineInfo').innerText = `تم تحديد الرهان الأقصى: ${currentBet} NSP`;
+        }
+
+        function doubleBet() {
+            if (isSpinning) return;
+            playProSound('click');
+            let bets = betLevels[currentLevel];
+            let idx = bets.indexOf(currentBet);
+            currentBet = (idx < bets.length - 1) ? bets[idx + 1] : bets[0];
+            let chips = document.querySelectorAll('.bet-chip');
+            chips.forEach((c, i) => {
+                c.classList.toggle('active', bets[i] === currentBet);
+            });
+        }
+
+        function toggleAutoSpin() {
+            playProSound('click');
+            autoSpinActive = !autoSpinActive;
+            let btn = document.getElementById('autoBtn');
+            if (autoSpinActive) {
+                btn.classList.add('active-sub');
+                startSpin();
+                autoInterval = setInterval(() => {
+                    if (!isSpinning) startSpin();
+                }, 1600);
+            } else {
+                btn.classList.remove('active-sub');
+                clearInterval(autoInterval);
+            }
+        }
+
+        function cycleSpeed() {
+            playProSound('click');
+            speedLevel = (speedLevel % 3) + 1;
+            let btn = document.getElementById('speedBtn');
+            btn.innerText = speedLevel === 1 ? '🐢' : (speedLevel === 2 ? '🚀' : '⚡');
+        }
+
+        function handleSpinButton() {
+            initAudio();
+            if (isSpinning) forceStopRequested = true;
+            else startSpin();
+        }
+
+        function filterUniqueCoords(coords) {
+            let unique = [];
+            let set = new Set();
+            coords.forEach(c => {
+                let key = `${c[0]}-${c[1]}`;
+                if (!set.has(key)) {
+                    set.add(key);
+                    unique.push(c);
+                }
+            });
+            return unique;
+        }
+
+        /* --- خوارزمية الربح المحسنة: الجرة كـ Wild مكمل للنقص ومضاعف للربح --- */
+        function evaluateWinsLocally(grid, bet) {
+            let totalWin = 0;
+            let lineWinningCoords = [];
+            let scatterWinningCoords = [];
+
+            let starCoords = [];
+            let dollarCoords = [];
+
+            for (let c = 0; c < reelsCount; c++) {
+                if (grid[c]) {
+                    grid[c].forEach((item, rIdx) => {
+                        if (item.sym === '⭐') starCoords.push([c, rIdx]);
+                        if (item.sym === '$') dollarCoords.push([c, rIdx]);
+                    });
+                }
+            }
+
+            if (starCoords.length >= 3) {
+                totalWin += (bet * 20);
+                starCoords.forEach(c => scatterWinningCoords.push(c));
+            }
+
+            if (dollarCoords.length >= 3) {
+                totalWin += (bet * 5);
+                dollarCoords.forEach(c => scatterWinningCoords.push(c));
+            }
+
+            let jarInCol0 = grid[0] && grid[0].some(s => s && s.sym === '🏺');
+            let jarInCol1 = grid[1] && grid[1].some(s => s && s.sym === '🏺');
+
+            let isDoubleJarHarvest = false;
+            if (jarInCol0 && jarInCol1) {
+                isDoubleJarHarvest = true;
+                let harvestPoints = 0;
+                const symValues = { '7': 20, '🔔': 10, '🍉': 8, '🍇': 8, '🍍': 6, '🍊': 5, '🍋': 4, '🏺': 15 };
+
+                for (let c = 0; c < reelsCount; c++) {
+                    if (grid[c]) {
+                        grid[c].forEach((item, rIdx) => {
+                            if (item.sym !== '⭐' && item.sym !== '$') {
+                                let val = symValues[item.sym] || 4;
+                                harvestPoints += val;
+                                lineWinningCoords.push([c, rIdx]);
+                            }
+                        });
+                    }
+                }
+                let megaMultiplier = Math.max(harvestPoints, 60);
+                totalWin += (bet * megaMultiplier);
+            }
+
+            const paylines = [
+                [[0,0], [1,0], [2,0], [3,0], [4,0]],
+                [[0,1], [1,1], [2,1], [3,1], [4,1]],
+                [[0,2], [1,2], [2,2], [3,2], [4,2]],
+                [[0,0], [1,1], [2,2], [3,1], [4,0]],
+                [[0,2], [1,1], [2,0], [3,1], [4,2]],
+                [[0,0], [1,1], [2,1], [3,1], [4,0]],
+                [[0,2], [1,1], [2,1], [3,1], [4,2]],
+                [[0,0], [1,0], [2,1], [3,2], [4,2]],
+                [[0,2], [1,2], [2,1], [3,0], [4,0]]
+            ];
+
+            paylines.forEach(line => {
+                let col0Coord = line[0];
+                let firstObj = grid[col0Coord[0]] ? grid[col0Coord[0]][col0Coord[1]] : null;
+                if (!firstObj || !firstObj.sym || firstObj.sym === '⭐' || firstObj.sym === '$') return;
+
+                let targetSym = firstObj.sym;
+
+                if (targetSym === '🏺') {
+                    for (let i = 1; i < line.length; i++) {
+                        let obj = grid[line[i][0]] ? grid[line[i][0]][line[i][1]] : null;
+                        if (obj && obj.sym !== '🏺' && obj.sym !== '⭐' && obj.sym !== '$') {
+                            targetSym = obj.sym;
+                            break;
+                        }
+                    }
+                }
+
+                let matchCount = 0;
+                let currentLineCoords = [];
+                let jarMultProduct = 1;
+
+                for (let i = 0; i < line.length; i++) {
+                    let [c, r] = line[i];
+                    let cellObj = grid[c] ? grid[c][r] : null;
+
+                    if (!cellObj) break;
+
+                    // الجرة تعمل كرمز بديل (Wild) مكمل لأي رمز عالي أو متطابق
+                    if (cellObj.sym === targetSym || cellObj.sym === '🏺') {
+                        matchCount++;
+                        currentLineCoords.push([c, r]);
+                        if (cellObj.sym === '🏺' && cellObj.mult > 1) {
+                            jarMultProduct *= cellObj.mult;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+                let multiplier = 0;
+
+                if (['🍋', '🍍', '🍊'].includes(targetSym)) {
+                    if (matchCount === 3) multiplier = 1;
+                    else if (matchCount === 4) multiplier = 1.5;
+                    else if (matchCount === 5) multiplier = 5;
+                }
+                else if (['🍉', '🍇'].includes(targetSym)) {
+                    if (matchCount === 3) multiplier = 4;
+                    else if (matchCount === 4) multiplier = 5;
+                    else if (matchCount === 5) multiplier = 8;
+                }
+                else if (targetSym === '🔔') {
+                    if (matchCount === 3) multiplier = 2;
+                    else if (matchCount === 4) multiplier = 3;
+                    else if (matchCount === 5) multiplier = 6;
+                }
+                else if (targetSym === '7') {
+                    if (matchCount === 2) multiplier = 1;
+                    else if (matchCount === 3) multiplier = 3;
+                    else if (matchCount === 4) multiplier = 5;
+                    else if (matchCount === 5) multiplier = 50;
+                }
+
+                if (multiplier > 0) {
+                    totalWin += (bet * multiplier * jarMultProduct);
+                    currentLineCoords.forEach(coord => lineWinningCoords.push(coord));
+                }
+            });
+
+            let uniqueAll = filterUniqueCoords([...lineWinningCoords, ...scatterWinningCoords]);
+            let uniqueLine = filterUniqueCoords(lineWinningCoords);
+
+            return { 
+                winAmount: totalWin, 
+                winningCoords: uniqueAll, 
+                lineWinningCoords: uniqueLine,
+                isDoubleJarHarvest: isDoubleJarHarvest 
+            };
+        }
+
+        async function startSpin() {
+            if (isSpinning) return;
+
+            if (typeof confetti !== 'undefined' && confetti.reset) {
+                confetti.reset();
+            }
+            closeKingModal();
+            clearShineEffects();
+            removeExpandedJars();
+            hideJarBanner();
+            
+            if (currentBalance < currentBet && (!activeBonus || activeBonus.remaining <= 0)) {
+                showModal("❌ رصيد غير كافٍ", "يرجى شحن حسابك لمتابعة اللعب!");
+                if (autoSpinActive) toggleAutoSpin();
+                return;
+            }
+
+            isSpinning = true;
+            forceStopRequested = false;
+            let tgUser = tg?.initDataUnsafe?.user;
+            let userId = tgUser?.id || "demo_user";
+
+            document.getElementById('spinBtn').innerText = '⏹️';
+            document.getElementById('lineInfo').innerText = 'جاري التدوير...';
+
+            let spinSoundInterval = setInterval(() => {
+                if (isSpinning) playProSound('spin_tick');
+            }, 55);
+
+            let isBonusRound = !!(activeBonus && activeBonus.remaining > 0);
+
+            reelStrips.forEach(strip => {
+                populateStrip(strip, generateInitialList(9));
+                strip.classList.add('spinning');
+            });
+
+            let requestedJars = 0;
+            if (activeBonus && activeBonus.remaining > 0) {
+                requestedJars = activeBonus.jars;
+                activeBonus.remaining--;
+                updateBonusBadgeUI();
+            }
+
+            let serverResult = null;
+            try {
+                let response = await fetch('/api/play_spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_id: userId, 
+                        bet: currentBet,
+                        buy_bonus_jars: requestedJars
+                    })
+                });
+                if (response.ok) {
+                    serverResult = await response.json();
+                }
+            } catch (err) {
+                console.warn("المحاكاة المحلية تعمل تلقائياً:", err);
+            }
+
+            if (!serverResult || !serverResult.success) {
+                let fallbackGrid = [];
+                for (let c = 0; c < reelsCount; c++) {
+                    fallbackGrid.push(generateInitialList(3));
+                }
+                
+                if (isBonusRound && requestedJars > 0) {
+                    for(let i = 0; i < requestedJars; i++) {
+                        if(i < reelsCount) {
+                            let randomRow = Math.floor(Math.random() * 3);
+                            let mult = 1;
+                            if (requestedJars === 3) {
+                                mult = Math.random() < 0.3 ? 5 : (Math.floor(Math.random() * 3) + 1);
+                            } else {
+                                mult = Math.random() < 0.5 ? 1 : 2;
+                            }
+                            fallbackGrid[i][randomRow] = {sym: '🏺', mult: mult};
+                        }
+                    }
+                }
+                
+                let localWin = evaluateWinsLocally(fallbackGrid, currentBet);
+                
+                serverResult = {
+                    success: true,
+                    grid: fallbackGrid,
+                    win_amount: localWin.winAmount,
+                    winning_coords: localWin.winningCoords,
+                    line_winning_coords: localWin.lineWinningCoords,
+                    is_harvest: localWin.isDoubleJarHarvest,
+                    new_balance: currentBalance - (isBonusRound ? 0 : currentBet) + localWin.winAmount
+                };
+            } else {
+                let localEval = evaluateWinsLocally(serverResult.grid, currentBet);
+                serverResult.winning_coords = serverResult.winning_coords || localEval.winningCoords;
+                serverResult.line_winning_coords = serverResult.line_winning_coords || localEval.lineWinningCoords;
+                serverResult.is_harvest = serverResult.is_harvest !== undefined ? serverResult.is_harvest : localEval.isDoubleJarHarvest;
+            }
+
+            currentBalance = parseFloat(serverResult.new_balance);
+            localStorage.setItem('gl_balance', currentBalance);
+            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
+
+            let finalGrid = serverResult.grid;
+
+            let initialDelay = speedLevel === 1 ? 400 : (speedLevel === 2 ? 220 : 80);
+            let staggerStep = speedLevel === 1 ? 280 : (speedLevel === 2 ? 180 : 60);
+
+            for (let step = 0; step < reelsCount; step++) {
+                let reelIdx = step;
+                let currentWait = forceStopRequested ? (step * 30) : (initialDelay + step * staggerStep);
+
+                await new Promise(resolve => setTimeout(resolve, currentWait));
+
+                let strip = reelStrips[reelIdx];
+                strip.classList.remove('spinning');
+
+                let columnData = finalGrid[reelIdx];
+                populateStrip(strip, columnData);
+
+                strip.classList.add('decelerate-stop');
+                setTimeout(() => strip.classList.remove('decelerate-stop'), 380);
+
+                let jarFoundInCol = false;
+                columnData.forEach((s, rowIdx) => {
+                    if (s && s.sym === '🏺') {
+                        jarFoundInCol = true;
+                        if (strip.children[rowIdx]) {
+                            strip.children[rowIdx].classList.add('jar-stopped');
+                        }
+                    }
+                });
+
+                if (jarFoundInCol) {
+                    playProSound('jar_drop');
+                    triggerScreenShake();
+                } else {
+                    playProSound('reel_stop');
+                }
+            }
+
+            clearInterval(spinSoundInterval);
+            await displaySpinResults(serverResult);
+
+            if (isBonusRound && activeBonus) {
+                activeBonus.totalWin += parseFloat(serverResult.win_amount);
+                if (activeBonus.remaining === 0) {
+                    let finalBonusWin = activeBonus.totalWin;
+                    activeBonus = null;
+                    updateBonusBadgeUI();
+                    showModal("🎉 اكتملت ضربات المكافأة!", `انتهت الـ 5 ضربات للمكافأة.\nإجمالي الأرباح المحققة: ${finalBonusWin.toFixed(2)} NSP`);
+                } else {
+                    setTimeout(() => { if (!isSpinning) startSpin(); }, 1000);
+                }
+            }
+
+            isSpinning = false;
+            forceStopRequested = false;
+            document.getElementById('spinBtn').innerText = '↻';
+        }
+
+        async function displaySpinResults(res) {
+            let winAmount = parseFloat(res.win_amount);
+            document.getElementById('winAmount').innerText = winAmount.toFixed(2);
+
+            let hasWin = winAmount > 0;
+
+            if (res.is_harvest) {
+                showJarBanner("🏺🏺 ربح جرف ضخم خيالي!", `${winAmount.toFixed(2)} NSP`);
+            }
+
+            let lineCoords = res.line_winning_coords || res.lineWinningCoords || [];
+            let jarColumnsToExpand = new Set();
+
+            lineCoords.forEach(([c, r]) => {
+                let symObj = res.grid[c] && res.grid[c][r];
+                if (symObj && symObj.sym === '🏺') {
+                    jarColumnsToExpand.add(c);
+                }
+            });
+
+            // توسيع الجرة مع بروز 3D خيالي
+            if (jarColumnsToExpand.size > 0) {
+                jarColumnsToExpand.forEach((colIdx) => {
+                    let jarSym = res.grid[colIdx].find(s => s && s.sym === '🏺');
+                    let mult = jarSym ? (jarSym.mult || 1) : 1;
+                    expandJarInReel(colIdx, mult);
+                });
+                await new Promise(r => setTimeout(r, 400));
+            }
+
+            if (hasWin) {
+                document.getElementById('lineInfo').innerText = `مبروك! الأرباح: ${winAmount.toFixed(2)} NSP`;
+                document.getElementById('lastWin').innerText = winAmount.toFixed(2);
+
+                let best = parseFloat(document.getElementById('bestWin').innerText);
+                if (winAmount > best) document.getElementById('bestWin').innerText = winAmount.toFixed(2);
+
+                applyShineToWinners(res.winning_coords || []);
+                triggerUltraFastGoldShower(35);
+
+                let winMultiplier = winAmount / currentBet;
+                if (winMultiplier >= 10.0 || res.is_harvest) {
+                    playProSound('big_win_music');
+                    triggerUltraFastGoldShower(80);
+                    showKingWinModal(winAmount, winMultiplier);
+                } else {
+                    playProSound('win_sound');
+                }
+            } else {
+                document.getElementById('lineInfo').innerText = 'حظ أوفر في المحاولة القادمة';
+            }
+        }
+
+        function expandJarInReel(colIdx, mult) {
+            let reel = slotsFrame.children[colIdx];
+            if (!reel) return;
+            if (reel.querySelector('.reel-jar-expanded')) return;
+
+            let multTagHtml = (mult && mult > 1) ? `<div class="jar-expanded-mult">${mult}x</div>` : '';
+            let jarDiv = document.createElement('div');
+            jarDiv.className = 'reel-jar-expanded';
+            jarDiv.innerHTML = `<div class="jar-expanded-body">🏺</div>${multTagHtml}`;
+            reel.appendChild(jarDiv);
+        }
+
+        function removeExpandedJars() {
+            document.querySelectorAll('.reel-jar-expanded').forEach(el => el.remove());
+        }
+
+        function triggerUltraFastGoldShower(count) {
+            playProSound('coins_flying');
+
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const coin = document.createElement('div');
+                    coin.className = 'ultra-gold-coin';
+                    coin.innerText = Math.random() < 0.55 ? '🪙' : '💰';
+                    
+                    const startX = Math.random() * 92 + 4;
+                    const dx = (Math.random() - 0.5) * 260 + 'px';
+                    const duration = (0.25 + Math.random() * 0.2) + 's';
+
+                    coin.style.left = startX + 'vw';
+                    coin.style.setProperty('--dx', dx);
+                    coin.style.setProperty('--duration', duration);
+
+                    document.body.appendChild(coin);
+
+                    setTimeout(() => { coin.remove(); }, 500);
+                }, i * 15);
+            }
+
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: count,
+                    spread: 120,
+                    startVelocity: 85,
+                    scalar: 2.2,
+                    gravity: 1.8,
+                    ticks: 80,
+                    origin: { y: 0.85 },
+                    colors: ['#ff66a3', '#ffb3d9', '#ffffff', '#ffdf00']
+                });
+            }
+        }
+
+        function showKingWinModal(winAmount, multiplier) {
+            document.getElementById('kingMultText').innerText = `مضاعف ${multiplier.toFixed(1)}x! 🔥`;
+            let modal = document.getElementById('kingModal');
+            modal.style.display = 'flex';
+
+            let counterObj = document.getElementById('kingWinCounter');
+            let duration = 1000;
+            let startTimestamp = null;
+
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                counterObj.innerText = (progress * winAmount).toFixed(2) + " NSP";
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function closeKingModal() {
+            document.getElementById('kingModal').style.display = 'none';
+        }
+
+        function triggerScreenShake() {
+            slotsFrame.classList.add('shake');
+            setTimeout(() => slotsFrame.classList.remove('shake'), 400);
+        }
+
+        function showJarBanner(title, mult) {
+            document.getElementById('jarWinRating').innerText = title;
+            document.getElementById('jarMultText').innerText = mult;
+            document.getElementById('jarBanner').classList.add('show');
+        }
+
+        function hideJarBanner() {
+            document.getElementById('jarBanner').classList.remove('show');
+        }
+
+        function applyShineToWinners(coords) {
+            coords.forEach(([reelIdx, rowIdx]) => {
+                let reelStrip = reelStrips[reelIdx];
+                if (reelStrip && reelStrip.children[rowIdx]) {
+                    reelStrip.children[rowIdx].classList.add('win-pop-red');
+                    if (reelStrip.children[rowIdx].classList.contains('fruit-grape') || reelStrip.children[rowIdx].innerText.includes('🏺')) {
+                        reelStrip.children[rowIdx].classList.add('jar-stopped');
+                    }
+                }
+            });
+        }
+
+        function clearShineEffects() {
+            document.querySelectorAll('.symbol').forEach(s => {
+                s.classList.remove('win-pop-red', 'jar-stopped');
+            });
+        }
+
+        function showModal(title, desc) {
+            document.getElementById('modal-status').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('msg-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('msg-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
