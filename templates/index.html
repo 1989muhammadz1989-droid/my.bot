@@ -242,7 +242,7 @@
             border-radius: 20px;
             padding: 6px;
             position: relative;
-            overflow: visible; /* لسمح ببروز الجرة الـ 3D */
+            overflow: visible;
             height: 252px;
             touch-action: none;
             cursor: grab;
@@ -260,12 +260,13 @@
             40%, 60% { transform: translate3d(8px, 0, 0) rotate(0.5deg); }
         }
 
+        /* تحسين: حصر الأيقونات والفواكه داخل العمود وعدم تمددها خارجاً */
         .reel {
             flex: 1;
             height: 240px;
             background: radial-gradient(circle at center, #ffffff 0%, #fff0f5 100%);
             border-radius: 10px;
-            overflow: visible; /* سمح للبروز الخارجي */
+            overflow: hidden; /* يضمن عدم تمدد الفواكه خارج العمود */
             position: relative;
             box-shadow: inset 0 0 12px rgba(255, 182, 193, 0.5);
         }
@@ -313,12 +314,15 @@
 
         .symbol {
             height: 80px;
+            width: 100%;
+            max-width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             flex-shrink: 0;
             padding: 2px;
+            overflow: hidden; /* حصر المحتوى داخل خلية الرمز */
         }
 
         .symbol-badge {
@@ -328,9 +332,11 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            font-size: 46px;
+            font-size: 42px;
             background: transparent;
             transition: all 0.2s ease-out;
+            max-width: 100%;
+            object-fit: contain;
         }
 
         .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); }
@@ -341,18 +347,18 @@
         .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); }
         
         .symbol.star-sym .symbol-badge { filter: drop-shadow(0 0 14px #fbbf24); }
-        .symbol.dollar-sym .symbol-badge { filter: drop-shadow(0 0 14px #10b981); font-weight: 900; color: #10b981; font-size: 50px; }
+        .symbol.dollar-sym .symbol-badge { filter: drop-shadow(0 0 14px #10b981); font-weight: 900; color: #10b981; font-size: 46px; }
 
         .symbol.seven .symbol-badge {
             color: var(--pink-bright);
             text-shadow: 0 0 15px var(--pink-bright);
             font-weight: 900;
             font-style: italic;
-            font-size: 52px;
+            font-size: 48px;
         }
 
         .symbol.jar-rare .symbol-badge {
-            font-size: 52px;
+            font-size: 48px;
             filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 10px var(--pink-bright));
             animation: jarGlowPulse 0.9s infinite alternate ease-in-out;
         }
@@ -367,46 +373,46 @@
             animation: jarLockStop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
         }
 
-        /* --- تأثير الجرة الممتدة 3D المتطورة خارج البكرة --- */
+        /* --- تأثير الجرة الممتدة 3D الجوكر عند تحقيق الربح لتغطية العمود --- */
         .reel-jar-expanded {
             position: absolute;
-            top: -12px;
-            bottom: -12px;
-            left: -6px;
-            right: -6px;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: radial-gradient(circle at center, #ffffff 0%, #ffc0cb 50%, var(--pink-primary) 100%);
             z-index: 120;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-radius: 18px;
+            border-radius: 10px;
             border: 3.5px solid var(--gold);
             box-shadow: 0 15px 35px var(--pink-glow), 0 0 25px var(--gold-glow), inset 0 0 15px #ffffff;
-            transform: translateZ(40px) scale(1.08);
+            transform: translateZ(20px) scale(1.02);
             animation: jarExpand3D 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             overflow: visible;
         }
 
         @keyframes jarExpand3D {
-            0% { transform: translateZ(0) scaleY(0.2) scaleX(0.5); opacity: 0; }
-            100% { transform: translateZ(40px) scale(1.08); opacity: 1; }
+            0% { transform: translateZ(0) scaleY(0.2); opacity: 0; }
+            100% { transform: translateZ(20px) scale(1.02); opacity: 1; }
         }
 
         .jar-expanded-body {
-            font-size: 88px;
+            font-size: 75px;
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25)) drop-shadow(0 0 25px #ffffff);
             animation: jarPulse3D 0.8s infinite alternate ease-in-out;
             position: relative;
         }
 
         .jar-expanded-body::before {
-            content: '✨🌸✨';
+            content: '✨👑✨';
             position: absolute;
-            top: -38px;
+            top: -32px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 24px;
+            font-size: 20px;
             animation: goldSpout 0.5s infinite alternate ease-in-out;
         }
 
@@ -416,9 +422,9 @@
             right: 6px;
             background: linear-gradient(135deg, var(--pink-bright), #ff0055);
             color: #fff;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 900;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 12px;
             border: 2px solid var(--gold);
             box-shadow: 0 0 15px var(--pink-bright);
@@ -437,23 +443,8 @@
         }
 
         @keyframes jarPulse3D {
-            0% { transform: scale(0.96) translateZ(0); }
-            100% { transform: scale(1.06) translateZ(15px); filter: drop-shadow(0 0 35px var(--gold)); }
-        }
-
-        .jar-mult-tag {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background: linear-gradient(135deg, var(--pink-bright), #cc0052);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 900;
-            padding: 2px 7px;
-            border-radius: 10px;
-            border: 1px solid var(--gold);
-            box-shadow: 0 0 10px var(--pink-bright);
-            z-index: 95;
+            0% { transform: scale(0.96); }
+            100% { transform: scale(1.06); filter: drop-shadow(0 0 35px var(--gold)); }
         }
 
         .symbol.win-pop-red .symbol-badge {
@@ -463,7 +454,7 @@
 
         @keyframes symbolWinPink {
             0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--pink-bright)); }
-            100% { transform: scale(1.25); filter: drop-shadow(0 0 25px var(--pink-primary)) brightness(1.3); }
+            100% { transform: scale(1.2); filter: drop-shadow(0 0 25px var(--pink-primary)) brightness(1.3); }
         }
 
         .jar-banner {
@@ -806,7 +797,7 @@
         </div>
     </div>
 
-    <!-- شريط الجائزة الكبرى -->
+    <!-- شريط الجائزة الكبرى الجاك بوت (يزيد تلقائياً ولا يربحه أحد) -->
     <div class="jackpot-bar">
         <span>🏆 MEGA JACKPOT:</span>
         <span id="jackpotAmount">124,850.00 NSP</span>
@@ -843,7 +834,7 @@
 
     <!-- 3. إطار اللعبة والبكرات -->
     <div class="game-container">
-        <div class="jar-banner" id="jarBanner"><span id="jarWinRating">ربح كبير! 🔥</span><br><span id="jarMultText" style="font-size: 28px; color: var(--pink-bright);">5x</span></div>
+        <div class="jar-banner" id="jarBanner"><span id="jarWinRating">مبروك ياملك/ة 👑</span><br><span id="jarMultText" style="font-size: 28px; color: var(--pink-bright);">10x</span></div>
         <div class="slots-frame" id="slotsFrame"></div>
     </div>
 
@@ -912,7 +903,7 @@
             <div class="bonus-option-card" onclick="confirmBuyBonus(3)">
                 <div>
                     <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺🏺🏺 ظهور 3 جرات + 5x</div>
-                    <div style="font-size: 0.75rem; color: #777;">3 جرات مع احتمال حصري لمضاعف 5x!</div>
+                    <div style="font-size: 0.75rem; color: #777;">3 جرات مع احتمال حصري لمضاعف 5x الحقيقي!</div>
                 </div>
                 <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price3">750 NSP</div>
             </div>
@@ -955,7 +946,7 @@
             </div>
 
             <div style="background: #fff0f5; border: 1px solid var(--pink-primary); border-radius: 12px; padding: 8px; font-size: 11px; color: var(--pink-bright); text-align: right; margin-top: 6px;">
-                🏺 <b>الجرة (Wild):</b> تتوسع وتبرز بشكل 3D لإكمال الرموز الناقصة أو زيادة قيمة الخط الفائز بمضاعفاتها.
+                🏺 <b>الجرة (Wild):</b> جوكر مكمل للنقص، عند وجود ربح تتوسع لتملأ العمود كاملاً وتأخذ ربح يميناً ويساراً عند الظهور في المنتصف.
             </div>
 
             <button class="modal-btn" onclick="closePaytableModal()">فهمت 🚀</button>
@@ -978,11 +969,11 @@
         </div>
     </div>
 
-    <!-- نافذة الملك احتفال الربح الكبير -->
+    <!-- نافذة مبروك ياملك/ة احتفال الربح الكبير عند مضاعف 10x -->
     <div class="king-modal" id="kingModal">
         <div class="king-box">
             <div class="king-crown">👑</div>
-            <div class="king-title">مبروك يا ملك</div>
+            <div class="king-title">مبروك ياملك/ة</div>
             <div class="king-mult" id="kingMultText">مضاعف 10x! 🔥</div>
             <div class="king-amount" id="kingWinCounter">0.00 NSP</div>
             <button class="modal-btn" onclick="closeKingModal()">استلام الأرباح 🪙</button>
@@ -1035,9 +1026,21 @@
 
         setTimeout(() => { dismissSplashScreen(); }, 8000);
 
-        let jackpotCurrent = 124850.00;
+        /* --- تحسين الجاك بوت: زيادة يومية وتلقائية مستمرة دون إمكانية فوزه من أي أحد --- */
+        let lastJackpotDate = localStorage.getItem('gl_jackpot_date') || new Date().toDateString();
+        let jackpotCurrent = parseFloat(localStorage.getItem('gl_jackpot_val')) || 124850.00;
+
+        // حساب زيادة يومية تلقائية
+        let currentDateStr = new Date().toDateString();
+        if (lastJackpotDate !== currentDateStr) {
+            jackpotCurrent += 5000.00 + (Math.random() * 2000.00); // زيادة يومية
+            localStorage.setItem('gl_jackpot_date', currentDateStr);
+            localStorage.setItem('gl_jackpot_val', jackpotCurrent);
+        }
+
         setInterval(() => {
             jackpotCurrent += (Math.random() * 0.45);
+            localStorage.setItem('gl_jackpot_val', jackpotCurrent);
             document.getElementById('jackpotAmount').innerText = jackpotCurrent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " NSP";
         }, 1500);
 
@@ -1207,7 +1210,8 @@
         }
         loadUserData();
 
-        function generateInitialList(count) {
+        /* --- تحسين منطق توليد الرموز والنُدرة للجرة ومنع ظهور 5x إلا بالمكافأة --- */
+        function generateInitialList(count, isBonusRound = false, isBonus3Jars = false) {
             const fruits = ['🍉', '🍇', '🍊', '🍍', '🍋', '🔔'];
             let list = [];
             for (let i = 0; i < count; i++) {
@@ -1215,12 +1219,16 @@
                 let sym = '';
                 let mult = 1;
 
-                if (rand < 0.002) { 
+                // احتمالية ظهور الجرة: جرة واحدة (نادرة ~0.005)، جرتين (نادرة ~0.001)، 3 جرات (نادرة جداً ~0.0003)
+                if (rand < 0.005) { 
                     sym = '🏺';
-                    let mRand = Math.random();
-                    if (mRand < 0.50) mult = 1;
-                    else if (mRand < 0.80) mult = 2;
-                    else mult = 3;
+                    // جرة 5x لا تظهر إطلاقاً إلا عند شراء المكافأة المخصصة
+                    if (isBonus3Jars && Math.random() < 0.35) {
+                        mult = 5;
+                    } else {
+                        // مضاعف حقيقي للرصيد
+                        mult = Math.random() < 0.4 ? 2 : 1;
+                    }
                 } else if (rand < 0.022) {
                     sym = '7'; 
                 } else if (rand < 0.032) {
@@ -1236,6 +1244,7 @@
             return list;
         }
 
+        /* --- تحسين إنشاء الرمز وإلغاء شارات المضاعفات الوهمية 1x 2x 3x --- */
         function createSymbolNode(symObj) {
             const div = document.createElement('div');
             div.className = 'symbol';
@@ -1257,12 +1266,7 @@
             } else if (symObj.sym === '🏺') {
                 div.classList.add('jar-rare');
                 badge.innerText = '🏺';
-                if (symObj.mult > 1) {
-                    const multTag = document.createElement('div');
-                    multTag.className = 'jar-mult-tag';
-                    multTag.innerText = symObj.mult + 'x';
-                    badge.appendChild(multTag);
-                }
+                // بدون كتابة مضاعفات وهمية (1x 2x 3x) على الجرة نفسها
             } else {
                 badge.innerText = symObj.sym;
             }
@@ -1376,7 +1380,7 @@
             
             updateBonusBadgeUI();
             closeBonusModal();
-            showModal("🎁 تم شراء المكافأة!", `تم خصم ${cost} NSP. تبدأ الآن 5 ضربات متتالية!`);
+            showModal("🎁 تم شراء المكافأة!", `تم خصم ${cost} NSP. تبدأ الآن 5 ضربات متتالية مع احتمال ظهور جرة 5x الحصرية!`);
             
             setTimeout(() => { if (!isSpinning) startSpin(); }, 500);
         }
@@ -1467,7 +1471,7 @@
             return unique;
         }
 
-        /* --- خوارزمية الربح المحسنة: الجرة كـ Wild مكمل للنقص ومضاعف للربح --- */
+        /* --- خوارزمية الربح المحسنة: الجرة كـ Wild جوكر مكمل للنقص، حساب الربح يميناً ويساراً، ومضاعفة الرصيد فعلياً --- */
         function evaluateWinsLocally(grid, bet) {
             let totalWin = 0;
             let lineWinningCoords = [];
@@ -1525,12 +1529,11 @@
                 [[0,2], [1,2], [2,2], [3,2], [4,2]],
                 [[0,0], [1,1], [2,2], [3,1], [4,0]],
                 [[0,2], [1,1], [2,0], [3,1], [4,2]],
-                [[0,0], [1,1], [2,1], [3,1], [4,0]],
-                [[0,2], [1,1], [2,1], [3,1], [4,2]],
                 [[0,0], [1,0], [2,1], [3,2], [4,2]],
                 [[0,2], [1,2], [2,1], [3,0], [4,0]]
             ];
 
+            // فحص الخطوط من اليسار إلى اليمين
             paylines.forEach(line => {
                 let col0Coord = line[0];
                 let firstObj = grid[col0Coord[0]] ? grid[col0Coord[0]][col0Coord[1]] : null;
@@ -1558,12 +1561,12 @@
 
                     if (!cellObj) break;
 
-                    // الجرة تعمل كرمز بديل (Wild) مكمل لأي رمز عالي أو متطابق
+                    // الجرة جوكر تعوض النقص لمكافأة أي رمز فواكه/أرقام
                     if (cellObj.sym === targetSym || cellObj.sym === '🏺') {
                         matchCount++;
                         currentLineCoords.push([c, r]);
                         if (cellObj.sym === '🏺' && cellObj.mult > 1) {
-                            jarMultProduct *= cellObj.mult;
+                            jarMultProduct *= cellObj.mult; // مضاعفة حقيقية للربح
                         }
                     } else {
                         break;
@@ -1600,6 +1603,37 @@
                 }
             });
 
+            // فحص الجرة بالمنتصف: حساب الربح يميناً ويساراً عند استقرار الجرة بالوسط (العمود 2)
+            let middleJarWin = false;
+            if (grid[2] && grid[2].some(s => s && s.sym === '🏺')) {
+                middleJarWin = true;
+                paylines.forEach(line => {
+                    let revLine = [...line].reverse();
+                    let endObj = grid[revLine[0][0]] ? grid[revLine[0][0]][revLine[0][1]] : null;
+                    if (!endObj || endObj.sym === '⭐' || endObj.sym === '$') return;
+
+                    let tSym = endObj.sym;
+                    let mCount = 0;
+                    let rCoords = [];
+
+                    for (let i = 0; i < revLine.length; i++) {
+                        let [c, r] = revLine[i];
+                        let cell = grid[c] ? grid[c][r] : null;
+                        if (cell && (cell.sym === tSym || cell.sym === '🏺')) {
+                            mCount++;
+                            rCoords.push([c, r]);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (mCount >= 3) {
+                        totalWin += (bet * 2);
+                        rCoords.forEach(coord => lineWinningCoords.push(coord));
+                    }
+                });
+            }
+
             let uniqueAll = filterUniqueCoords([...lineWinningCoords, ...scatterWinningCoords]);
             let uniqueLine = filterUniqueCoords(lineWinningCoords);
 
@@ -1607,7 +1641,7 @@
                 winAmount: totalWin, 
                 winningCoords: uniqueAll, 
                 lineWinningCoords: uniqueLine,
-                isDoubleJarHarvest: isDoubleJarHarvest 
+                isDoubleJarHarvest: isDoubleJarHarvest || middleJarWin
             };
         }
 
@@ -1641,9 +1675,10 @@
             }, 55);
 
             let isBonusRound = !!(activeBonus && activeBonus.remaining > 0);
+            let isBonus3Jars = !!(activeBonus && activeBonus.jars === 3);
 
             reelStrips.forEach(strip => {
-                populateStrip(strip, generateInitialList(9));
+                populateStrip(strip, generateInitialList(9, isBonusRound, isBonus3Jars));
                 strip.classList.add('spinning');
             });
 
@@ -1675,7 +1710,7 @@
             if (!serverResult || !serverResult.success) {
                 let fallbackGrid = [];
                 for (let c = 0; c < reelsCount; c++) {
-                    fallbackGrid.push(generateInitialList(3));
+                    fallbackGrid.push(generateInitialList(3, isBonusRound, isBonus3Jars));
                 }
                 
                 if (isBonusRound && requestedJars > 0) {
@@ -1684,7 +1719,7 @@
                             let randomRow = Math.floor(Math.random() * 3);
                             let mult = 1;
                             if (requestedJars === 3) {
-                                mult = Math.random() < 0.3 ? 5 : (Math.floor(Math.random() * 3) + 1);
+                                mult = Math.random() < 0.35 ? 5 : 2; // ظهور 5x حصرية فقط بالمكافأة
                             } else {
                                 mult = Math.random() < 0.5 ? 1 : 2;
                             }
@@ -1773,14 +1808,17 @@
             document.getElementById('spinBtn').innerText = '↻';
         }
 
+        /* --- تحسين شارة "مبروك ياملك/ة" وظهور الجوكر الممتد وتوسيع الرموز --- */
         async function displaySpinResults(res) {
             let winAmount = parseFloat(res.win_amount);
             document.getElementById('winAmount').innerText = winAmount.toFixed(2);
 
             let hasWin = winAmount > 0;
+            let winMultiplier = winAmount / currentBet;
 
-            if (res.is_harvest) {
-                showJarBanner("🏺🏺 ربح جرف ضخم خيالي!", `${winAmount.toFixed(2)} NSP`);
+            // تغيير المسمى واستعراض شارة مبروك ياملك/ة عند مضاعف 10x
+            if (winMultiplier >= 10.0 || res.is_harvest) {
+                showJarBanner("👑 مبروك ياملك/ة 👑", `${winMultiplier.toFixed(1)}x`);
             }
 
             let lineCoords = res.line_winning_coords || res.lineWinningCoords || [];
@@ -1793,7 +1831,7 @@
                 }
             });
 
-            // توسيع الجرة مع بروز 3D خيالي
+            // تغطية العمود بالكامل كأنها فاكهة مطابقة للعمود كله عند تحقيق الربح
             if (jarColumnsToExpand.size > 0) {
                 jarColumnsToExpand.forEach((colIdx) => {
                     let jarSym = res.grid[colIdx].find(s => s && s.sym === '🏺');
@@ -1813,7 +1851,6 @@
                 applyShineToWinners(res.winning_coords || []);
                 triggerUltraFastGoldShower(35);
 
-                let winMultiplier = winAmount / currentBet;
                 if (winMultiplier >= 10.0 || res.is_harvest) {
                     playProSound('big_win_music');
                     triggerUltraFastGoldShower(80);
