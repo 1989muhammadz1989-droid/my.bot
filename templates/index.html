@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>مركز الألعاب | Game Hub</title>
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -38,7 +37,6 @@
             padding-bottom: 20px;
         }
 
-        /* --- الهيدر العلوي --- */
         .header {
             background: rgba(20, 20, 25, 0.95);
             border-bottom: 2px solid var(--red-main);
@@ -119,14 +117,8 @@
             font-size: 16px;
             cursor: pointer;
             margin-right: 4px;
-            transition: transform 0.3s;
         }
 
-        .refresh-btn:active {
-            transform: rotate(180deg);
-        }
-
-        /* --- البانر والترحيب --- */
         .hero {
             padding: 20px 16px 10px;
             text-align: center;
@@ -145,7 +137,6 @@
             color: var(--text-gray);
         }
 
-        /* --- شبكة الألعاب --- */
         .section-title {
             padding: 10px 16px;
             font-size: 16px;
@@ -240,14 +231,8 @@
             text-align: center;
             cursor: pointer;
             box-shadow: 0 0 10px var(--red-glow);
-            transition: background 0.2s;
         }
 
-        .play-btn:active {
-            background: var(--red-hover);
-        }
-
-        /* --- مشغل الألعاب --- */
         .game-player-modal {
             display: none;
             position: fixed;
@@ -287,7 +272,6 @@
 </head>
 <body>
 
-    <!-- الهيدر -->
     <div class="header">
         <div class="user-profile">
             <div class="avatar" id="uAvatar">U</div>
@@ -299,26 +283,21 @@
         <div class="balance-badge">
             <span class="balance-val" id="uBalance">0.00</span>
             <span class="balance-unit">NSP</span>
-            <button class="refresh-btn" onclick="fetchUserData()">🔄</button>
+            <button class="refresh-btn" onclick="initPage()">🔄</button>
         </div>
     </div>
 
-    <!-- البانر -->
     <div class="hero">
         <h1>🎮 مركز الألعاب الملكي</h1>
-        <p>اختر لعبتك واستمتع باللعب مع تحديث الرصيد المباشر</p>
+        <p>اختر لعبتك المفضلة واستمتع بالتحدي</p>
     </div>
 
-    <!-- قائمة الألعاب -->
     <div class="section-title">
         <span>🔥</span> الألعاب المتاحة
     </div>
 
-    <div class="games-grid" id="gamesGrid">
-        <!-- يتم تحميل الكروت هنا عبر JavaScript -->
-    </div>
+    <div class="games-grid" id="gamesGrid"></div>
 
-    <!-- شاشة تشغيل اللعبة -->
     <div class="game-player-modal" id="playerModal">
         <div class="player-header">
             <span style="font-weight: 800; font-size: 14px;" id="activeGameTitle">اللعبة</span>
@@ -341,29 +320,8 @@
             name: tg?.initDataUnsafe?.user?.first_name || "لاعب تجريبي"
         };
 
-        // ==========================================
-        // قائمة الألعاب (يمكنك التعديل والإضافة هنا)
-        // ==========================================
-        const GAMES_LIST = [
-            {
-                id: "wheel_game",
-                title: "عجلة الحظ 🎡",
-                image: "https://i.imgur.com/v8R2K1x.jpg", // رابط صورة الغلاف
-                icon: "🎡",                               // إيموجي بديل في حال عدم وجود صورة
-                tag: "مكافآت 🔥",
-                url: "./games/wheel/index.html"           // مسار اللعبة داخل مجلد فرعي
-            },
-            {
-                id: "slot_game",
-                title: "ماكينة الحظ 🎰",
-                image: "",                                // اتركها فارغة لاستخدام الإيموجي
-                icon: "🎰",
-                tag: "جديد",
-                url: "./games/slots/index.html"
-            }
-        ];
+        let GAMES_LIST = [];
 
-        // جلب بيانات ورصيد المستخدم من السيرفر
         async function fetchUserData() {
             document.getElementById('uName').innerText = currentUser.name;
             document.getElementById('uId').innerText = `ID: ${currentUser.id}`;
@@ -373,42 +331,57 @@
                 const response = await fetch(`${SERVER_URL}/api/get_user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: currentUser.id,
-                        name: currentUser.name
-                    })
+                    body: JSON.stringify({ user_id: currentUser.id, name: currentUser.name })
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.success && data.balance !== undefined) {
+                    if (data.success) {
                         document.getElementById('uBalance').innerText = parseFloat(data.balance).toFixed(2);
                     }
                 }
             } catch (error) {
-                console.warn("تعذر جلب الرصيد من السيرفر:", error);
+                console.warn("خطأ جلب الرصيد:", error);
             }
         }
 
-        // عرض الألعاب في الصفحة
+        async function fetchGames() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/get_games`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.games) {
+                        GAMES_LIST = data.games;
+                        renderGames();
+                    }
+                }
+            } catch (error) {
+                console.warn("خطأ جلب الألعاب:", error);
+            }
+        }
+
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = '';
+
+            if (GAMES_LIST.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-gray); padding: 20px;">لا توجد ألعاب متاحة حالياً</div>`;
+                return;
+            }
 
             GAMES_LIST.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.onclick = () => openGamePlayer(game.title, game.url);
 
-                // استخدام الصورة إن وجدت، وإلا استخدام الإيموجي
                 const thumbHTML = game.image && game.image.trim() !== ""
-                    ? `<img src="${game.image}" alt="${game.title}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:40px;\\'>${game.icon || '🎮'}</span>'">`
-                    : `<span style="font-size: 40px;">${game.icon || "🎮"}</span>`;
+                    ? `<img src="${game.image}" alt="${game.title}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:40px;\\'>🎮</span>'">`
+                    : `<span style="font-size: 40px;">🎮</span>`;
 
                 card.innerHTML = `
                     <div class="game-thumb">
                         ${thumbHTML}
-                        <span class="game-tag">${game.tag}</span>
+                        <span class="game-tag">${game.tag || 'جديد'}</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">${game.title}</div>
@@ -419,23 +392,24 @@
             });
         }
 
-        // فتح اللعبة
         function openGamePlayer(title, url) {
             document.getElementById('activeGameTitle').innerText = title;
             document.getElementById('gameFrame').src = url;
             document.getElementById('playerModal').style.display = 'flex';
         }
 
-        // إغلاق اللعبة وتحديث الرصيد
         function closeGamePlayer() {
             document.getElementById('gameFrame').src = '';
             document.getElementById('playerModal').style.display = 'none';
             fetchUserData();
         }
 
-        // تشغيل التهيئة
-        fetchUserData();
-        renderGames();
+        function initPage() {
+            fetchUserData();
+            fetchGames();
+        }
+
+        initPage();
     </script>
 </body>
 </html>
