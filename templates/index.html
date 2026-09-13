@@ -112,6 +112,20 @@
             font-weight: 900;
         }
 
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--red-main);
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 4px;
+            transition: transform 0.3s;
+        }
+
+        .refresh-btn:active {
+            transform: rotate(180deg);
+        }
+
         /* --- البانر والترحيب --- */
         .hero {
             padding: 20px 16px 10px;
@@ -169,14 +183,20 @@
 
         .game-thumb {
             width: 100%;
-            height: 110px;
-            background: #252530;
+            height: 120px;
+            background: #1a1a22;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
             position: relative;
             border-bottom: 1px solid var(--border-dark);
+            overflow: hidden;
+        }
+
+        .game-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .game-tag {
@@ -190,6 +210,7 @@
             padding: 2px 6px;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            z-index: 2;
         }
 
         .game-info {
@@ -226,7 +247,7 @@
             background: var(--red-hover);
         }
 
-        /* --- مشغل الألعاب (Iframe Fullscreen/Modal) --- */
+        /* --- مشغل الألعاب --- */
         .game-player-modal {
             display: none;
             position: fixed;
@@ -262,21 +283,11 @@
             border: none;
             flex-grow: 1;
         }
-
-        /* --- زر Refresh --- */
-        .refresh-btn {
-            background: none;
-            border: none;
-            color: var(--red-main);
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: 6px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- الهيدر العلوي -->
+    <!-- الهيدر -->
     <div class="header">
         <div class="user-profile">
             <div class="avatar" id="uAvatar">U</div>
@@ -294,17 +305,17 @@
 
     <!-- البانر -->
     <div class="hero">
-        <h1>🎮 منصة الألعاب الملكية</h1>
-        <p>اختر لعبتك المفضلة ونافس على الرصيد مباشرة</p>
+        <h1>🎮 مركز الألعاب الملكي</h1>
+        <p>اختر لعبتك واستمتع باللعب مع تحديث الرصيد المباشر</p>
     </div>
 
-    <!-- شبكة الألعاب -->
+    <!-- قائمة الألعاب -->
     <div class="section-title">
         <span>🔥</span> الألعاب المتاحة
     </div>
 
     <div class="games-grid" id="gamesGrid">
-        <!-- يتم إدراج الألعاب ديناميكياً هنا -->
+        <!-- يتم تحميل الكروت هنا عبر JavaScript -->
     </div>
 
     <!-- شاشة تشغيل اللعبة -->
@@ -325,31 +336,34 @@
             tg.ready();
         }
 
-        // بيانات المستخدم الافتراضية
-        let currentUser = {
+        const currentUser = {
             id: tg?.initDataUnsafe?.user?.id || "demo_user",
             name: tg?.initDataUnsafe?.user?.first_name || "لاعب تجريبي"
         };
 
-        // 1. قائمة الألعاب المتاحة (يمكنك إضافة أي لعبة هنا بسهولة)
+        // ==========================================
+        // قائمة الألعاب (يمكنك التعديل والإضافة هنا)
+        // ==========================================
         const GAMES_LIST = [
             {
-                id: "golden_lera",
-                title: "Golden Lera 👑",
-                icon: "🎰",
-                tag: "شبيها بالأصلية",
-                url: "https://your-username.github.io/golden-lera.html" // ضع رابط لعبتك هنا
+                id: "wheel_game",
+                title: "عجلة الحظ 🎡",
+                image: "https://i.imgur.com/v8R2K1x.jpg", // رابط صورة الغلاف
+                icon: "🎡",                               // إيموجي بديل في حال عدم وجود صورة
+                tag: "مكافآت 🔥",
+                url: "./games/wheel/index.html"           // مسار اللعبة داخل مجلد فرعي
             },
             {
-                id: "spin_wheel",
-                title: "عجلة الحظ 🎡",
-                icon: "🎡",
-                tag: "مكافآت",
-                url: "https://your-username.github.io/wheel.html"
+                id: "slot_game",
+                title: "ماكينة الحظ 🎰",
+                image: "",                                // اتركها فارغة لاستخدام الإيموجي
+                icon: "🎰",
+                tag: "جديد",
+                url: "./games/slots/index.html"
             }
         ];
 
-        // 2. جلب بيانات ورصيد المستخدم من السيرفر الخاص بك
+        // جلب بيانات ورصيد المستخدم من السيرفر
         async function fetchUserData() {
             document.getElementById('uName').innerText = currentUser.name;
             document.getElementById('uId').innerText = `ID: ${currentUser.id}`;
@@ -372,11 +386,11 @@
                     }
                 }
             } catch (error) {
-                console.warn("تعذر الاتصال بالسيرفر مباشرة، سيتم استخدام وضع العرض:", error);
+                console.warn("تعذر جلب الرصيد من السيرفر:", error);
             }
         }
 
-        // 3. عرض الألعاب في الصفحة
+        // عرض الألعاب في الصفحة
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = '';
@@ -386,9 +400,14 @@
                 card.className = 'game-card';
                 card.onclick = () => openGamePlayer(game.title, game.url);
 
+                // استخدام الصورة إن وجدت، وإلا استخدام الإيموجي
+                const thumbHTML = game.image && game.image.trim() !== ""
+                    ? `<img src="${game.image}" alt="${game.title}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:40px;\\'>${game.icon || '🎮'}</span>'">`
+                    : `<span style="font-size: 40px;">${game.icon || "🎮"}</span>`;
+
                 card.innerHTML = `
                     <div class="game-thumb">
-                        ${game.icon}
+                        ${thumbHTML}
                         <span class="game-tag">${game.tag}</span>
                     </div>
                     <div class="game-info">
@@ -400,21 +419,21 @@
             });
         }
 
-        // 4. فتح وتشغيل اللعبة داخل المودال
+        // فتح اللعبة
         function openGamePlayer(title, url) {
             document.getElementById('activeGameTitle').innerText = title;
             document.getElementById('gameFrame').src = url;
             document.getElementById('playerModal').style.display = 'flex';
         }
 
-        // 5. إغلاق اللعبة وتحديث الرصيد عند الخروج
+        // إغلاق اللعبة وتحديث الرصيد
         function closeGamePlayer() {
             document.getElementById('gameFrame').src = '';
             document.getElementById('playerModal').style.display = 'none';
-            fetchUserData(); // إعادة جلب الرصيد للتحديث
+            fetchUserData();
         }
 
-        // التشغيل عند الفتح
+        // تشغيل التهيئة
         fetchUserData();
         renderGames();
     </script>
