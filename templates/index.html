@@ -2,1985 +2,528 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Golden Lera 👑 - Light Pink Edition 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة الألعاب - استضافة الألعاب</title>
+    <!-- مكتبة تلجرام للألعاب والـ WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --pink-primary: #ff66a3;
-            --pink-light: #ffb3d9;
-            --pink-soft: #fff0f5;
-            --pink-bright: #ff1a75;
-            --pink-glow: rgba(255, 26, 117, 0.6);
-            --gold: #d4af37;
-            --gold-light: #fff3a1;
-            --gold-glow: rgba(212, 175, 55, 0.8);
-            --bg-main: radial-gradient(circle at center, #ffffff 0%, #ffe4e1 50%, #f8bbd0 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-dark: #3a001e;
-            --text-light: #ffffff;
-            --pink-border: #ff80bf;
+            --bg-color: #0b0b0d;
+            --card-bg: #16171b;
+            --accent-red: #e50914;
+            --accent-red-hover: #ff1e27;
+            --accent-glow: rgba(229, 9, 20, 0.5);
+            --gold: #ffc107;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --border-color: #2a2c33;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: var(--bg-main);
-            color: var(--text-dark);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, #230508 0%, #0b0b0d 100%);
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            padding: 12px;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* --- 1. واجهة الدخول باللون الزهري الفاتح --- */
-        .splash-screen {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at center, #ffffff 0%, #ffc0cb 60%, #ffb6c1 100%);
-            z-index: 999;
+        /* الهيدر وعرض الرصيد والمعلومات */
+        .header {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--accent-red);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .user-info {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
 
-        .splash-box {
-            background: rgba(255, 255, 255, 0.92);
-            border: 2.5px solid var(--pink-primary);
-            box-shadow: 0 0 35px var(--pink-glow), inset 0 0 15px rgba(255, 182, 193, 0.5);
-            padding: 40px 30px;
-            border-radius: 28px;
-            text-align: center;
-            max-width: 330px;
-            width: 90%;
-            position: relative;
+        .user-id {
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
-        .splash-title {
-            font-size: 36px;
-            font-weight: 900;
-            color: var(--pink-bright);
-            text-shadow: 0 0 15px var(--pink-light);
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            line-height: 1.1;
-        }
-
-        .splash-subtitle {
-            font-size: 13px;
-            color: var(--gold);
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 28px;
-            text-shadow: 0 0 8px var(--gold-glow);
-        }
-
-        .loader-container {
-            position: relative;
-            width: 100%;
-            height: 12px;
-            background: #ffe4e1;
-            border: 1.5px solid var(--pink-primary);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 10px var(--pink-glow);
-        }
-
-        .loader-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff99c8, var(--pink-bright), var(--gold));
-            box-shadow: 0 0 12px var(--pink-bright);
-            transition: width 0.1s linear;
-        }
-
-        /* --- 2. الشريط العلوي للجائزة والرصيد --- */
-        .jackpot-bar {
-            background: linear-gradient(90deg, #ffb6c1, #ff66a3, #ffb6c1);
-            border-bottom: 1.5px solid var(--gold);
-            text-align: center;
-            padding: 5px 0;
-            font-size: 13px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border-bottom: 1.5px solid var(--pink-primary);
-            backdrop-filter: blur(15px);
-        }
-
-        .buy-bonus-btn {
-            background: linear-gradient(135deg, var(--pink-bright) 0%, #ff99cc 100%);
-            border: 1.5px solid var(--gold);
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: bold;
             color: #fff;
-            padding: 6px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 0 12px var(--pink-glow);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: transform 0.15s;
-        }
-        .buy-bonus-btn:active { transform: scale(0.92); }
-
-        .logo {
-            text-align: center;
-            font-size: 17px;
-            font-weight: 900;
-            color: var(--pink-bright);
-            text-shadow: 0 0 12px var(--pink-light);
-            line-height: 1.1;
         }
 
-        .user-info { display: flex; align-items: center; gap: 6px; }
-
-        .avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--pink-bright), var(--gold));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: #fff;
-            box-shadow: 0 0 10px var(--pink-glow);
-        }
-
-        .balance-badge {
-            background: #fff0f5;
-            border: 1.5px solid var(--pink-primary);
-            color: var(--text-dark);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 8px rgba(255, 102, 163, 0.2);
-        }
-
-        .top-widgets {
-            display: flex;
-            justify-content: space-between;
+        .balance-box {
+            background: rgba(229, 9, 20, 0.15);
+            border: 1px solid var(--accent-red);
             padding: 6px 14px;
-        }
-
-        .mini-badge {
-            border: 1px solid var(--pink-primary);
-            border-radius: 12px;
-            padding: 4px 10px;
-            font-size: 10px;
-            background: #ffffff;
-            color: var(--pink-bright);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        .active-bonus-indicator {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(90deg, var(--pink-bright), var(--gold));
-            color: #fff;
-            font-size: 11px;
-            font-weight: 900;
-            padding: 4px 12px;
             border-radius: 20px;
-            margin: 2px auto;
-            box-shadow: 0 0 12px var(--pink-glow);
+            text-align: right;
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
-        /* --- 3. إطار البكرات وتصميم الجرة 3D --- */
+        .balance-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .balance-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        /* شبكة اللعبة Slot Machine */
         .game-container {
+            width: 100%;
+            max-width: 500px;
+            background: #111215;
+            border: 2px solid var(--accent-red);
+            border-radius: 16px;
+            padding: 10px;
+            margin: 15px 0;
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.25);
             position: relative;
-            width: 95%;
-            max-width: 420px;
-            margin: 2px auto 0;
-            perspective: 1200px;
         }
 
-        .slots-frame {
-            display: flex;
-            flex-direction: row;
-            direction: ltr;
-            background: rgba(255, 240, 245, 0.95);
-            border: 3.5px solid var(--pink-primary);
-            box-shadow: 0 8px 30px var(--pink-glow), inset 0 0 15px rgba(255, 105, 180, 0.3);
-            border-radius: 20px;
-            padding: 6px;
-            position: relative;
-            overflow: visible;
-            height: 252px;
-            touch-action: none;
-            cursor: grab;
-            transform-style: preserve-3d;
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            background: #000;
+            padding: 8px;
+            border-radius: 10px;
         }
 
-        .slots-frame.shake {
-            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes screenShake {
-            10%, 90% { transform: translate3d(-4px, 0, 0) rotate(-0.5deg); }
-            20%, 80% { transform: translate3d(6px, 0, 0) rotate(1deg); }
-            30%, 50%, 70% { transform: translate3d(-8px, 0, 0) rotate(-1deg); }
-            40%, 60% { transform: translate3d(8px, 0, 0) rotate(0.5deg); }
-        }
-
-        /* تحسين: حصر الأيقونات والفواكه داخل العمود وعدم تمددها خارجاً */
         .reel {
-            flex: 1;
-            height: 240px;
-            background: radial-gradient(circle at center, #ffffff 0%, #fff0f5 100%);
-            border-radius: 10px;
-            overflow: hidden; /* يضمن عدم تمدد الفواكه خارج العمود */
-            position: relative;
-            box-shadow: inset 0 0 12px rgba(255, 182, 193, 0.5);
-        }
-
-        .reel:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 2px;
-            height: 100%;
-            background: var(--pink-light);
-            z-index: 10;
-        }
-
-        .reel-strip {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
             display: flex;
             flex-direction: column;
-            will-change: transform;
+            gap: 6px;
         }
 
-        .reel-strip.spinning {
-            animation: fastSpinSmoothReverse 0.1s linear infinite;
-        }
-
-        .reel-strip.decelerate-stop {
-            animation: reelSlowdownAndStop 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        @keyframes fastSpinSmoothReverse {
-            0% { transform: translateY(0px); filter: blur(3px); }
-            100% { transform: translateY(-240px); filter: blur(3px); }
-        }
-
-        @keyframes reelSlowdownAndStop {
-            0% { transform: translateY(-160px); filter: blur(2px); }
-            60% { transform: translateY(-8px); filter: blur(0px); }
-            80% { transform: translateY(6px); }
-            100% { transform: translateY(0); }
-        }
-
-        .symbol {
-            height: 80px;
-            width: 100%;
-            max-width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            flex-shrink: 0;
-            padding: 2px;
-            overflow: hidden; /* حصر المحتوى داخل خلية الرمز */
-        }
-
-        .symbol-badge {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            font-size: 42px;
-            background: transparent;
-            transition: all 0.2s ease-out;
-            max-width: 100%;
-            object-fit: contain;
-        }
-
-        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); }
-        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); }
-        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); }
-        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); }
-        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); }
-        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); }
-        
-        .symbol.star-sym .symbol-badge { filter: drop-shadow(0 0 14px #fbbf24); }
-        .symbol.dollar-sym .symbol-badge { filter: drop-shadow(0 0 14px #10b981); font-weight: 900; color: #10b981; font-size: 46px; }
-
-        .symbol.seven .symbol-badge {
-            color: var(--pink-bright);
-            text-shadow: 0 0 15px var(--pink-bright);
-            font-weight: 900;
-            font-style: italic;
-            font-size: 48px;
-        }
-
-        .symbol.jar-rare .symbol-badge {
-            font-size: 48px;
-            filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 10px var(--pink-bright));
-            animation: jarGlowPulse 0.9s infinite alternate ease-in-out;
-        }
-
-        @keyframes jarGlowPulse {
-            0% { transform: scale(0.96); filter: drop-shadow(0 0 12px var(--gold)); }
-            100% { transform: scale(1.08); filter: drop-shadow(0 0 25px var(--gold)) drop-shadow(0 0 12px var(--pink-bright)); }
-        }
-
-        .symbol.jar-stopped {
-            z-index: 50;
-            animation: jarLockStop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
-        }
-
-        /* --- تأثير الجرة الممتدة 3D الجوكر عند تحقيق الربح لتغطية العمود --- */
-        .reel-jar-expanded {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: radial-gradient(circle at center, #ffffff 0%, #ffc0cb 50%, var(--pink-primary) 100%);
-            z-index: 120;
+        .symbol-cell {
+            background: #1c1d22;
+            border: 1px solid #333;
+            border-radius: 8px;
+            aspect-ratio: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            border-radius: 10px;
-            border: 3.5px solid var(--gold);
-            box-shadow: 0 15px 35px var(--pink-glow), 0 0 25px var(--gold-glow), inset 0 0 15px #ffffff;
-            transform: translateZ(20px) scale(1.02);
-            animation: jarExpand3D 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            overflow: visible;
-        }
-
-        @keyframes jarExpand3D {
-            0% { transform: translateZ(0) scaleY(0.2); opacity: 0; }
-            100% { transform: translateZ(20px) scale(1.02); opacity: 1; }
-        }
-
-        .jar-expanded-body {
-            font-size: 75px;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25)) drop-shadow(0 0 25px #ffffff);
-            animation: jarPulse3D 0.8s infinite alternate ease-in-out;
+            justify-content: center;
+            font-size: 1.8rem;
             position: relative;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
         }
 
-        .jar-expanded-body::before {
-            content: '✨👑✨';
-            position: absolute;
-            top: -32px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            animation: goldSpout 0.5s infinite alternate ease-in-out;
+        .symbol-cell.winning {
+            border-color: var(--gold);
+            box-shadow: 0 0 12px var(--gold);
+            background: #2a2200;
+            animation: pulse 0.6s infinite alternate;
         }
 
-        .jar-expanded-mult {
+        .jar-mult {
             position: absolute;
-            top: 6px;
-            right: 6px;
-            background: linear-gradient(135deg, var(--pink-bright), #ff0055);
-            color: #fff;
-            font-size: 16px;
-            font-weight: 900;
-            padding: 3px 8px;
+            bottom: 2px;
+            right: 2px;
+            background: var(--accent-red);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* تحريك البكرات عند الدوران */
+        .spinning {
+            animation: spinBlur 0.15s infinite linear;
+        }
+
+        @keyframes spinBlur {
+            0% { transform: translateY(-5px); opacity: 0.7; }
+            50% { transform: translateY(5px); opacity: 0.4; }
+            100% { transform: translateY(0); opacity: 0.7; }
+        }
+
+        /* منطقة الأزرار والتحكم */
+        .controls {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bet-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .bet-btn {
+            background: #2a2c33;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .spin-btn {
+            width: 100%;
+            background: linear-gradient(180deg, var(--accent-red-hover) 0%, var(--accent-red) 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: bold;
             border-radius: 12px;
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 15px var(--pink-bright);
-            z-index: 130;
-            animation: popMult 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        @keyframes popMult {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
+        .spin-btn:active {
+            transform: scale(0.98);
         }
 
-        @keyframes goldSpout {
-            0% { transform: translate(-50%, 0) scale(0.8); opacity: 0.7; }
-            100% { transform: translate(-50%, -18px) scale(1.3); opacity: 1; filter: drop-shadow(0 0 15px var(--gold)); }
+        .spin-btn:disabled {
+            background: #444;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
-        @keyframes jarPulse3D {
-            0% { transform: scale(0.96); }
-            100% { transform: scale(1.06); filter: drop-shadow(0 0 35px var(--gold)); }
+        .bonus-btn {
+            background: linear-gradient(180deg, #d4a017 0%, #8a6700 100%);
+            color: black;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
         }
 
-        .symbol.win-pop-red .symbol-badge {
-            animation: symbolWinPink 0.35s infinite alternate ease-in-out;
-            z-index: 10;
-        }
-
-        @keyframes symbolWinPink {
-            0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--pink-bright)); }
-            100% { transform: scale(1.2); filter: drop-shadow(0 0 25px var(--pink-primary)) brightness(1.3); }
-        }
-
-        .jar-banner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: linear-gradient(135deg, rgba(255,102,163,0.98), rgba(255,240,245,0.98));
-            border: 3px solid var(--gold);
-            padding: 16px 30px;
-            border-radius: 24px;
-            font-weight: 900;
-            font-size: 22px;
-            color: var(--text-dark);
-            box-shadow: 0 0 50px var(--pink-glow);
-            z-index: 200;
-            pointer-events: none;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* شاشة التحميل والتنبهات */
+        .status-msg {
             text-align: center;
-        }
-        .jar-banner.show { transform: translate(-50%, -50%) scale(1.15); }
-
-        .info-panel {
-            text-align: center;
-            margin: 6px 12px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1.5px solid var(--pink-primary);
-            border-radius: 18px;
-            box-shadow: 0 4px 15px rgba(255, 102, 163, 0.15);
-            backdrop-filter: blur(10px);
-        }
-
-        .line-info {
-            color: var(--pink-bright);
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--gold);
             min-height: 20px;
         }
 
-        .win-display {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--text-dark);
-        }
-
-        .bets-container {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 6px;
-            padding: 0 10px;
-        }
-        .bet-chip {
-            padding: 6px 12px;
-            border-radius: 16px;
-            border: 1.5px solid var(--pink-primary);
-            background: #ffffff;
-            color: var(--text-dark);
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .bet-chip.active {
-            background: var(--pink-bright);
-            color: #fff;
-            box-shadow: 0 0 18px var(--pink-glow);
-            font-weight: 900;
-            transform: scale(1.08);
-            border-color: var(--gold);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 14px;
-            margin-bottom: 6px;
-        }
-        .spin-btn {
-            width: 76px;
-            height: 76px;
-            border-radius: 50%;
-            border: 3.5px solid var(--gold);
-            background: radial-gradient(circle, var(--pink-bright) 0%, var(--pink-primary) 100%);
-            box-shadow: 0 0 30px var(--pink-glow);
-            color: #fff;
-            font-size: 36px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-        .spin-btn:active { transform: scale(0.9); }
-
-        .sub-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 1.5px solid var(--pink-primary);
-            background: #ffffff;
-            color: var(--pink-bright);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .sub-btn.active-sub {
-            background: var(--gold);
-            color: #fff;
-            border-color: var(--gold);
-        }
-
-        .history-bar {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(255, 255, 255, 0.95);
-            border-top: 1.5px solid var(--pink-light);
-            border-bottom: 1.5px solid var(--pink-light);
-            padding: 6px 0;
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--text-dark);
-        }
-
-        .footer-nav {
-            display: flex;
-            justify-content: space-around;
-            background: #ffffff;
-            padding: 8px 0;
-            border-top: 1px solid var(--pink-light);
-        }
-        .nav-item {
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            font-size: 11px;
-            color: #888;
-            cursor: pointer;
-        }
-        .nav-item.active { color: var(--pink-bright); font-weight: bold; }
-
-        .king-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 240, 245, 0.95);
-            backdrop-filter: blur(15px);
-            z-index: 950;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .king-box {
-            background: radial-gradient(circle, #ffffff 0%, #ffe4e1 100%);
-            border: 3px solid var(--gold);
-            border-radius: 28px;
-            padding: 30px 20px;
-            text-align: center;
-            max-width: 340px;
-            width: 100%;
-            box-shadow: 0 0 50px var(--pink-glow);
-            animation: zoomKing 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes zoomKing {
-            0% { transform: scale(0.3); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .king-crown { font-size: 65px; margin-bottom: 5px; filter: drop-shadow(0 0 20px var(--gold)); }
-        .king-title { font-size: 28px; font-weight: 900; color: var(--pink-bright); text-shadow: 0 0 10px var(--pink-light); }
-        .king-mult { font-size: 20px; color: var(--gold); font-weight: 900; margin-top: 4px; }
-        .king-amount {
-            font-size: 42px;
-            font-weight: 900;
-            color: var(--text-dark);
-            margin: 15px 0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 800;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-body {
-            background: #ffffff;
-            border-radius: 22px;
-            border: 2px solid var(--pink-primary);
-            padding: 24px;
-            text-align: center;
-            max-width: 340px;
-            width: 100%;
-            box-shadow: 0 10px 30px var(--pink-glow);
-            max-height: 85vh;
-            overflow-y: auto;
-            color: var(--text-dark);
-        }
-        .modal-btn {
-            background: var(--pink-bright);
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 900;
-            margin-top: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px var(--pink-glow);
+            z-index: 999;
         }
 
-        .paytable-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 12px 0;
-            text-align: right;
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid var(--accent-red);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
         }
 
-        .paytable-card {
-            background: #fff0f5;
-            border: 1px solid var(--pink-light);
-            border-radius: 12px;
-            padding: 8px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .paytable-card .sym { font-size: 26px; }
-        .paytable-card .desc { font-size: 11px; color: var(--text-dark); line-height: 1.25; }
-
-        .bonus-option-card {
-            background: #fff0f5;
-            border: 1.5px solid var(--pink-primary);
-            border-radius: 14px;
-            padding: 10px 14px;
-            margin: 10px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .bonus-option-card:hover, .bonus-option-card:active {
-            background: var(--pink-light);
-            transform: scale(1.02);
-        }
-
-        .level-menu-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 920;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .level-menu-box {
-            background: #ffffff;
-            border: 2.5px solid var(--pink-primary);
-            border-radius: 24px;
-            padding: 22px 18px;
-            text-align: center;
-            max-width: 320px;
-            width: 100%;
-            box-shadow: 0 10px 30px var(--pink-glow);
-            animation: zoomKing 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .level-btn-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
-            margin: 18px 0;
-        }
-        .level-btn {
-            flex: 1;
-            padding: 10px 0;
-            background: #fff0f5;
-            border: 1.5px solid var(--pink-primary);
-            color: var(--text-dark);
-            border-radius: 12px;
-            font-weight: 900;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .level-btn.active {
-            background: var(--pink-bright);
-            color: #fff;
-            box-shadow: 0 0 15px var(--pink-glow);
-            border-color: var(--gold);
-        }
-
-        @keyframes ultraFastCoinFly {
-            0% {
-                transform: translate(0, 105vh) rotate(0deg) scale(0.6);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--dx), -25vh) rotate(1440deg) scale(1.6);
-                opacity: 1;
-            }
-        }
-
-        .ultra-gold-coin {
-            position: fixed;
-            bottom: 0;
-            z-index: 9999;
-            pointer-events: none;
-            font-size: 42px;
-            filter: drop-shadow(0 0 15px #ffdf00) drop-shadow(0 0 25px var(--pink-bright));
-            animation: ultraFastCoinFly var(--duration) linear forwards;
-            will-change: transform;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة الدخول الزهرية -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-box">
-            <h1 class="splash-title">GOLDEN LERA</h1>
-            <p class="splash-subtitle">PINK ROYAL MASTER 2026</p>
-            <div class="loader-container">
-                <div class="loader-bar" id="loaderBar"></div>
-            </div>
-        </div>
+    <!-- شاشة التحميل أثناء الاتصال بالسيرفر -->
+    <div id="loadingOverlay" class="overlay">
+        <div class="loader"></div>
+        <p>جاري الاتصال بسيرفر اللعبة...</p>
+        <p style="font-size:0.75rem; color:#888; margin-top:5px;">(قد يستغرق 15 ثانية في حال استيقاظ السيرفر)</p>
     </div>
 
-    <!-- شريط الجائزة الكبرى الجاك بوت (يزيد تلقائياً ولا يربحه أحد) -->
-    <div class="jackpot-bar">
-        <span>🏆 MEGA JACKPOT:</span>
-        <span id="jackpotAmount">124,850.00 NSP</span>
-    </div>
-
-    <!-- 2. الشريط العلوي -->
-    <div class="top-bar">
-        <button class="buy-bonus-btn" onclick="openBonusModal()">🛒 شراء مكافأة</button>
-        <div class="logo">Golden Lera<br><span style="font-size: 10px; color: var(--gold);">Pink Edition 2026</span></div>
+    <!-- الهيدر والمعلومات -->
+    <div class="header">
         <div class="user-info">
-            <div class="avatar" id="u-avatar">U</div>
-            <div class="balance-badge">
-                <span id="u-balance">100.00</span>
-                <span style="font-size: 9px; color: var(--pink-bright);">NSP</span>
-            </div>
+            <span class="user-name" id="userName">مستخدم اللعبة</span>
+            <span class="user-id" id="userIdDisplay">ID: ------</span>
+        </div>
+        <div class="balance-box">
+            <div class="balance-title">الرصيد الحرفي</div>
+            <div class="balance-amount" id="userBalance">0.00 $</div>
         </div>
     </div>
 
-    <div class="top-widgets">
-        <div class="mini-badge" onclick="loadUserData()">
-            <span>🔄 تحديث</span>
-        </div>
-        <div class="mini-badge" style="border-color: var(--gold); color: var(--gold);" onclick="openPaytableModal()">
-            <span>📖 جدول الأرباح</span>
-        </div>
-        <div class="mini-badge" onclick="showModal('مهام البوت', 'أكمل المهام اليومية في البوت واحصل على مكافآت!')">
-            <span>🎁 المهام</span>
-        </div>
-    </div>
-
-    <div class="active-bonus-indicator" id="bonusActiveBadge">
-        🔥 مكافأة جرات مفعلة: متبقي 5 ضربات
-    </div>
-
-    <!-- 3. إطار اللعبة والبكرات -->
+    <!-- شبكة اللعبة (5 أعمدة × 3 صفوف) -->
     <div class="game-container">
-        <div class="jar-banner" id="jarBanner"><span id="jarWinRating">مبروك ياملك/ة 👑</span><br><span id="jarMultText" style="font-size: 28px; color: var(--pink-bright);">10x</span></div>
-        <div class="slots-frame" id="slotsFrame"></div>
+        <div class="slot-grid" id="slotGrid">
+            <!-- سيتم توليد الرموز هنا تلقائياً -->
+        </div>
     </div>
 
-    <div class="info-panel">
-        <div class="line-info" id="lineInfo">اختر الرهان واضغط ↻ أو اسحب للبدء</div>
-        <div class="win-display">ربح <span id="winAmount">0.00</span> NSP</div>
-    </div>
+    <div class="status-msg" id="statusMessage"></div>
 
-    <div class="bets-container" id="betsContainer"></div>
-
+    <!-- لوحة التحكم -->
     <div class="controls">
-        <div class="sub-btn" id="menuBtn" onclick="openLevelMenu()" style="font-size:18px; font-weight:900;">☰</div>
-        <div class="sub-btn" id="autoBtn" onclick="toggleAutoSpin()">▶</div>
-        <div class="sub-btn" id="speedBtn" onclick="cycleSpeed()">🐢</div>
-        <button class="spin-btn" id="spinBtn" onclick="handleSpinButton()">↻</button>
-        <div class="sub-btn" onclick="maxBet()" style="font-size: 11px; font-weight: 900;">MAX</div>
-        <div class="sub-btn" onclick="doubleBet()">x2</div>
-    </div>
-
-    <div class="history-bar">
-        <div>🏆 أفضل ربح: <span id="bestWin" style="color: var(--pink-bright);">0.00</span> NSP</div>
-        <div>⏱️ آخر ربح: <span id="lastWin" style="color: var(--gold);">0.00</span> NSP</div>
-    </div>
-
-    <div class="footer-nav">
-        <div class="nav-item active">
-            <span>🎰</span>
-            <span>اللعبة</span>
-        </div>
-        <div class="nav-item" onclick="openBonusModal()">
-            <span>🛒</span>
-            <span>المكافآت</span>
-        </div>
-        <div class="nav-item" onclick="openPaytableModal()">
-            <span>📖</span>
-            <span>الأرباح</span>
-        </div>
-        <div class="nav-item" onclick="showModal('حسابي', 'الحساب موصول تلقائياً بـ Telegram WebApp.')">
-            <span>👤</span>
-            <span>حسابي</span>
-        </div>
-    </div>
-
-    <!-- النافذة المنبثقة لشراء المكافأة -->
-    <div class="modal" id="bonus-modal">
-        <div class="modal-body">
-            <div style="font-size: 1.15rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 6px;">🛒 شراء مكافأة الجرات (5 ضربات)</div>
-            <p style="color: #666; font-size: 0.8rem; margin-bottom: 12px;">أسعار المكافأة لرهانك الحالي (<span id="bonusBetLabel" style="color:var(--pink-bright); font-weight:bold;">3</span> NSP):</p>
-            
-            <div class="bonus-option-card" onclick="confirmBuyBonus(1)">
-                <div>
-                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺 ظهور جرة واحدة</div>
-                    <div style="font-size: 0.75rem; color: #777;">ظهور جرة لكل ضربة (5 ضربات)</div>
-                </div>
-                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price1">150 NSP</div>
+        <div class="bet-bar">
+            <span>قيمة الرهان:</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="bet-btn" onclick="changeBet(-1)">-</button>
+                <span id="betDisplay" style="font-weight:bold; color:var(--gold);">3.0 $</span>
+                <button class="bet-btn" onclick="changeBet(1)">+</button>
             </div>
-
-            <div class="bonus-option-card" onclick="confirmBuyBonus(2)">
-                <div>
-                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺🏺 ظهور جرتين</div>
-                    <div style="font-size: 0.75rem; color: #777;">ظهور جرتين لكل ضربة (5 ضربات)</div>
-                </div>
-                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price2">300 NSP</div>
-            </div>
-
-            <div class="bonus-option-card" onclick="confirmBuyBonus(3)">
-                <div>
-                    <div style="font-weight: 900; color: var(--text-dark); font-size: 0.9rem;">🏺🏺🏺 ظهور 3 جرات + 5x</div>
-                    <div style="font-size: 0.75rem; color: #777;">3 جرات مع احتمال حصري لمضاعف 5x الحقيقي!</div>
-                </div>
-                <div style="color: var(--pink-bright); font-weight: 900; font-size: 0.95rem;" id="price3">750 NSP</div>
-            </div>
-
-            <button class="modal-btn" style="background: #ccc; color: #333;" onclick="closeBonusModal()">إلغاء</button>
         </div>
-    </div>
 
-    <!-- نافذة جدول الأرباح -->
-    <div class="modal" id="paytable-modal">
-        <div class="modal-body">
-            <div style="font-size: 1.2rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 6px;">📖 جدول أرباح الرموز</div>
-            <p style="color: #666; font-size: 0.78rem; margin-bottom: 10px;">تحتسب الأرباح عند اكتمال خطوط الربح المحددة:</p>
-            
-            <div class="paytable-grid">
-                <div class="paytable-card">
-                    <div class="sym">🍋/🍍/🍊</div>
-                    <div class="desc"><b>الفواكه العادية</b><br>3x = 1x | 4x = 1.5x | 5x = 5x</div>
-                </div>
-                <div class="paytable-card">
-                    <div class="sym">🍉/🍇</div>
-                    <div class="desc"><b>البطيخ / العنب</b><br>3x = 4x | 4x = 5x | 5x = 8x</div>
-                </div>
-                <div class="paytable-card">
-                    <div class="sym">🔔</div>
-                    <div class="desc"><b>الأجراس</b><br>3x = 2x | 4x = 3x | 5x = 6x</div>
-                </div>
-                <div class="paytable-card">
-                    <div class="sym">7️⃣</div>
-                    <div class="desc"><b>السبيعات</b><br>2x = 1x | 3x = 3x | 4x = 5x | 5x = 50x!!</div>
-                </div>
-                <div class="paytable-card">
-                    <div class="sym">⭐</div>
-                    <div class="desc"><b>النجمة</b><br>3x = 20x الرهان</div>
-                </div>
-                <div class="paytable-card">
-                    <div class="sym">💲</div>
-                    <div class="desc"><b>الدولار</b><br>3x = 5x الرهان</div>
-                </div>
-            </div>
-
-            <div style="background: #fff0f5; border: 1px solid var(--pink-primary); border-radius: 12px; padding: 8px; font-size: 11px; color: var(--pink-bright); text-align: right; margin-top: 6px;">
-                🏺 <b>الجرة (Wild):</b> جوكر مكمل للنقص، عند وجود ربح تتوسع لتملأ العمود كاملاً وتأخذ ربح يميناً ويساراً عند الظهور في المنتصف.
-            </div>
-
-            <button class="modal-btn" onclick="closePaytableModal()">فهمت 🚀</button>
-        </div>
-    </div>
-
-    <!-- نافذة مستويات الرهان -->
-    <div class="level-menu-modal" id="levelMenuModal">
-        <div class="level-menu-box">
-            <div style="font-size: 1.2rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 4px;">🎚️ حدد مستوى الرهان</div>
-            <div style="font-size: 0.8rem; color: #666;">اختر المستويات لتغيير قيم الرهان</div>
-            <div class="level-btn-group">
-                <button class="level-btn active" onclick="selectBetLevel(1)">1</button>
-                <button class="level-btn" onclick="selectBetLevel(2)">2</button>
-                <button class="level-btn" onclick="selectBetLevel(3)">3</button>
-                <button class="level-btn" onclick="selectBetLevel(4)">4</button>
-                <button class="level-btn" onclick="selectBetLevel(5)">5</button>
-            </div>
-            <button class="modal-btn" style="width: 100%;" onclick="closeLevelMenu()">تم</button>
-        </div>
-    </div>
-
-    <!-- نافذة مبروك ياملك/ة احتفال الربح الكبير عند مضاعف 10x -->
-    <div class="king-modal" id="kingModal">
-        <div class="king-box">
-            <div class="king-crown">👑</div>
-            <div class="king-title">مبروك ياملك/ة</div>
-            <div class="king-mult" id="kingMultText">مضاعف 10x! 🔥</div>
-            <div class="king-amount" id="kingWinCounter">0.00 NSP</div>
-            <button class="modal-btn" onclick="closeKingModal()">استلام الأرباح 🪙</button>
-        </div>
-    </div>
-
-    <!-- نافذة الرسائل العامة -->
-    <div class="modal" id="msg-modal">
-        <div class="modal-body">
-            <div id="modal-status" style="font-size: 1.15rem; font-weight: 900; color: var(--pink-bright); margin-bottom: 8px;">تنبيه</div>
-            <p id="modal-desc" style="color: #555; font-size: 0.95rem; line-height: 1.5;"></p>
-            <button class="modal-btn" onclick="closeModal()">استمرار 🚀</button>
-        </div>
+        <button class="spin-btn" id="spinBtn" onclick="playSpin()">دوران (SPIN)</button>
+        <button class="bonus-btn" onclick="buyBonus()">🏺 شراء ميزة الجرة (x10 الرهان)</button>
     </div>
 
     <script>
-        const tg = window.Telegram?.WebApp;
-        if (tg) { tg.expand(); tg.ready(); }
+        // إعدادات السيرفر
+        const SERVER_URL = 'https://my-bot-s23a.onrender.com';
+        
+        let userId = "demo_user";
+        let currentBalance = 0;
+        let currentBet = 3.0;
+        let isSpinning = false;
 
-        let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function dismissSplashScreen() {
-            const splash = document.getElementById('splashScreen');
-            if (splash && splash.style.display !== 'none') {
-                splash.style.transition = 'opacity 0.6s ease';
-                splash.style.opacity = '0';
-                setTimeout(() => { splash.style.display = 'none'; }, 600);
+        // التهيئة عند تحميل الصفحة
+        window.onload = async function() {
+            // جلب ID من التلجرام إن وجد
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    userId = tg.initDataUnsafe.user.id.toString();
+                    document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name || "لاعب تلجرام";
+                }
             }
-        }
 
-        const splashWaitTime = 8000; 
-        let loadProgress = 0;
-        const intervalTime = splashWaitTime / 100;
+            // فحص رابط URL لمُعرف المستخدم إن لم يتاح من التلجرام
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('user_id')) {
+                userId = urlParams.get('user_id');
+            }
 
-        const loaderInterval = setInterval(() => {
-            loadProgress += 1;
-            const loaderBar = document.getElementById('loaderBar');
-            if (loaderBar) loaderBar.style.width = loadProgress + '%';
+            document.getElementById('userIdDisplay').innerText = "ID: " + userId;
             
-            if (loadProgress >= 100) {
-                clearInterval(loaderInterval);
-                dismissSplashScreen();
-                initAudio();
-            }
-        }, intervalTime);
+            // رسم شبكة افتراضية 5x3
+            renderEmptyGrid();
 
-        setTimeout(() => { dismissSplashScreen(); }, 8000);
-
-        /* --- تحسين الجاك بوت: زيادة يومية وتلقائية مستمرة دون إمكانية فوزه من أي أحد --- */
-        let lastJackpotDate = localStorage.getItem('gl_jackpot_date') || new Date().toDateString();
-        let jackpotCurrent = parseFloat(localStorage.getItem('gl_jackpot_val')) || 124850.00;
-
-        // حساب زيادة يومية تلقائية
-        let currentDateStr = new Date().toDateString();
-        if (lastJackpotDate !== currentDateStr) {
-            jackpotCurrent += 5000.00 + (Math.random() * 2000.00); // زيادة يومية
-            localStorage.setItem('gl_jackpot_date', currentDateStr);
-            localStorage.setItem('gl_jackpot_val', jackpotCurrent);
-        }
-
-        setInterval(() => {
-            jackpotCurrent += (Math.random() * 0.45);
-            localStorage.setItem('gl_jackpot_val', jackpotCurrent);
-            document.getElementById('jackpotAmount').innerText = jackpotCurrent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " NSP";
-        }, 1500);
-
-        const betLevels = {
-            1: [3, 6, 9, 15, 50],
-            2: [60, 70, 80, 90, 100],
-            3: [110, 130, 150, 180, 200],
-            4: [250, 300, 350, 400, 500],
-            5: [600, 700, 800, 900, 1000]
+            // جلب رصيد المستخدم من السيرفر
+            await fetchUserData();
+            
+            document.getElementById('loadingOverlay').style.display = 'none';
         };
 
-        let currentLevel = 1;
-        let currentBet = 3;
-        let isSpinning = false;
-        let forceStopRequested = false;
-        let currentBalance = parseFloat(localStorage.getItem('gl_balance')) || 100.00;
-        let autoSpinActive = false;
-        let speedLevel = 1;
-        let autoInterval = null;
-
-        let activeBonus = null;
-
-        const reelsCount = 5;
-        const reelStrips = [];
-        const slotsFrame = document.getElementById('slotsFrame');
-
-        function playProSound(type) {
-            initAudio();
-            if (!audioCtx) return;
-            let now = audioCtx.currentTime;
-
-            if (type === 'click') {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(900, now);
-                osc.frequency.exponentialRampToValueAtTime(450, now + 0.035);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.035);
-            } 
-            else if (type === 'spin_tick') {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(320, now);
-                osc.frequency.exponentialRampToValueAtTime(110, now + 0.02);
-                gain.gain.setValueAtTime(0.03, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.02);
-            }
-            else if (type === 'reel_stop') {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(200, now);
-                osc.frequency.exponentialRampToValueAtTime(50, now + 0.08);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.08);
-            }
-            else if (type === 'jar_drop') {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(140, now);
-                osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
-                gain.gain.setValueAtTime(0.65, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.25);
-            }
-            else if (type === 'win_sound') {
-                let notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, i) => {
-                    let osc = audioCtx.createOscillator();
-                    let gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + (i * 0.04));
-                    gain.gain.setValueAtTime(0.2, now + (i * 0.04));
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.04) + 0.25);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now + (i * 0.04)); osc.stop(now + (i * 0.04) + 0.25);
-                });
-            }
-            else if (type === 'big_win_music') {
-                let fanfareNotes = [
-                    { f: 523.25, t: 0.0, d: 0.15 },
-                    { f: 659.25, t: 0.12, d: 0.15 },
-                    { f: 783.99, t: 0.24, d: 0.15 },
-                    { f: 1046.50, t: 0.36, d: 0.35 },
-                    { f: 880.00, t: 0.55, d: 0.15 },
-                    { f: 1046.50, t: 0.70, d: 0.50 }
-                ];
-                fanfareNotes.forEach(n => {
-                    let osc = audioCtx.createOscillator();
-                    let gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(n.f, now + n.t);
-                    gain.gain.setValueAtTime(0.35, now + n.t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now + n.t); osc.stop(now + n.t + n.d);
-                });
-            }
-            else if (type === 'coins_flying') {
-                for (let i = 0; i < 12; i++) {
-                    setTimeout(() => {
-                        if (!audioCtx) return;
-                        let nowTime = audioCtx.currentTime;
-                        let osc = audioCtx.createOscillator();
-                        let gain = audioCtx.createGain();
-                        osc.type = 'sine';
-                        let freq = 1800 + Math.random() * 1200;
-                        osc.frequency.setValueAtTime(freq, nowTime);
-                        gain.gain.setValueAtTime(0.18, nowTime);
-                        gain.gain.exponentialRampToValueAtTime(0.001, nowTime + 0.04);
-                        osc.connect(gain); gain.connect(audioCtx.destination);
-                        osc.start(nowTime); osc.stop(nowTime + 0.04);
-                    }, i * 20);
-                }
-            }
-        }
-
-        let touchStartY = 0;
-        slotsFrame.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        slotsFrame.addEventListener('touchend', (e) => {
-            let touchEndY = e.changedTouches[0].clientY;
-            let diffY = touchEndY - touchStartY;
-            if (Math.abs(diffY) > 35) {
-                initAudio();
-                if (!isSpinning) startSpin();
-            }
-        }, { passive: true });
-
-        async function loadUserData() {
-            let tgUser = tg?.initDataUnsafe?.user;
-            let userId = tgUser?.id || "demo_user";
-            let name = tgUser?.first_name || "اللاعب";
-
-            document.getElementById('u-avatar').innerText = name[0].toUpperCase();
-            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
-
-            try {
-                let response = await fetch('/api/get_user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, name: name })
-                });
-                if (response.ok) {
-                    let data = await response.json();
-                    if (data.success) {
-                        currentBalance = parseFloat(data.balance);
-                        localStorage.setItem('gl_balance', currentBalance);
-                        document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
-                    }
-                }
-            } catch (e) {
-                console.warn("المحاكاة المحلية تعمل بدون اتصال المباشر:", e);
-            }
-        }
-        loadUserData();
-
-        /* --- تحسين منطق توليد الرموز والنُدرة للجرة ومنع ظهور 5x إلا بالمكافأة --- */
-        function generateInitialList(count, isBonusRound = false, isBonus3Jars = false) {
-            const fruits = ['🍉', '🍇', '🍊', '🍍', '🍋', '🔔'];
-            let list = [];
-            for (let i = 0; i < count; i++) {
-                let rand = Math.random();
-                let sym = '';
-                let mult = 1;
-
-                // احتمالية ظهور الجرة: جرة واحدة (نادرة ~0.005)، جرتين (نادرة ~0.001)، 3 جرات (نادرة جداً ~0.0003)
-                if (rand < 0.005) { 
-                    sym = '🏺';
-                    // جرة 5x لا تظهر إطلاقاً إلا عند شراء المكافأة المخصصة
-                    if (isBonus3Jars && Math.random() < 0.35) {
-                        mult = 5;
-                    } else {
-                        // مضاعف حقيقي للرصيد
-                        mult = Math.random() < 0.4 ? 2 : 1;
-                    }
-                } else if (rand < 0.022) {
-                    sym = '7'; 
-                } else if (rand < 0.032) {
-                    sym = '⭐';
-                } else if (rand < 0.042) {
-                    sym = '$';
-                } else {
-                    sym = fruits[Math.floor(Math.random() * fruits.length)];
-                }
-
-                list.push({ sym: sym, mult: mult });
-            }
-            return list;
-        }
-
-        /* --- تحسين إنشاء الرمز وإلغاء شارات المضاعفات الوهمية 1x 2x 3x --- */
-        function createSymbolNode(symObj) {
-            const div = document.createElement('div');
-            div.className = 'symbol';
+        // رسم شبكة اللعبة الفارغة initial grid
+        function renderEmptyGrid() {
+            const gridContainer = document.getElementById('slotGrid');
+            gridContainer.innerHTML = '';
             
-            const badge = document.createElement('div');
-            badge.className = 'symbol-badge';
-
-            if (symObj.sym === '🍉') { div.classList.add('fruit-watermelon'); badge.innerText = '🍉'; }
-            else if (symObj.sym === '🍇') { div.classList.add('fruit-grape'); badge.innerText = '🍇'; }
-            else if (symObj.sym === '🍊') { div.classList.add('fruit-orange'); badge.innerText = '🍊'; }
-            else if (symObj.sym === '🍍') { div.classList.add('fruit-pineapple'); badge.innerText = '🍍'; }
-            else if (symObj.sym === '🍋') { div.classList.add('fruit-lemon'); badge.innerText = '🍋'; }
-            else if (symObj.sym === '🔔') { div.classList.add('bell'); badge.innerText = '🔔'; }
-            else if (symObj.sym === '⭐') { div.classList.add('star-sym'); badge.innerText = '⭐'; }
-            else if (symObj.sym === '$') { div.classList.add('dollar-sym'); badge.innerText = '$'; }
-            else if (symObj.sym === '7') {
-                div.classList.add('seven');
-                badge.innerText = '7';
-            } else if (symObj.sym === '🏺') {
-                div.classList.add('jar-rare');
-                badge.innerText = '🏺';
-                // بدون كتابة مضاعفات وهمية (1x 2x 3x) على الجرة نفسها
-            } else {
-                badge.innerText = symObj.sym;
-            }
-
-            div.appendChild(badge);
-            return div;
-        }
-
-        function populateStrip(strip, symbolsArray) {
-            strip.innerHTML = '';
-            symbolsArray.forEach(symObj => {
-                strip.appendChild(createSymbolNode(symObj));
-            });
-        }
-
-        for (let i = 0; i < reelsCount; i++) {
-            const reel = document.createElement('div');
-            reel.className = 'reel';
-
-            const reelStrip = document.createElement('div');
-            reelStrip.className = 'reel-strip';
-            reel.appendChild(reelStrip);
-            slotsFrame.appendChild(reel);
-            
-            reelStrips.push(reelStrip);
-            populateStrip(reelStrip, generateInitialList(6));
-        }
-
-        function openLevelMenu() {
-            if (isSpinning) return;
-            playProSound('click');
-            document.getElementById('levelMenuModal').style.display = 'flex';
-        }
-
-        function closeLevelMenu() {
-            playProSound('click');
-            document.getElementById('levelMenuModal').style.display = 'none';
-        }
-
-        function selectBetLevel(lvl) {
-            playProSound('click');
-            currentLevel = lvl;
-            let bets = betLevels[lvl];
-            currentBet = bets[0];
-
-            document.querySelectorAll('.level-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', (idx + 1) === lvl);
-            });
-
-            renderBetChips();
-            closeLevelMenu();
-        }
-
-        function renderBetChips() {
-            const container = document.getElementById('betsContainer');
-            container.innerHTML = '';
-            let bets = betLevels[currentLevel];
-            
-            bets.forEach((b) => {
-                const chip = document.createElement('div');
-                chip.className = 'bet-chip' + (b === currentBet ? ' active' : '');
-                chip.innerText = b + ' NSP';
-                chip.onclick = function() { setBet(b, this); };
-                container.appendChild(chip);
-            });
-        }
-
-        renderBetChips();
-
-        function openBonusModal() {
-            if (isSpinning) return;
-            playProSound('click');
-            let ratio = currentBet / 3;
-            document.getElementById('bonusBetLabel').innerText = currentBet;
-            document.getElementById('price1').innerText = (150 * ratio).toFixed(0) + ' NSP';
-            document.getElementById('price2').innerText = (300 * ratio).toFixed(0) + ' NSP';
-            document.getElementById('price3').innerText = (750 * ratio).toFixed(0) + ' NSP';
-            document.getElementById('bonus-modal').style.display = 'flex';
-        }
-
-        function closeBonusModal() {
-            playProSound('click');
-            document.getElementById('bonus-modal').style.display = 'none';
-        }
-
-        function openPaytableModal() {
-            playProSound('click');
-            document.getElementById('paytable-modal').style.display = 'flex';
-        }
-
-        function closePaytableModal() {
-            playProSound('click');
-            document.getElementById('paytable-modal').style.display = 'none';
-        }
-
-        function confirmBuyBonus(jarCount) {
-            let ratio = currentBet / 3;
-            let prices = { 1: 150, 2: 300, 3: 750 };
-            let cost = prices[jarCount] * ratio;
-
-            if (currentBalance < cost) {
-                closeBonusModal();
-                showModal("❌ رصيد غير كافٍ", `شراء مكافأة ${jarCount} جرة لرهان ${currentBet} يتطلب ${cost} NSP.`);
-                return;
-            }
-
-            currentBalance -= cost;
-            localStorage.setItem('gl_balance', currentBalance);
-            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
-            activeBonus = { jars: jarCount, remaining: 5, totalWin: 0 };
-            
-            updateBonusBadgeUI();
-            closeBonusModal();
-            showModal("🎁 تم شراء المكافأة!", `تم خصم ${cost} NSP. تبدأ الآن 5 ضربات متتالية مع احتمال ظهور جرة 5x الحصرية!`);
-            
-            setTimeout(() => { if (!isSpinning) startSpin(); }, 500);
-        }
-
-        function updateBonusBadgeUI() {
-            let badge = document.getElementById('bonusActiveBadge');
-            if (activeBonus && activeBonus.remaining > 0) {
-                badge.style.display = 'flex';
-                badge.innerText = `🔥 مكافأة جرات (${activeBonus.jars}): متبقي ${activeBonus.remaining} ضربات`;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        function setBet(amount, el) {
-            if (isSpinning) return;
-            playProSound('click');
-            currentBet = amount;
-            document.querySelectorAll('.bet-chip').forEach(b => b.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
-
-        function maxBet() {
-            if (isSpinning) return;
-            playProSound('click');
-            currentLevel = 5;
-            let bets = betLevels[5];
-            currentBet = bets[bets.length - 1];
-            
-            document.querySelectorAll('.level-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', idx === 4);
-            });
-            renderBetChips();
-            document.getElementById('lineInfo').innerText = `تم تحديد الرهان الأقصى: ${currentBet} NSP`;
-        }
-
-        function doubleBet() {
-            if (isSpinning) return;
-            playProSound('click');
-            let bets = betLevels[currentLevel];
-            let idx = bets.indexOf(currentBet);
-            currentBet = (idx < bets.length - 1) ? bets[idx + 1] : bets[0];
-            let chips = document.querySelectorAll('.bet-chip');
-            chips.forEach((c, i) => {
-                c.classList.toggle('active', bets[i] === currentBet);
-            });
-        }
-
-        function toggleAutoSpin() {
-            playProSound('click');
-            autoSpinActive = !autoSpinActive;
-            let btn = document.getElementById('autoBtn');
-            if (autoSpinActive) {
-                btn.classList.add('active-sub');
-                startSpin();
-                autoInterval = setInterval(() => {
-                    if (!isSpinning) startSpin();
-                }, 1600);
-            } else {
-                btn.classList.remove('active-sub');
-                clearInterval(autoInterval);
-            }
-        }
-
-        function cycleSpeed() {
-            playProSound('click');
-            speedLevel = (speedLevel % 3) + 1;
-            let btn = document.getElementById('speedBtn');
-            btn.innerText = speedLevel === 1 ? '🐢' : (speedLevel === 2 ? '🚀' : '⚡');
-        }
-
-        function handleSpinButton() {
-            initAudio();
-            if (isSpinning) forceStopRequested = true;
-            else startSpin();
-        }
-
-        function filterUniqueCoords(coords) {
-            let unique = [];
-            let set = new Set();
-            coords.forEach(c => {
-                let key = `${c[0]}-${c[1]}`;
-                if (!set.has(key)) {
-                    set.add(key);
-                    unique.push(c);
-                }
-            });
-            return unique;
-        }
-
-        /* --- خوارزمية الربح المحسنة: الجرة كـ Wild جوكر مكمل للنقص، حساب الربح يميناً ويساراً، ومضاعفة الرصيد فعلياً --- */
-        function evaluateWinsLocally(grid, bet) {
-            let totalWin = 0;
-            let lineWinningCoords = [];
-            let scatterWinningCoords = [];
-
-            let starCoords = [];
-            let dollarCoords = [];
-
-            for (let c = 0; c < reelsCount; c++) {
-                if (grid[c]) {
-                    grid[c].forEach((item, rIdx) => {
-                        if (item.sym === '⭐') starCoords.push([c, rIdx]);
-                        if (item.sym === '$') dollarCoords.push([c, rIdx]);
-                    });
-                }
-            }
-
-            if (starCoords.length >= 3) {
-                totalWin += (bet * 20);
-                starCoords.forEach(c => scatterWinningCoords.push(c));
-            }
-
-            if (dollarCoords.length >= 3) {
-                totalWin += (bet * 5);
-                dollarCoords.forEach(c => scatterWinningCoords.push(c));
-            }
-
-            let jarInCol0 = grid[0] && grid[0].some(s => s && s.sym === '🏺');
-            let jarInCol1 = grid[1] && grid[1].some(s => s && s.sym === '🏺');
-
-            let isDoubleJarHarvest = false;
-            if (jarInCol0 && jarInCol1) {
-                isDoubleJarHarvest = true;
-                let harvestPoints = 0;
-                const symValues = { '7': 20, '🔔': 10, '🍉': 8, '🍇': 8, '🍍': 6, '🍊': 5, '🍋': 4, '🏺': 15 };
-
-                for (let c = 0; c < reelsCount; c++) {
-                    if (grid[c]) {
-                        grid[c].forEach((item, rIdx) => {
-                            if (item.sym !== '⭐' && item.sym !== '$') {
-                                let val = symValues[item.sym] || 4;
-                                harvestPoints += val;
-                                lineWinningCoords.push([c, rIdx]);
-                            }
-                        });
-                    }
-                }
-                let megaMultiplier = Math.max(harvestPoints, 60);
-                totalWin += (bet * megaMultiplier);
-            }
-
-            const paylines = [
-                [[0,0], [1,0], [2,0], [3,0], [4,0]],
-                [[0,1], [1,1], [2,1], [3,1], [4,1]],
-                [[0,2], [1,2], [2,2], [3,2], [4,2]],
-                [[0,0], [1,1], [2,2], [3,1], [4,0]],
-                [[0,2], [1,1], [2,0], [3,1], [4,2]],
-                [[0,0], [1,0], [2,1], [3,2], [4,2]],
-                [[0,2], [1,2], [2,1], [3,0], [4,0]]
+            const defaultSymbols = [
+                ['🍋', '🍋', '🍋'],
+                ['🍒', '🍒', '🍒'],
+                ['🔔', '🔔', '🔔'],
+                ['🍇', '🍇', '🍇'],
+                ['🍉', '🍉', '🍉']
             ];
 
-            // فحص الخطوط من اليسار إلى اليمين
-            paylines.forEach(line => {
-                let col0Coord = line[0];
-                let firstObj = grid[col0Coord[0]] ? grid[col0Coord[0]][col0Coord[1]] : null;
-                if (!firstObj || !firstObj.sym || firstObj.sym === '⭐' || firstObj.sym === '$') return;
+            for (let r = 0; r < 5; r++) {
+                const reel = document.createElement('div');
+                reel.className = 'reel';
+                reel.id = `reel-${r}`;
 
-                let targetSym = firstObj.sym;
-
-                if (targetSym === '🏺') {
-                    for (let i = 1; i < line.length; i++) {
-                        let obj = grid[line[i][0]] ? grid[line[i][0]][line[i][1]] : null;
-                        if (obj && obj.sym !== '🏺' && obj.sym !== '⭐' && obj.sym !== '$') {
-                            targetSym = obj.sym;
-                            break;
-                        }
-                    }
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'symbol-cell';
+                    cell.id = `cell-${r}-${c}`;
+                    cell.innerText = defaultSymbols[r][c];
+                    reel.appendChild(cell);
                 }
-
-                let matchCount = 0;
-                let currentLineCoords = [];
-                let jarMultProduct = 1;
-
-                for (let i = 0; i < line.length; i++) {
-                    let [c, r] = line[i];
-                    let cellObj = grid[c] ? grid[c][r] : null;
-
-                    if (!cellObj) break;
-
-                    // الجرة جوكر تعوض النقص لمكافأة أي رمز فواكه/أرقام
-                    if (cellObj.sym === targetSym || cellObj.sym === '🏺') {
-                        matchCount++;
-                        currentLineCoords.push([c, r]);
-                        if (cellObj.sym === '🏺' && cellObj.mult > 1) {
-                            jarMultProduct *= cellObj.mult; // مضاعفة حقيقية للربح
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-                let multiplier = 0;
-
-                if (['🍋', '🍍', '🍊'].includes(targetSym)) {
-                    if (matchCount === 3) multiplier = 1;
-                    else if (matchCount === 4) multiplier = 1.5;
-                    else if (matchCount === 5) multiplier = 5;
-                }
-                else if (['🍉', '🍇'].includes(targetSym)) {
-                    if (matchCount === 3) multiplier = 4;
-                    else if (matchCount === 4) multiplier = 5;
-                    else if (matchCount === 5) multiplier = 8;
-                }
-                else if (targetSym === '🔔') {
-                    if (matchCount === 3) multiplier = 2;
-                    else if (matchCount === 4) multiplier = 3;
-                    else if (matchCount === 5) multiplier = 6;
-                }
-                else if (targetSym === '7') {
-                    if (matchCount === 2) multiplier = 1;
-                    else if (matchCount === 3) multiplier = 3;
-                    else if (matchCount === 4) multiplier = 5;
-                    else if (matchCount === 5) multiplier = 50;
-                }
-
-                if (multiplier > 0) {
-                    totalWin += (bet * multiplier * jarMultProduct);
-                    currentLineCoords.forEach(coord => lineWinningCoords.push(coord));
-                }
-            });
-
-            // فحص الجرة بالمنتصف: حساب الربح يميناً ويساراً عند استقرار الجرة بالوسط (العمود 2)
-            let middleJarWin = false;
-            if (grid[2] && grid[2].some(s => s && s.sym === '🏺')) {
-                middleJarWin = true;
-                paylines.forEach(line => {
-                    let revLine = [...line].reverse();
-                    let endObj = grid[revLine[0][0]] ? grid[revLine[0][0]][revLine[0][1]] : null;
-                    if (!endObj || endObj.sym === '⭐' || endObj.sym === '$') return;
-
-                    let tSym = endObj.sym;
-                    let mCount = 0;
-                    let rCoords = [];
-
-                    for (let i = 0; i < revLine.length; i++) {
-                        let [c, r] = revLine[i];
-                        let cell = grid[c] ? grid[c][r] : null;
-                        if (cell && (cell.sym === tSym || cell.sym === '🏺')) {
-                            mCount++;
-                            rCoords.push([c, r]);
-                        } else {
-                            break;
-                        }
-                    }
-
-                    if (mCount >= 3) {
-                        totalWin += (bet * 2);
-                        rCoords.forEach(coord => lineWinningCoords.push(coord));
-                    }
-                });
+                gridContainer.appendChild(reel);
             }
-
-            let uniqueAll = filterUniqueCoords([...lineWinningCoords, ...scatterWinningCoords]);
-            let uniqueLine = filterUniqueCoords(lineWinningCoords);
-
-            return { 
-                winAmount: totalWin, 
-                winningCoords: uniqueAll, 
-                lineWinningCoords: uniqueLine,
-                isDoubleJarHarvest: isDoubleJarHarvest || middleJarWin
-            };
         }
 
-        async function startSpin() {
+        // جلب بيانات ورصيد المستخدم من سيرفر Render
+        async function fetchUserData() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/get_user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentBalance = data.balance;
+                    updateBalanceUI(currentBalance);
+                    
+                    if (data.maintenance) {
+                        document.getElementById('statusMessage').innerText = "⚠️ اللعبة في وضع الصيانة حالياً";
+                        document.getElementById('spinBtn').disabled = true;
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching user:", err);
+                document.getElementById('statusMessage').innerText = "❌ تعذر الاتصال بسيرفر اللعبة";
+            }
+        }
+
+        // تحديث الرصيد على الواجهة
+        function updateBalanceUI(val) {
+            document.getElementById('userBalance').innerText = parseFloat(val).toFixed(2) + " $";
+        }
+
+        // تغيير قيمة الرهان
+        function changeBet(delta) {
+            if (isSpinning) return;
+            const bets = [1.0, 3.0, 5.0, 10.0, 20.0, 50.0];
+            let currentIndex = bets.indexOf(currentBet);
+            if (currentIndex === -1) currentIndex = 1;
+
+            let newIndex = currentIndex + delta;
+            if (newIndex >= 0 && newIndex < bets.length) {
+                currentBet = bets[newIndex];
+                document.getElementById('betDisplay').innerText = currentBet.toFixed(1) + " $";
+            }
+        }
+
+        // تنفيذ اللعبة (الدوران Normal Spin)
+        async function playSpin(buyBonusJars = 0) {
             if (isSpinning) return;
 
-            if (typeof confetti !== 'undefined' && confetti.reset) {
-                confetti.reset();
-            }
-            closeKingModal();
-            clearShineEffects();
-            removeExpandedJars();
-            hideJarBanner();
-            
-            if (currentBalance < currentBet && (!activeBonus || activeBonus.remaining <= 0)) {
-                showModal("❌ رصيد غير كافٍ", "يرجى شحن حسابك لمتابعة اللعب!");
-                if (autoSpinActive) toggleAutoSpin();
+            if (currentBalance < (buyBonusJars > 0 ? currentBet * 10 : currentBet)) {
+                document.getElementById('statusMessage').innerText = "❌ الرصيد غير كافٍ!";
                 return;
             }
 
             isSpinning = true;
-            forceStopRequested = false;
-            let tgUser = tg?.initDataUnsafe?.user;
-            let userId = tgUser?.id || "demo_user";
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('statusMessage').innerText = "جاري الدوران...";
 
-            document.getElementById('spinBtn').innerText = '⏹️';
-            document.getElementById('lineInfo').innerText = 'جاري التدوير...';
-
-            let spinSoundInterval = setInterval(() => {
-                if (isSpinning) playProSound('spin_tick');
-            }, 55);
-
-            let isBonusRound = !!(activeBonus && activeBonus.remaining > 0);
-            let isBonus3Jars = !!(activeBonus && activeBonus.jars === 3);
-
-            reelStrips.forEach(strip => {
-                populateStrip(strip, generateInitialList(9, isBonusRound, isBonus3Jars));
-                strip.classList.add('spinning');
-            });
-
-            let requestedJars = 0;
-            if (activeBonus && activeBonus.remaining > 0) {
-                requestedJars = activeBonus.jars;
-                activeBonus.remaining--;
-                updateBonusBadgeUI();
+            // إضافة تأثير الدوران
+            for (let r = 0; r < 5; r++) {
+                document.getElementById(`reel-${r}`).classList.add('spinning');
             }
 
-            let serverResult = null;
             try {
-                let response = await fetch('/api/play_spin', {
+                const response = await fetch(`${SERVER_URL}/api/play_spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        user_id: userId, 
+                    body: JSON.stringify({
+                        user_id: userId,
                         bet: currentBet,
-                        buy_bonus_jars: requestedJars
+                        buy_bonus_jars: buyBonusJars
                     })
                 });
-                if (response.ok) {
-                    serverResult = await response.json();
-                }
-            } catch (err) {
-                console.warn("المحاكاة المحلية تعمل تلقائياً:", err);
-            }
 
-            if (!serverResult || !serverResult.success) {
-                let fallbackGrid = [];
-                for (let c = 0; c < reelsCount; c++) {
-                    fallbackGrid.push(generateInitialList(3, isBonusRound, isBonus3Jars));
-                }
-                
-                if (isBonusRound && requestedJars > 0) {
-                    for(let i = 0; i < requestedJars; i++) {
-                        if(i < reelsCount) {
-                            let randomRow = Math.floor(Math.random() * 3);
-                            let mult = 1;
-                            if (requestedJars === 3) {
-                                mult = Math.random() < 0.35 ? 5 : 2; // ظهور 5x حصرية فقط بالمكافأة
-                            } else {
-                                mult = Math.random() < 0.5 ? 1 : 2;
-                            }
-                            fallbackGrid[i][randomRow] = {sym: '🏺', mult: mult};
-                        }
-                    }
-                }
-                
-                let localWin = evaluateWinsLocally(fallbackGrid, currentBet);
-                
-                serverResult = {
-                    success: true,
-                    grid: fallbackGrid,
-                    win_amount: localWin.winAmount,
-                    winning_coords: localWin.winningCoords,
-                    line_winning_coords: localWin.lineWinningCoords,
-                    is_harvest: localWin.isDoubleJarHarvest,
-                    new_balance: currentBalance - (isBonusRound ? 0 : currentBet) + localWin.winAmount
-                };
-            } else {
-                let localEval = evaluateWinsLocally(serverResult.grid, currentBet);
-                serverResult.winning_coords = serverResult.winning_coords || localEval.winningCoords;
-                serverResult.line_winning_coords = serverResult.line_winning_coords || localEval.lineWinningCoords;
-                serverResult.is_harvest = serverResult.is_harvest !== undefined ? serverResult.is_harvest : localEval.isDoubleJarHarvest;
-            }
+                const data = await response.json();
 
-            currentBalance = parseFloat(serverResult.new_balance);
-            localStorage.setItem('gl_balance', currentBalance);
-            document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
-
-            let finalGrid = serverResult.grid;
-
-            let initialDelay = speedLevel === 1 ? 400 : (speedLevel === 2 ? 220 : 80);
-            let staggerStep = speedLevel === 1 ? 280 : (speedLevel === 2 ? 180 : 60);
-
-            for (let step = 0; step < reelsCount; step++) {
-                let reelIdx = step;
-                let currentWait = forceStopRequested ? (step * 30) : (initialDelay + step * staggerStep);
-
-                await new Promise(resolve => setTimeout(resolve, currentWait));
-
-                let strip = reelStrips[reelIdx];
-                strip.classList.remove('spinning');
-
-                let columnData = finalGrid[reelIdx];
-                populateStrip(strip, columnData);
-
-                strip.classList.add('decelerate-stop');
-                setTimeout(() => strip.classList.remove('decelerate-stop'), 380);
-
-                let jarFoundInCol = false;
-                columnData.forEach((s, rowIdx) => {
-                    if (s && s.sym === '🏺') {
-                        jarFoundInCol = true;
-                        if (strip.children[rowIdx]) {
-                            strip.children[rowIdx].classList.add('jar-stopped');
-                        }
-                    }
-                });
-
-                if (jarFoundInCol) {
-                    playProSound('jar_drop');
-                    triggerScreenShake();
-                } else {
-                    playProSound('reel_stop');
-                }
-            }
-
-            clearInterval(spinSoundInterval);
-            await displaySpinResults(serverResult);
-
-            if (isBonusRound && activeBonus) {
-                activeBonus.totalWin += parseFloat(serverResult.win_amount);
-                if (activeBonus.remaining === 0) {
-                    let finalBonusWin = activeBonus.totalWin;
-                    activeBonus = null;
-                    updateBonusBadgeUI();
-                    showModal("🎉 اكتملت ضربات المكافأة!", `انتهت الـ 5 ضربات للمكافأة.\nإجمالي الأرباح المحققة: ${finalBonusWin.toFixed(2)} NSP`);
-                } else {
-                    setTimeout(() => { if (!isSpinning) startSpin(); }, 1000);
-                }
-            }
-
-            isSpinning = false;
-            forceStopRequested = false;
-            document.getElementById('spinBtn').innerText = '↻';
-        }
-
-        /* --- تحسين شارة "مبروك ياملك/ة" وظهور الجوكر الممتد وتوسيع الرموز --- */
-        async function displaySpinResults(res) {
-            let winAmount = parseFloat(res.win_amount);
-            document.getElementById('winAmount').innerText = winAmount.toFixed(2);
-
-            let hasWin = winAmount > 0;
-            let winMultiplier = winAmount / currentBet;
-
-            // تغيير المسمى واستعراض شارة مبروك ياملك/ة عند مضاعف 10x
-            if (winMultiplier >= 10.0 || res.is_harvest) {
-                showJarBanner("👑 مبروك ياملك/ة 👑", `${winMultiplier.toFixed(1)}x`);
-            }
-
-            let lineCoords = res.line_winning_coords || res.lineWinningCoords || [];
-            let jarColumnsToExpand = new Set();
-
-            lineCoords.forEach(([c, r]) => {
-                let symObj = res.grid[c] && res.grid[c][r];
-                if (symObj && symObj.sym === '🏺') {
-                    jarColumnsToExpand.add(c);
-                }
-            });
-
-            // تغطية العمود بالكامل كأنها فاكهة مطابقة للعمود كله عند تحقيق الربح
-            if (jarColumnsToExpand.size > 0) {
-                jarColumnsToExpand.forEach((colIdx) => {
-                    let jarSym = res.grid[colIdx].find(s => s && s.sym === '🏺');
-                    let mult = jarSym ? (jarSym.mult || 1) : 1;
-                    expandJarInReel(colIdx, mult);
-                });
-                await new Promise(r => setTimeout(r, 400));
-            }
-
-            if (hasWin) {
-                document.getElementById('lineInfo').innerText = `مبروك! الأرباح: ${winAmount.toFixed(2)} NSP`;
-                document.getElementById('lastWin').innerText = winAmount.toFixed(2);
-
-                let best = parseFloat(document.getElementById('bestWin').innerText);
-                if (winAmount > best) document.getElementById('bestWin').innerText = winAmount.toFixed(2);
-
-                applyShineToWinners(res.winning_coords || []);
-                triggerUltraFastGoldShower(35);
-
-                if (winMultiplier >= 10.0 || res.is_harvest) {
-                    playProSound('big_win_music');
-                    triggerUltraFastGoldShower(80);
-                    showKingWinModal(winAmount, winMultiplier);
-                } else {
-                    playProSound('win_sound');
-                }
-            } else {
-                document.getElementById('lineInfo').innerText = 'حظ أوفر في المحاولة القادمة';
-            }
-        }
-
-        function expandJarInReel(colIdx, mult) {
-            let reel = slotsFrame.children[colIdx];
-            if (!reel) return;
-            if (reel.querySelector('.reel-jar-expanded')) return;
-
-            let multTagHtml = (mult && mult > 1) ? `<div class="jar-expanded-mult">${mult}x</div>` : '';
-            let jarDiv = document.createElement('div');
-            jarDiv.className = 'reel-jar-expanded';
-            jarDiv.innerHTML = `<div class="jar-expanded-body">🏺</div>${multTagHtml}`;
-            reel.appendChild(jarDiv);
-        }
-
-        function removeExpandedJars() {
-            document.querySelectorAll('.reel-jar-expanded').forEach(el => el.remove());
-        }
-
-        function triggerUltraFastGoldShower(count) {
-            playProSound('coins_flying');
-
-            for (let i = 0; i < count; i++) {
+                // توقف أنيميشن الدوران
                 setTimeout(() => {
-                    const coin = document.createElement('div');
-                    coin.className = 'ultra-gold-coin';
-                    coin.innerText = Math.random() < 0.55 ? '🪙' : '💰';
-                    
-                    const startX = Math.random() * 92 + 4;
-                    const dx = (Math.random() - 0.5) * 260 + 'px';
-                    const duration = (0.25 + Math.random() * 0.2) + 's';
+                    for (let r = 0; r < 5; r++) {
+                        document.getElementById(`reel-${r}`).classList.remove('spinning');
+                    }
 
-                    coin.style.left = startX + 'vw';
-                    coin.style.setProperty('--dx', dx);
-                    coin.style.setProperty('--duration', duration);
+                    if (data.success) {
+                        renderGridResults(data.grid, data.winning_coords);
+                        currentBalance = data.new_balance;
+                        updateBalanceUI(currentBalance);
 
-                    document.body.appendChild(coin);
+                        if (data.win_amount > 0) {
+                            document.getElementById('statusMessage').innerText = `🎉 مبروك! فزت بـ ${data.win_amount.toFixed(2)} $`;
+                        } else {
+                            document.getElementById('statusMessage').innerText = "حاوِل مجدداً!";
+                        }
+                    } else {
+                        document.getElementById('statusMessage').innerText = data.message || "حدث خطأ أثناء اللعب";
+                    }
 
-                    setTimeout(() => { coin.remove(); }, 500);
-                }, i * 15);
-            }
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                }, 800);
 
-            if (typeof confetti !== 'undefined') {
-                confetti({
-                    particleCount: count,
-                    spread: 120,
-                    startVelocity: 85,
-                    scalar: 2.2,
-                    gravity: 1.8,
-                    ticks: 80,
-                    origin: { y: 0.85 },
-                    colors: ['#ff66a3', '#ffb3d9', '#ffffff', '#ffdf00']
-                });
-            }
-        }
-
-        function showKingWinModal(winAmount, multiplier) {
-            document.getElementById('kingMultText').innerText = `مضاعف ${multiplier.toFixed(1)}x! 🔥`;
-            let modal = document.getElementById('kingModal');
-            modal.style.display = 'flex';
-
-            let counterObj = document.getElementById('kingWinCounter');
-            let duration = 1000;
-            let startTimestamp = null;
-
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                counterObj.innerText = (progress * winAmount).toFixed(2) + " NSP";
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
+            } catch (err) {
+                console.error("Spin error:", err);
+                for (let r = 0; r < 5; r++) {
+                    document.getElementById(`reel-${r}`).classList.remove('spinning');
                 }
-            };
-            window.requestAnimationFrame(step);
+                document.getElementById('statusMessage').innerText = "❌ خطأ في الاتصال بالشبكة";
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+            }
         }
 
-        function closeKingModal() {
-            document.getElementById('kingModal').style.display = 'none';
-        }
+        // رسم نتائج الشبكة المستلمة من السيرفر
+        function renderGridResults(grid, winningCoords = []) {
+            // تحويل الإحداثيات لفحص الفوز بسهولة
+            const winMap = new Set(winningCoords.map(c => `${c[0]}-${c[1]}`));
 
-        function triggerScreenShake() {
-            slotsFrame.classList.add('shake');
-            setTimeout(() => slotsFrame.classList.remove('shake'), 400);
-        }
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const cell = document.getElementById(`cell-${r}-${c}`);
+                    const cellData = grid[r][c];
 
-        function showJarBanner(title, mult) {
-            document.getElementById('jarWinRating').innerText = title;
-            document.getElementById('jarMultText').innerText = mult;
-            document.getElementById('jarBanner').classList.add('show');
-        }
+                    cell.className = 'symbol-cell';
+                    cell.innerHTML = cellData.sym;
 
-        function hideJarBanner() {
-            document.getElementById('jarBanner').classList.remove('show');
-        }
+                    // إذا كانت جرة ولها مضاعف
+                    if (cellData.sym === '🏺' && cellData.mult > 1) {
+                        cell.innerHTML += `<span class="jar-mult">x${cellData.mult}</span>`;
+                    }
 
-        function applyShineToWinners(coords) {
-            coords.forEach(([reelIdx, rowIdx]) => {
-                let reelStrip = reelStrips[reelIdx];
-                if (reelStrip && reelStrip.children[rowIdx]) {
-                    reelStrip.children[rowIdx].classList.add('win-pop-red');
-                    if (reelStrip.children[rowIdx].classList.contains('fruit-grape') || reelStrip.children[rowIdx].innerText.includes('🏺')) {
-                        reelStrip.children[rowIdx].classList.add('jar-stopped');
+                    // إذا كانت خلية فائزة
+                    if (winMap.has(`${r}-${c}`)) {
+                        cell.classList.add('winning');
                     }
                 }
-            });
+            }
         }
 
-        function clearShineEffects() {
-            document.querySelectorAll('.symbol').forEach(s => {
-                s.classList.remove('win-pop-red', 'jar-stopped');
-            });
-        }
-
-        function showModal(title, desc) {
-            document.getElementById('modal-status').innerText = title;
-            document.getElementById('modal-desc').innerText = desc;
-            document.getElementById('msg-modal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('msg-modal').style.display = 'none';
+        // شراء المكافأة
+        function buyBonus() {
+            if (confirm(`هل تريد شراء ميزة الجرة مقابل ${(currentBet * 10).toFixed(1)} $؟`)) {
+                playSpin(1);
+            }
         }
     </script>
 </body>
