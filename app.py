@@ -1,10 +1,14 @@
 import os
 import sqlite3
 import random
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
-GAME_FOLDER = 'templates'
-app = Flask(__name__, template_folder=GAME_FOLDER, static_folder=GAME_FOLDER)
+# --- تحديد المسارات المباشرة للمجلدات ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+GAMES_DIR = os.path.join(BASE_DIR, 'Games')
+
+app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=TEMPLATES_DIR)
 DB_NAME = 'database.db'
 
 # --- الاتصال بقاعدة البيانات مع تفعيل وضع WAL لمنع التضارب ---
@@ -19,6 +23,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # جدول المستخدمين والأرصدة
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
@@ -26,6 +31,7 @@ def init_db():
         )
     ''')
     
+    # جدول الإعدادات الشامل للتحكم من الإدارة والبوت
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -34,11 +40,7 @@ def init_db():
     ''')
     
     default_settings = {
-        "bonus_win_rate": "40",
-        "bonus_cap_1": "200",
-        "bonus_cap_2": "500",
-        "bonus_cap_3": "1000",
-        
+        # نسب الربح والخسارة العامة
         "chance_loss": "70",
         "chance_win1": "15",
         "chance_win2": "10",
@@ -47,12 +49,21 @@ def init_db():
         "chance_win20": "0",
         "chance_win50": "0",
         
-        "maintenance_mode": "off",
+        # وضع التحكم الإجباري للربح والخسارة (auto, loss, win1, win2, win5, win10, win20, win50)
         "global_win_mode": "auto",
         
-        # إعدادات خوارزمية الجرة القابلة للتعديل من البوت
-        "jar_mult_pool": "2,3,5",     # قيم المضاعفات المتاحة للجرة
-        "jar_chance_boost": "off"     # وضع رفع احتمالية ظهور الجرات (on / off)
+        # إعدادات شراء المكافأة
+        "bonus_win_rate": "40",
+        "bonus_cap_1": "200",
+        "bonus_cap_2": "500",
+        "bonus_cap_3": "1000",
+        
+        # وضع الصيانة
+        "maintenance_mode": "off",
+        
+        # إعدادات خوارزميات الألعاب والجرة (يمكن تعديلها لحظياً من البوت أو الأدمن)
+        "jar_mult_pool": "2,3,5",     # قيم المضاعفات
+        "jar_chance_boost": "off"     # وضع رفع احتمالية ظهور الميزات
     }
     
     for k, v in default_settings.items():
@@ -63,7 +74,7 @@ def init_db():
 
 init_db()
 
-# --- جلب وتحديث الإعدادات ---
+# --- دمج وتحديث الإعدادات (البوت والأدمن) ---
 def get_setting(key, default_val=""):
     try:
         conn = get_db_connection()
@@ -97,19 +108,18 @@ def update_user_balance(user_id, new_balance):
     conn.commit()
     conn.close()
 
-# --- دالة تقييم شبكة اللعبة ومنطق الجرة (Wild) ---
+# --- دالة تقييم شبكة اللعبة ومنطق الربح ---
 def evaluate_grid(grid, bet):
-    # خطوط الدفع الـ 9 الرسمية (تبدأ من العمود الأول يساراً)
     paylines = [
-        [(0,0), (1,0), (2,0), (3,0), (4,0)], # line 1: أفقي علوي
-        [(0,1), (1,1), (2,1), (3,1), (4,1)], # line 2: أفقي أوسط
-        [(0,2), (1,2), (2,2), (3,2), (4,2)], # line 3: أفقي سفلي
-        [(0,0), (1,1), (2,2), (3,1), (4,0)], # line 4: V هابط
-        [(0,2), (1,1), (2,0), (3,1), (4,2)], # line 5: V صاعد
-        [(0,1), (1,0), (2,0), (3,0), (4,1)], # line 6: قوس علوي
-        [(0,1), (1,2), (2,2), (3,2), (4,1)], # line 7: قوس سفلي
-        [(0,0), (1,0), (2,1), (3,2), (4,2)], # line 8: درجات للأسفل
-        [(0,2), (1,2), (2,1), (3,0), (4,0)]  # line 9: درجات للأعلى
+        [(0,0), (1,0), (2,0), (3,0), (4,0)],
+        [(0,1), (1,1), (2,1), (3,1), (4,1)],
+        [(0,2), (1,2), (2,2), (3,2), (4,2)],
+        [(0,0), (1,1), (2,2), (3,1), (4,0)],
+        [(0,2), (1,1), (2,0), (3,1), (4,2)],
+        [(0,1), (1,0), (2,0), (3,0), (4,1)],
+        [(0,1), (1,2), (2,2), (3,2), (4,1)],
+        [(0,0), (1,0), (2,1), (3,2), (4,2)],
+        [(0,2), (1,2), (2,1), (3,0), (4,0)]
     ]
 
     jars_count = 0
@@ -126,9 +136,7 @@ def evaluate_grid(grid, bet):
     winning_jar_reels = set()
     winning_lines = []
 
-    # 1. تقييم خطوط الدفع وتطبيق منطق الجرة (تكمل النقص وتزيد العدد)
     for line_idx, line in enumerate(paylines):
-        # تحديد الرمز الأساسي للخط (أول رمز ليس جرة ولا Scatter)
         target_sym = None
         for coord in line:
             sym = grid[coord[0]][coord[1]]["sym"]
@@ -136,7 +144,6 @@ def evaluate_grid(grid, bet):
                 target_sym = sym
                 break
 
-        # إذا كان الخط يشتمل على جرات فقط دون رموز أخرى -> يحتسب على أعلى رمز قياسي '7'
         if not target_sym:
             target_sym = "7"
 
@@ -145,7 +152,6 @@ def evaluate_grid(grid, bet):
         line_jar_mult = 1
         line_jars = []
 
-        # الاحتساب التتابعي من اليسار إلى اليمين (الجرة تكمل النقص وتزيد التوالي)
         for coord in line:
             c_sym = grid[coord[0]][coord[1]]["sym"]
             if c_sym == target_sym or c_sym == "🏺":
@@ -153,46 +159,37 @@ def evaluate_grid(grid, bet):
                 current_coords.append(list(coord))
                 if c_sym == "🏺":
                     line_jars.append(coord[0])
-                    # ضرب مضاعفات الجرات المشاركة في هذا الخط تحديداً
                     line_jar_mult *= jar_positions.get((coord[0], coord[1]), 1)
             else:
-                break # انقطاع تسلسل الخط
+                break
 
         line_base_mult = 0.0
-        
-        # جدول المضاعفات الأساسية حسب عدد الرموز المتتالية
         if target_sym == '7':
             if count == 2: line_base_mult = 1.0
             elif count == 3: line_base_mult = 2.0
             elif count == 4: line_base_mult = 6.0
             elif count >= 5: line_base_mult = 50.0
-
         elif target_sym in ['🍉', '🍇']:
             if count == 3: line_base_mult = 2.0
             elif count == 4: line_base_mult = 4.0
             elif count >= 5: line_base_mult = 6.0
-
         elif target_sym == '🔔':
             if count == 3: line_base_mult = 1.5
             elif count == 4: line_base_mult = 3.0
             elif count >= 5: line_base_mult = 4.0
-
         elif target_sym in ['🍋', '🍊', '🍍', '🍒']:
             if count == 3: line_base_mult = 1.0
             elif count == 4: line_base_mult = 2.0
             elif count >= 5: line_base_mult = 5.0
 
         if line_base_mult > 0:
-            # احتساب الربح = (المضاعف الأساسي * مضاعف الجرات) * الرهان
             line_win = (line_base_mult * line_jar_mult) * bet
             win_amount += line_win
             winning_coords.extend(current_coords)
             winning_lines.append(line_idx)
-            
             for r in line_jars:
                 winning_jar_reels.add(r)
 
-    # 2. تقييم رموز Scatter (⭐, $)
     star_coords = []
     dollar_coords = []
     for r_idx, column in enumerate(grid):
@@ -216,7 +213,7 @@ def evaluate_grid(grid, bet):
 
     return win_amount, winning_coords, has_jar, primary_jar_reel, max_jar_mult, jars_count, winning_lines
 
-# --- دالة اختيار الفئة بناءً على الإعدادات ---
+# --- اختيارات الخوارزمية المنظمة للإدارة/البوت ---
 def choose_tier(is_bonus_buy=False):
     global_mode = get_setting("global_win_mode", "auto")
     if global_mode in ["loss", "win1", "win2", "win5", "win10", "win20", "win50"]:
@@ -243,9 +240,7 @@ def choose_tier(is_bonus_buy=False):
             return "loss"
         return random.choices(tiers, weights=weights)[0]
 
-# --- توليد الشبكة مع ضبط درجات ندرة الجرات وإعدادات البوت ---
 def generate_controlled_grid(tier, bet, forced_jars=0, max_win_cap=None):
-    # جلب قيم المضاعفات المتاحة من الإعدادات (تُحدد من قبل البوت)
     raw_mults = get_setting("jar_mult_pool", "2,3,5")
     try:
         jar_mults = [int(m.strip()) for m in raw_mults.split(",") if m.strip().isdigit()]
@@ -256,8 +251,6 @@ def generate_controlled_grid(tier, bet, forced_jars=0, max_win_cap=None):
 
     for _ in range(300):
         grid = []
-        
-        # السبعات محصورة بالأرباح الضخمة فقط
         if tier in ["win20", "win50"]:
             symbols_pool = ['🍋', '🍍', '🍊', '🍒', '🍉', '🔔', '🍇', '⭐', '$', '7']
             weights = [15, 15, 15, 15, 12, 12, 12, 3, 3, 1]
@@ -265,9 +258,8 @@ def generate_controlled_grid(tier, bet, forced_jars=0, max_win_cap=None):
             symbols_pool = ['🍋', '🍍', '🍊', '🍒', '🍉', '🔔', '🍇', '⭐', '$']
             weights = [15, 15, 15, 15, 12, 12, 12, 4, 4]
 
-        # 🎯 ضبط نسبة ظهور الجرات وفق الشروط وإمكانية تفعيل الرفع من البوت:
         if forced_jars > 0:
-            target_jars = min(forced_jars, 3) # حصر ظهور 3 جرات بشراء المكافأة فقط
+            target_jars = min(forced_jars, 3)
         else:
             rand = random.random()
             boost = get_setting("jar_chance_boost", "off") == "on"
@@ -320,7 +312,7 @@ def generate_controlled_grid(tier, bet, forced_jars=0, max_win_cap=None):
         elif tier == "win50" and win_ratio > 35.0:
             return grid, win_amount, winning_coords, h_jar, j_idx, j_mult, win_lines
 
-    # شبكة الأمان
+    # شبكة الاحتياط
     safe_symbols = ['🍋', '🍍', '🍊', '🍒', '🍉']
     grid = []
     for reel_idx in range(5):
@@ -336,22 +328,34 @@ def generate_controlled_grid(tier, bet, forced_jars=0, max_win_cap=None):
             grid[r_idx][1] = {"sym": "🏺", "mult": random.choice(jar_mults)}
 
     win_amount, winning_coords, h_jar, j_idx, j_mult, j_count, win_lines = evaluate_grid(grid, bet)
-    if max_win_cap is not None and win_amount > max_win_cap:
-        win_amount = 0.0
-        winning_coords = []
-        win_lines = []
-
     return grid, win_amount, winning_coords, h_jar, j_idx, j_mult, win_lines
 
-# --- المسارات والواجهات (APIs) ---
+# ==================== المسارات والتوجيه ====================
 
-@app.route('/api/get_user', methods=['POST'])
-def get_user():
-    data = request.get_json() or {}
-    user_id = data.get('user_id', 'demo_user')
-    balance = get_user_balance(user_id)
-    maintenance = get_setting("maintenance_mode", "off") == "on"
-    return jsonify({"success": True, "balance": balance, "maintenance": maintenance})
+# 1. الصفحة الرئيسية (index.html)
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+# 2. قراءة مجلد الألعاب Games والأدوات الملحقة ديناميكياً
+@app.route('/Games/<path:filename>')
+def serve_games(filename):
+    return send_from_directory(GAMES_DIR, filename)
+
+# 3. قائمة جلب الألعاب المتوفرة داخل مجلد Games
+@app.route('/api/list_games', methods=['GET'])
+def list_games():
+    games = []
+    if os.path.exists(GAMES_DIR):
+        games = [d for d in os.listdir(GAMES_DIR) if os.path.isdir(os.path.join(GAMES_DIR, d))]
+    return jsonify({"success": True, "games": games})
+
+# 4. مسار صفحة التحكم الأدمن (admin.html)
+@app.route('/admin')
+def admin_page():
+    return render_template('admin.html')
+
+# ==================== API التحكم للـ Admin ولـ البوت ====================
 
 @app.route('/api/get_settings', methods=['GET', 'POST'])
 def get_settings_api():
@@ -367,7 +371,15 @@ def set_settings_api():
     for key, value in data.items():
         if key != 'user_id':
             set_setting(key, str(value))
-    return jsonify({"success": True, "message": "تم تحديث الإعدادات بنجاح"})
+    return jsonify({"success": True, "message": "تم تحديث إعدادات الخوارزميات بنجاح"})
+
+@app.route('/api/get_user', methods=['POST'])
+def get_user():
+    data = request.get_json() or {}
+    user_id = data.get('user_id', 'demo_user')
+    balance = get_user_balance(user_id)
+    maintenance = get_setting("maintenance_mode", "off") == "on"
+    return jsonify({"success": True, "balance": balance, "maintenance": maintenance})
 
 @app.route('/api/update_balance', methods=['POST'])
 def update_balance_api():
@@ -409,19 +421,12 @@ def play_spin():
 
     if buy_bonus_jars > 0:
         bonus_cost = data.get('bonus_cost') or data.get('cost')
-        if bonus_cost is not None:
-            try:
-                spin_cost = float(bonus_cost)
-            except (ValueError, TypeError):
-                spin_cost = bet * 10 * buy_bonus_jars
-        else:
-            spin_cost = bet * 10 * buy_bonus_jars
+        spin_cost = float(bonus_cost) if bonus_cost else (bet * 10 * buy_bonus_jars)
 
         if current_balance < spin_cost:
             return jsonify({"success": False, "message": "رصيدك غير كافٍ لشراء المكافأة!"})
 
         current_balance -= spin_cost
-
         bet_ratio = bet / 3.0
         cap_key = f"bonus_cap_{buy_bonus_jars}"
         base_cap = float(get_setting(cap_key, 200 * buy_bonus_jars))
@@ -463,7 +468,7 @@ def play_spin():
         "meter_fill": meter_fill_percent
     })
 
-@app.route('/', defaults={'path': ''})
+# التقاط كافة المسارات غير المعروفة وتحويلها إلى الصفحة الرئيسية
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template('index.html')
