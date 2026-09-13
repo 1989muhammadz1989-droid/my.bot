@@ -1,2 +1,1 @@
-python bot.py &
-gunicorn app:app
+python bot.py
