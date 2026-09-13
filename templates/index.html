@@ -2,529 +2,421 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة الألعاب - استضافة الألعاب</title>
-    <!-- مكتبة تلجرام للألعاب والـ WebApp -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>مركز الألعاب | Game Hub</title>
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0b0d;
-            --card-bg: #16171b;
-            --accent-red: #e50914;
-            --accent-red-hover: #ff1e27;
-            --accent-glow: rgba(229, 9, 20, 0.5);
-            --gold: #ffc107;
-            --text-color: #ffffff;
-            --text-muted: #a0a0a0;
-            --border-color: #2a2c33;
+            --bg-black: #0a0a0c;
+            --card-black: #141419;
+            --border-dark: #2a2a35;
+            --red-main: #ff1e42;
+            --red-glow: rgba(255, 30, 66, 0.4);
+            --red-hover: #e01737;
+            --text-white: #ffffff;
+            --text-gray: #a0a0ab;
+            --gold: #ffb703;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Cairo', sans-serif;
             user-select: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at center, #230508 0%, #0b0b0d 100%);
-            color: var(--text-color);
+            background-color: var(--bg-black);
+            color: var(--text-white);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            overflow-x: hidden;
+            padding-bottom: 20px;
         }
 
-        /* الهيدر وعرض الرصيد والمعلومات */
+        /* --- الهيدر العلوي --- */
         .header {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-bottom: 2px solid var(--accent-red);
-            border-radius: 12px;
+            background: rgba(20, 20, 25, 0.95);
+            border-bottom: 2px solid var(--red-main);
+            box-shadow: 0 4px 20px var(--red-glow);
             padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
-        .user-info {
+        .user-profile {
             display: flex;
-            flex-direction: column;
-        }
-
-        .user-id {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .user-name {
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .balance-box {
-            background: rgba(229, 9, 20, 0.15);
-            border: 1px solid var(--accent-red);
-            padding: 6px 14px;
-            border-radius: 20px;
-            text-align: right;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .balance-title {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .balance-amount {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--gold);
-        }
-
-        /* شبكة اللعبة Slot Machine */
-        .game-container {
-            width: 100%;
-            max-width: 500px;
-            background: #111215;
-            border: 2px solid var(--accent-red);
-            border-radius: 16px;
-            padding: 10px;
-            margin: 15px 0;
-            box-shadow: 0 0 25px rgba(229, 9, 20, 0.25);
-            position: relative;
-        }
-
-        .slot-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            background: #000;
-            padding: 8px;
-            border-radius: 10px;
-        }
-
-        .reel {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .symbol-cell {
-            background: #1c1d22;
-            border: 1px solid #333;
-            border-radius: 8px;
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            position: relative;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .symbol-cell.winning {
-            border-color: var(--gold);
-            box-shadow: 0 0 12px var(--gold);
-            background: #2a2200;
-            animation: pulse 0.6s infinite alternate;
-        }
-
-        .jar-mult {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            background: var(--accent-red);
-            color: white;
-            font-size: 0.65rem;
-            font-weight: bold;
-            padding: 1px 4px;
-            border-radius: 4px;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); }
-            100% { transform: scale(1.05); }
-        }
-
-        /* تحريك البكرات عند الدوران */
-        .spinning {
-            animation: spinBlur 0.15s infinite linear;
-        }
-
-        @keyframes spinBlur {
-            0% { transform: translateY(-5px); opacity: 0.7; }
-            50% { transform: translateY(5px); opacity: 0.4; }
-            100% { transform: translateY(0); opacity: 0.7; }
-        }
-
-        /* منطقة الأزرار والتحكم */
-        .controls {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
             gap: 10px;
         }
 
-        .bet-bar {
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--red-main), #500);
+            border: 2px solid var(--red-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 0 10px var(--red-glow);
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-id {
+            font-size: 11px;
+            color: var(--text-gray);
+        }
+
+        .balance-badge {
+            background: #1e1e26;
+            border: 1.5px solid var(--red-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 12px var(--red-glow);
+        }
+
+        .balance-val {
+            font-weight: 900;
+            color: var(--text-white);
+            font-size: 15px;
+        }
+
+        .balance-unit {
+            font-size: 11px;
+            color: var(--red-main);
+            font-weight: 900;
+        }
+
+        /* --- البانر والترحيب --- */
+        .hero {
+            padding: 20px 16px 10px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-white);
+            text-shadow: 0 0 12px var(--red-glow);
+            margin-bottom: 4px;
+        }
+
+        .hero p {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* --- شبكة الألعاب --- */
+        .section-title {
+            padding: 10px 16px;
+            font-size: 16px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--red-main);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 14px;
+            padding: 0 16px;
+        }
+
+        .game-card {
+            background: var(--card-black);
+            border: 1.5px solid var(--border-dark);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .game-card:hover, .game-card:active {
+            border-color: var(--red-main);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px var(--red-glow);
+        }
+
+        .game-thumb {
+            width: 100%;
+            height: 110px;
+            background: #252530;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            position: relative;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .game-tag {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: var(--red-main);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        .game-info {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .game-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-white);
+            line-height: 1.2;
+        }
+
+        .play-btn {
+            background: var(--red-main);
+            color: var(--text-white);
+            border: none;
+            padding: 6px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--red-glow);
+            transition: background 0.2s;
+        }
+
+        .play-btn:active {
+            background: var(--red-hover);
+        }
+
+        /* --- مشغل الألعاب (Iframe Fullscreen/Modal) --- */
+        .game-player-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg-black);
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .player-header {
+            background: var(--card-black);
+            border-bottom: 1.5px solid var(--red-main);
+            padding: 8px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
         }
 
-        .bet-btn {
-            background: #2a2c33;
-            color: white;
+        .close-player-btn {
+            background: var(--red-main);
+            color: #fff;
             border: none;
-            width: 36px;
-            height: 36px;
+            padding: 6px 14px;
             border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 800;
+            font-size: 12px;
             cursor: pointer;
         }
 
-        .spin-btn {
+        .game-iframe {
             width: 100%;
-            background: linear-gradient(180deg, var(--accent-red-hover) 0%, var(--accent-red) 100%);
-            color: white;
+            height: 100%;
             border: none;
-            padding: 16px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px var(--accent-glow);
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            flex-grow: 1;
         }
 
-        .spin-btn:active {
-            transform: scale(0.98);
-        }
-
-        .spin-btn:disabled {
-            background: #444;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .bonus-btn {
-            background: linear-gradient(180deg, #d4a017 0%, #8a6700 100%);
-            color: black;
+        /* --- زر Refresh --- */
+        .refresh-btn {
+            background: none;
             border: none;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 8px;
+            color: var(--red-main);
+            font-size: 16px;
             cursor: pointer;
-            width: 100%;
-        }
-
-        /* شاشة التحميل والتنبهات */
-        .status-msg {
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--gold);
-            min-height: 20px;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        .loader {
-            border: 4px solid #333;
-            border-top: 4px solid var(--accent-red);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 12px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            margin-left: 6px;
         }
     </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل أثناء الاتصال بالسيرفر -->
-    <div id="loadingOverlay" class="overlay">
-        <div class="loader"></div>
-        <p>جاري الاتصال بسيرفر اللعبة...</p>
-        <p style="font-size:0.75rem; color:#888; margin-top:5px;">(قد يستغرق 15 ثانية في حال استيقاظ السيرفر)</p>
-    </div>
-
-    <!-- الهيدر والمعلومات -->
+    <!-- الهيدر العلوي -->
     <div class="header">
-        <div class="user-info">
-            <span class="user-name" id="userName">مستخدم اللعبة</span>
-            <span class="user-id" id="userIdDisplay">ID: ------</span>
-        </div>
-        <div class="balance-box">
-            <div class="balance-title">الرصيد الحرفي</div>
-            <div class="balance-amount" id="userBalance">0.00 $</div>
-        </div>
-    </div>
-
-    <!-- شبكة اللعبة (5 أعمدة × 3 صفوف) -->
-    <div class="game-container">
-        <div class="slot-grid" id="slotGrid">
-            <!-- سيتم توليد الرموز هنا تلقائياً -->
-        </div>
-    </div>
-
-    <div class="status-msg" id="statusMessage"></div>
-
-    <!-- لوحة التحكم -->
-    <div class="controls">
-        <div class="bet-bar">
-            <span>قيمة الرهان:</span>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <button class="bet-btn" onclick="changeBet(-1)">-</button>
-                <span id="betDisplay" style="font-weight:bold; color:var(--gold);">3.0 $</span>
-                <button class="bet-btn" onclick="changeBet(1)">+</button>
+        <div class="user-profile">
+            <div class="avatar" id="uAvatar">U</div>
+            <div class="user-meta">
+                <div class="user-name" id="uName">جاري التحميل...</div>
+                <div class="user-id" id="uId">ID: 00000000</div>
             </div>
         </div>
+        <div class="balance-badge">
+            <span class="balance-val" id="uBalance">0.00</span>
+            <span class="balance-unit">NSP</span>
+            <button class="refresh-btn" onclick="fetchUserData()">🔄</button>
+        </div>
+    </div>
 
-        <button class="spin-btn" id="spinBtn" onclick="playSpin()">دوران (SPIN)</button>
-        <button class="bonus-btn" onclick="buyBonus()">🏺 شراء ميزة الجرة (x10 الرهان)</button>
+    <!-- البانر -->
+    <div class="hero">
+        <h1>🎮 منصة الألعاب الملكية</h1>
+        <p>اختر لعبتك المفضلة ونافس على الرصيد مباشرة</p>
+    </div>
+
+    <!-- شبكة الألعاب -->
+    <div class="section-title">
+        <span>🔥</span> الألعاب المتاحة
+    </div>
+
+    <div class="games-grid" id="gamesGrid">
+        <!-- يتم إدراج الألعاب ديناميكياً هنا -->
+    </div>
+
+    <!-- شاشة تشغيل اللعبة -->
+    <div class="game-player-modal" id="playerModal">
+        <div class="player-header">
+            <span style="font-weight: 800; font-size: 14px;" id="activeGameTitle">اللعبة</span>
+            <button class="close-player-btn" onclick="closeGamePlayer()">إغلاق اللعبة ✖</button>
+        </div>
+        <iframe class="game-iframe" id="gameFrame" src=""></iframe>
     </div>
 
     <script>
-        // إعدادات السيرفر
-        const SERVER_URL = 'https://my-bot-s23a.onrender.com';
-        
-        let userId = "demo_user";
-        let currentBalance = 0;
-        let currentBet = 3.0;
-        let isSpinning = false;
+        const SERVER_URL = "https://my-bot-s23a.onrender.com";
+        const tg = window.Telegram?.WebApp;
 
-        // التهيئة عند تحميل الصفحة
-        window.onload = async function() {
-            // جلب ID من التلجرام إن وجد
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.expand();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    userId = tg.initDataUnsafe.user.id.toString();
-                    document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name || "لاعب تلجرام";
-                }
-            }
-
-            // فحص رابط URL لمُعرف المستخدم إن لم يتاح من التلجرام
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('user_id')) {
-                userId = urlParams.get('user_id');
-            }
-
-            document.getElementById('userIdDisplay').innerText = "ID: " + userId;
-            
-            // رسم شبكة افتراضية 5x3
-            renderEmptyGrid();
-
-            // جلب رصيد المستخدم من السيرفر
-            await fetchUserData();
-            
-            document.getElementById('loadingOverlay').style.display = 'none';
-        };
-
-        // رسم شبكة اللعبة الفارغة initial grid
-        function renderEmptyGrid() {
-            const gridContainer = document.getElementById('slotGrid');
-            gridContainer.innerHTML = '';
-            
-            const defaultSymbols = [
-                ['🍋', '🍋', '🍋'],
-                ['🍒', '🍒', '🍒'],
-                ['🔔', '🔔', '🔔'],
-                ['🍇', '🍇', '🍇'],
-                ['🍉', '🍉', '🍉']
-            ];
-
-            for (let r = 0; r < 5; r++) {
-                const reel = document.createElement('div');
-                reel.className = 'reel';
-                reel.id = `reel-${r}`;
-
-                for (let c = 0; c < 3; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'symbol-cell';
-                    cell.id = `cell-${r}-${c}`;
-                    cell.innerText = defaultSymbols[r][c];
-                    reel.appendChild(cell);
-                }
-                gridContainer.appendChild(reel);
-            }
+        if (tg) {
+            tg.expand();
+            tg.ready();
         }
 
-        // جلب بيانات ورصيد المستخدم من سيرفر Render
+        // بيانات المستخدم الافتراضية
+        let currentUser = {
+            id: tg?.initDataUnsafe?.user?.id || "demo_user",
+            name: tg?.initDataUnsafe?.user?.first_name || "لاعب تجريبي"
+        };
+
+        // 1. قائمة الألعاب المتاحة (يمكنك إضافة أي لعبة هنا بسهولة)
+        const GAMES_LIST = [
+            {
+                id: "golden_lera",
+                title: "Golden Lera 👑",
+                icon: "🎰",
+                tag: "شبيها بالأصلية",
+                url: "https://your-username.github.io/golden-lera.html" // ضع رابط لعبتك هنا
+            },
+            {
+                id: "spin_wheel",
+                title: "عجلة الحظ 🎡",
+                icon: "🎡",
+                tag: "مكافآت",
+                url: "https://your-username.github.io/wheel.html"
+            }
+        ];
+
+        // 2. جلب بيانات ورصيد المستخدم من السيرفر الخاص بك
         async function fetchUserData() {
+            document.getElementById('uName').innerText = currentUser.name;
+            document.getElementById('uId').innerText = `ID: ${currentUser.id}`;
+            document.getElementById('uAvatar').innerText = currentUser.name[0].toUpperCase();
+
             try {
                 const response = await fetch(`${SERVER_URL}/api/get_user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentBalance = data.balance;
-                    updateBalanceUI(currentBalance);
-                    
-                    if (data.maintenance) {
-                        document.getElementById('statusMessage').innerText = "⚠️ اللعبة في وضع الصيانة حالياً";
-                        document.getElementById('spinBtn').disabled = true;
-                    }
-                }
-            } catch (err) {
-                console.error("Error fetching user:", err);
-                document.getElementById('statusMessage').innerText = "❌ تعذر الاتصال بسيرفر اللعبة";
-            }
-        }
-
-        // تحديث الرصيد على الواجهة
-        function updateBalanceUI(val) {
-            document.getElementById('userBalance').innerText = parseFloat(val).toFixed(2) + " $";
-        }
-
-        // تغيير قيمة الرهان
-        function changeBet(delta) {
-            if (isSpinning) return;
-            const bets = [1.0, 3.0, 5.0, 10.0, 20.0, 50.0];
-            let currentIndex = bets.indexOf(currentBet);
-            if (currentIndex === -1) currentIndex = 1;
-
-            let newIndex = currentIndex + delta;
-            if (newIndex >= 0 && newIndex < bets.length) {
-                currentBet = bets[newIndex];
-                document.getElementById('betDisplay').innerText = currentBet.toFixed(1) + " $";
-            }
-        }
-
-        // تنفيذ اللعبة (الدوران Normal Spin)
-        async function playSpin(buyBonusJars = 0) {
-            if (isSpinning) return;
-
-            if (currentBalance < (buyBonusJars > 0 ? currentBet * 10 : currentBet)) {
-                document.getElementById('statusMessage').innerText = "❌ الرصيد غير كافٍ!";
-                return;
-            }
-
-            isSpinning = true;
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('statusMessage').innerText = "جاري الدوران...";
-
-            // إضافة تأثير الدوران
-            for (let r = 0; r < 5; r++) {
-                document.getElementById(`reel-${r}`).classList.add('spinning');
-            }
-
-            try {
-                const response = await fetch(`${SERVER_URL}/api/play_spin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_id: userId,
-                        bet: currentBet,
-                        buy_bonus_jars: buyBonusJars
+                        user_id: currentUser.id,
+                        name: currentUser.name
                     })
                 });
 
-                const data = await response.json();
-
-                // توقف أنيميشن الدوران
-                setTimeout(() => {
-                    for (let r = 0; r < 5; r++) {
-                        document.getElementById(`reel-${r}`).classList.remove('spinning');
-                    }
-
-                    if (data.success) {
-                        renderGridResults(data.grid, data.winning_coords);
-                        currentBalance = data.new_balance;
-                        updateBalanceUI(currentBalance);
-
-                        if (data.win_amount > 0) {
-                            document.getElementById('statusMessage').innerText = `🎉 مبروك! فزت بـ ${data.win_amount.toFixed(2)} $`;
-                        } else {
-                            document.getElementById('statusMessage').innerText = "حاوِل مجدداً!";
-                        }
-                    } else {
-                        document.getElementById('statusMessage').innerText = data.message || "حدث خطأ أثناء اللعب";
-                    }
-
-                    isSpinning = false;
-                    document.getElementById('spinBtn').disabled = false;
-                }, 800);
-
-            } catch (err) {
-                console.error("Spin error:", err);
-                for (let r = 0; r < 5; r++) {
-                    document.getElementById(`reel-${r}`).classList.remove('spinning');
-                }
-                document.getElementById('statusMessage').innerText = "❌ خطأ في الاتصال بالشبكة";
-                isSpinning = false;
-                document.getElementById('spinBtn').disabled = false;
-            }
-        }
-
-        // رسم نتائج الشبكة المستلمة من السيرفر
-        function renderGridResults(grid, winningCoords = []) {
-            // تحويل الإحداثيات لفحص الفوز بسهولة
-            const winMap = new Set(winningCoords.map(c => `${c[0]}-${c[1]}`));
-
-            for (let r = 0; r < 5; r++) {
-                for (let c = 0; c < 3; c++) {
-                    const cell = document.getElementById(`cell-${r}-${c}`);
-                    const cellData = grid[r][c];
-
-                    cell.className = 'symbol-cell';
-                    cell.innerHTML = cellData.sym;
-
-                    // إذا كانت جرة ولها مضاعف
-                    if (cellData.sym === '🏺' && cellData.mult > 1) {
-                        cell.innerHTML += `<span class="jar-mult">x${cellData.mult}</span>`;
-                    }
-
-                    // إذا كانت خلية فائزة
-                    if (winMap.has(`${r}-${c}`)) {
-                        cell.classList.add('winning');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.balance !== undefined) {
+                        document.getElementById('uBalance').innerText = parseFloat(data.balance).toFixed(2);
                     }
                 }
+            } catch (error) {
+                console.warn("تعذر الاتصال بالسيرفر مباشرة، سيتم استخدام وضع العرض:", error);
             }
         }
 
-        // شراء المكافأة
-        function buyBonus() {
-            if (confirm(`هل تريد شراء ميزة الجرة مقابل ${(currentBet * 10).toFixed(1)} $؟`)) {
-                playSpin(1);
-            }
+        // 3. عرض الألعاب في الصفحة
+        function renderGames() {
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = '';
+
+            GAMES_LIST.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => openGamePlayer(game.title, game.url);
+
+                card.innerHTML = `
+                    <div class="game-thumb">
+                        ${game.icon}
+                        <span class="game-tag">${game.tag}</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">${game.title}</div>
+                        <button class="play-btn">تشغيل الآن 🚀</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
+
+        // 4. فتح وتشغيل اللعبة داخل المودال
+        function openGamePlayer(title, url) {
+            document.getElementById('activeGameTitle').innerText = title;
+            document.getElementById('gameFrame').src = url;
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        // 5. إغلاق اللعبة وتحديث الرصيد عند الخروج
+        function closeGamePlayer() {
+            document.getElementById('gameFrame').src = '';
+            document.getElementById('playerModal').style.display = 'none';
+            fetchUserData(); // إعادة جلب الرصيد للتحديث
+        }
+
+        // التشغيل عند الفتح
+        fetchUserData();
+        renderGames();
     </script>
 </body>
 </html>
