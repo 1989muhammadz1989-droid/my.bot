@@ -211,6 +211,11 @@
             font-weight: 700;
         }
 
+        .game-badge-live {
+            background: linear-gradient(135deg, #00c853, #00e676) !important;
+            color: #000 !important;
+        }
+
         .game-info {
             padding: 12px;
             text-align: center;
@@ -272,6 +277,9 @@
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .close-btn {
@@ -280,6 +288,7 @@
             color: var(--text-dim);
             font-size: 1.2rem;
             cursor: pointer;
+            z-index: 10;
         }
 
         .bet-input-group {
@@ -331,6 +340,26 @@
             padding: 40px;
             color: var(--primary-red);
             font-size: 1.2rem;
+        }
+
+        /* حاوية عرض الألعاب الحية عبر Iframe */
+        .live-iframe-container {
+            width: 100%;
+            flex-grow: 1;
+            min-height: 450px;
+            margin-top: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--glass-border);
+        }
+
+        .live-iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+            border: none;
+            display: block;
         }
 
         /* تنسيقات لوحة الإدارة */
@@ -432,23 +461,31 @@
         </div>
     </main>
 
-    <!-- نافذة تشغيل اللعبة وإجراء الرهان -->
+    <!-- نافذة تشغيل اللعبة وإجراء الرهان (يدعم الألعاب المباشرة والحية) -->
     <div class="modal-overlay" id="game-modal">
-        <div class="modal-card">
+        <div class="modal-card" id="modal-card-element">
             <i class="fa-solid fa-xmark close-btn" onclick="closeModal('game-modal')"></i>
             <h2 id="modal-game-title" style="text-align: center; color: var(--primary-red); margin-bottom: 5px;">اسم اللعبة</h2>
             <p id="modal-game-desc" style="text-align: center; font-size: 0.8rem; color: var(--text-dim);">وصف اللعبة</p>
 
-            <div class="bet-input-group">
-                <label>حدد قيمة الرهان (nps):</label>
-                <input type="number" id="bet-amount" class="bet-input" value="1.0" min="0.1" step="0.5">
+            <!-- منطقة الألعاب السريعة/العادية -->
+            <div id="static-play-area">
+                <div class="bet-input-group">
+                    <label>حدد قيمة الرهان (nps):</label>
+                    <input type="number" id="bet-amount" class="bet-input" value="1.0" min="0.1" step="0.5">
+                </div>
+
+                <button class="btn-play" style="padding: 12px; font-size: 1.1rem;" onclick="executePlay()">
+                    <i class="fa-solid fa-dice"></i> العب الآن
+                </button>
+
+                <div id="result-box" class="result-box"></div>
             </div>
 
-            <button class="btn-play" style="padding: 12px; font-size: 1.1rem;" onclick="executePlay()">
-                <i class="fa-solid fa-dice"></i> العب الآن
-            </button>
-
-            <div id="result-box" class="result-box"></div>
+            <!-- منطقة الألعاب التفاعلية الحية (Motion / Live HTML5 Games) -->
+            <div id="live-iframe-container" class="live-iframe-container" style="display: none;">
+                <iframe id="game-iframe" class="live-iframe" src="about:blank" allow="autoplay; fullscreen"></iframe>
+            </div>
         </div>
     </div>
 
@@ -553,7 +590,7 @@
             }
         }
 
-        // 2. جلب قائمة الألعاب المتاحة ديناميكياً
+        // 2. جلب قائمة الألعاب المتاحة ديناميكياً (الألعاب العادية والألعاب الحية)
         async function loadGames() {
             try {
                 const res = await fetch('/api/games');
@@ -571,17 +608,24 @@
                         card.className = 'game-card';
                         card.onclick = () => openGameModal(game);
 
-                        const iconPath = game.icon ? `/games/${game.icon}` : 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
+                        const isLive = (game.type === 'live' || game.entry_point);
+                        const badgeClass = isLive ? 'game-badge game-badge-live' : 'game-badge';
+                        const badgeText = isLive ? '🎮 حركة حية' : 'متصل باللوحة';
+
+                        let iconPath = game.icon || 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
+                        if (iconPath && !iconPath.startsWith('http') && !iconPath.startsWith('/')) {
+                            iconPath = `/games/${iconPath}`;
+                        }
 
                         card.innerHTML = `
                             <div class="game-img-wrapper">
-                                <span class="game-badge">متصل باللوحة</span>
+                                <span class="${badgeClass}">${badgeText}</span>
                                 <img src="${iconPath}" class="game-img" alt="${game.title || game.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/808/808439.png'">
                             </div>
                             <div class="game-info">
                                 <div class="game-title">${game.title || game.name || game.id}</div>
                                 <div class="game-desc">${game.description || 'لعبة حظ ومكافآت مباشرة معالجة فورياً'}</div>
-                                <button class="btn-play"><i class="fa-solid fa-play"></i> ابدأ اللعب</button>
+                                <button class="btn-play"><i class="fa-solid fa-play"></i> ${isLive ? 'تشغيل اللعبة' : 'ابدأ اللعب'}</button>
                             </div>
                         `;
                         container.appendChild(card);
@@ -597,20 +641,54 @@
             }
         }
 
-        // 3. فتح/إغلاق النوافذ
+        // 3. فتح/إغلاق النوافذ (يدعم الواجهة الحية iframe أو الرهان المباشر)
         function openGameModal(game) {
             currentGameId = game.id;
             document.getElementById('modal-game-title').innerText = game.title || game.name || game.id;
             document.getElementById('modal-game-desc').innerText = game.description || '';
-            document.getElementById('result-box').style.display = 'none';
+
+            const staticPlayArea = document.getElementById('static-play-area');
+            const liveIframeContainer = document.getElementById('live-iframe-container');
+            const modalCard = document.getElementById('modal-card-element');
+            const gameIframe = document.getElementById('game-iframe');
+
+            const isLive = (game.type === 'live' || game.entry_point);
+
+            if (isLive) {
+                // ضبط النافذة لاستيعاب اللعبة الحية
+                modalCard.style.maxWidth = '850px';
+                modalCard.style.height = '85vh';
+                staticPlayArea.style.display = 'none';
+                liveIframeContainer.style.display = 'block';
+
+                // تجهيز رابط اللعبة الحية وتمرير user_id و game_id
+                const entryUrl = game.entry_point || `/games/${game.id}/index.html`;
+                const finalUrl = `${entryUrl}${entryUrl.includes('?') ? '&' : '?'}user_id=${encodeURIComponent(userId)}&game_id=${encodeURIComponent(game.id)}`;
+                
+                gameIframe.src = finalUrl;
+            } else {
+                // ضبط النافذة للعب المباشر القديم
+                modalCard.style.maxWidth = '500px';
+                modalCard.style.height = 'auto';
+                staticPlayArea.style.display = 'block';
+                liveIframeContainer.style.display = 'none';
+                document.getElementById('result-box').style.display = 'none';
+                gameIframe.src = 'about:blank';
+            }
+
             document.getElementById('game-modal').style.display = 'flex';
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'game-modal') {
+                // إيقاف اللعبة الحية لتوفير الأداء وإيقاف الصوت بالخلفية
+                document.getElementById('game-iframe').src = 'about:blank';
+                fetchUserData(); // تحديث الرصيد بعد إغلاق اللعبة
+            }
         }
 
-        // 4. تنفيذ اللعبة وقراءة النتيجة بالعملة nps
+        // 4. تنفيذ اللعبة وقراءة النتيجة بالعملة nps (للألعاب العادية)
         async function executePlay() {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             const resultBox = document.getElementById('result-box');
