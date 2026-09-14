@@ -68,10 +68,10 @@ def init_db():
 init_db()
 
 # ----------------------------------------------------
-# 2. قراءة مجلد الألعاب ديناميكياً (Files & Subdirectories)
+# 2. قراءة مجلد الألعاب ديناميكياً (الألعاب العادية + ألعاب الحركة الحية)
 # ----------------------------------------------------
 def load_games():
-    """قراءة وفحص مجلد games ديناميكياً لإضافة أي لعبة جديدة فوراً"""
+    """قراءة وفحص مجلد games ديناميكياً لإضافة أي لعبة جديدة فوراً (بما فيها ألعاب الحركة الحية)"""
     games = {}
     if not os.path.exists(GAMES_DIR):
         os.makedirs(GAMES_DIR)
@@ -79,7 +79,7 @@ def load_games():
     conn = get_db()
     cursor = conn.cursor()
 
-    # البحث عن ملفات .json المباشرة أو داخل مجلدات فرعية في games/
+    # أ) البحث عن ملفات .json المباشرة أو داخل مجلدات فرعية في games/
     json_files = glob.glob(os.path.join(GAMES_DIR, "*.json")) + glob.glob(os.path.join(GAMES_DIR, "*", "*.json"))
 
     for filepath in json_files:
@@ -90,7 +90,6 @@ def load_games():
                 if not g_id:
                     continue
 
-                # جلب الخوارزمية من قاعدة البيانات أو استخدام الافتراضية
                 cursor.execute("SELECT * FROM game_settings WHERE game_id = ?", (g_id,))
                 row = cursor.fetchone()
 
@@ -123,6 +122,63 @@ def load_games():
         except Exception as e:
             logger.error(f"خطأ في تحميل اللعبة {filepath}: {e}")
 
+    # ب) اكتشاف وقراءة ألعاب الحركة الحية (HTML5 / Live Motion Games) داخل مجلدات games/
+    try:
+        for item in os.listdir(GAMES_DIR):
+            item_path = os.path.join(GAMES_DIR, item)
+            if os.path.isdir(item_path):
+                index_path = os.path.join(item_path, "index.html")
+                if os.path.exists(index_path) and item not in games:
+                    g_id = item
+                    
+                    # البحث عن ملف تهيئة اختياري داخل مجلد اللعبة الحية
+                    config_path = os.path.join(item_path, "game.json")
+                    gdata = {}
+                    if os.path.exists(config_path):
+                        try:
+                            with open(config_path, "r", encoding="utf-8") as cf:
+                                gdata = json.load(cf)
+                        except Exception:
+                            pass
+
+                    cursor.execute("SELECT * FROM game_settings WHERE game_id = ?", (g_id,))
+                    row = cursor.fetchone()
+
+                    if row:
+                        algo = {
+                            "loss_rate": row["loss_rate"],
+                            "normal_rate": row["normal_rate"],
+                            "medium_rate": row["medium_rate"],
+                            "high_rate": row["high_rate"],
+                            "mega_rate": row["mega_rate"]
+                        }
+                    else:
+                        default_algo = gdata.get("default_algo", {
+                            "loss_rate": 60.0,
+                            "normal_rate": 25.0,
+                            "medium_rate": 10.0,
+                            "high_rate": 4.5,
+                            "mega_rate": 0.5
+                        })
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO game_settings (game_id, loss_rate, normal_rate, medium_rate, high_rate, mega_rate)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        """, (g_id, default_algo["loss_rate"], default_algo["normal_rate"],
+                              default_algo["medium_rate"], default_algo["high_rate"], default_algo["mega_rate"]))
+                        conn.commit()
+                        algo = default_algo
+
+                    games[g_id] = {
+                        "id": g_id,
+                        "title": gdata.get("title", g_id.replace("_", " ").title()),
+                        "type": "live",
+                        "entry_point": f"/games/{g_id}/index.html",
+                        "icon": gdata.get("icon", f"/games/{g_id}/icon.png"),
+                        "algo": algo
+                    }
+    except Exception as e:
+        logger.error(f"خطأ أثناء فحص ألعاب الحركة الحية: {e}")
+
     conn.close()
     return games
 
@@ -141,7 +197,7 @@ def games_page():
 def wheel_page():
     return render_template("wheel.html")
 
-# خدمة الملفات الثابتة للألعاب داخل مجلد games
+# خدمة الملفات الثابتة للألعاب (ألعاب JSON وألعاب الحركة الحية)
 @app.route("/games/<path:filename>")
 def serve_game_files(filename):
     return send_from_directory(GAMES_DIR, filename)
@@ -294,7 +350,6 @@ def spin_wheel():
         conn.close()
         return jsonify({"success": False, "message": "ليس لديك لفات مجانية متاحة!"}), 400
 
-    # قراءة نسب العجلة المحددة من البوت عبر جدول settings
     keys = [
         'wheel_prob_luck', 'wheel_prob_5', 'wheel_prob_10', 'wheel_prob_15',
         'wheel_prob_try_again', 'wheel_prob_25', 'wheel_prob_50', 'wheel_prob_100',
@@ -317,14 +372,13 @@ def spin_wheel():
 
     result = random.choices(outcomes, weights=weights, k=1)[0]
 
-    # تطبيق مكافأة العجلة
     reward_balance = 0.0
-    spins_change = -1  # خصم لفة
+    spins_change = -1
 
     if result.isdigit():
         reward_balance = float(result)
     elif result == "try_again":
-        spins_change = 0  # إلغاء الخصم (لفة إضافية)
+        spins_change = 0
 
     new_balance = round(user["balance"] + reward_balance, 2)
     new_spins = max(0, user["free_spins"] + spins_change)
