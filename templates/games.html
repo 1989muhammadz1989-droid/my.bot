@@ -81,6 +81,30 @@
             color: var(--text-dim);
         }
 
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            display: none;
+            background: linear-gradient(135deg, var(--accent-gold), #ff9900);
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.05);
+        }
+
         .balance-box {
             background: linear-gradient(135deg, rgba(139, 0, 26, 0.4), rgba(20, 0, 5, 0.8));
             border: 1px solid var(--primary-red);
@@ -90,12 +114,19 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+            cursor: pointer;
         }
 
         .balance-amount {
             font-weight: 900;
             color: var(--accent-gold);
             font-size: 1.1rem;
+        }
+
+        .currency-symbol {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
         }
 
         /* المحتوى الرئيسي */
@@ -235,10 +266,12 @@
             border: 2px solid var(--primary-red);
             border-radius: 20px;
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
             padding: 20px;
             box-shadow: 0 0 30px rgba(255, 0, 51, 0.5);
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close-btn {
@@ -299,6 +332,61 @@
             color: var(--primary-red);
             font-size: 1.2rem;
         }
+
+        /* تنسيقات لوحة الإدارة */
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+
+        .admin-tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .admin-tab-btn.active {
+            background: var(--primary-red);
+        }
+
+        .admin-form-group {
+            margin-bottom: 12px;
+        }
+
+        .admin-form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .admin-form-group input, .admin-form-group select {
+            width: 100%;
+            padding: 8px;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        .user-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.4);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -313,11 +401,18 @@
             </div>
         </div>
 
-        <div class="balance-box" onclick="fetchUserData()">
-            <i class="fa-solid fa-wallet" style="color: var(--accent-gold);"></i>
-            <span class="balance-amount" id="u-balance">0.00</span>
-            <span style="font-size: 0.8rem; color: #fff;">$</span>
-            <i class="fa-solid fa-rotate-right" style="font-size: 0.7rem; color: var(--text-dim); cursor: pointer;"></i>
+        <div class="header-controls">
+            <!-- زر لوحة الإدارة (يظهر فقط للحساب 7255100997) -->
+            <button id="admin-btn" class="admin-btn" onclick="openAdminModal()">
+                <i class="fa-solid fa-shield-halved"></i> الأدمن
+            </button>
+
+            <div class="balance-box" onclick="fetchUserData()">
+                <i class="fa-solid fa-wallet" style="color: var(--accent-gold);"></i>
+                <span class="balance-amount" id="u-balance">0.00</span>
+                <span class="currency-symbol">nps</span>
+                <i class="fa-solid fa-rotate-right" style="font-size: 0.7rem; color: var(--text-dim);"></i>
+            </div>
         </div>
     </header>
 
@@ -340,12 +435,12 @@
     <!-- نافذة تشغيل اللعبة وإجراء الرهان -->
     <div class="modal-overlay" id="game-modal">
         <div class="modal-card">
-            <i class="fa-solid fa-xmark close-btn" onclick="closeModal()"></i>
+            <i class="fa-solid fa-xmark close-btn" onclick="closeModal('game-modal')"></i>
             <h2 id="modal-game-title" style="text-align: center; color: var(--primary-red); margin-bottom: 5px;">اسم اللعبة</h2>
             <p id="modal-game-desc" style="text-align: center; font-size: 0.8rem; color: var(--text-dim);">وصف اللعبة</p>
 
             <div class="bet-input-group">
-                <label>حدد قيمة الرهان ($):</label>
+                <label>حدد قيمة الرهان (nps):</label>
                 <input type="number" id="bet-amount" class="bet-input" value="1.0" min="0.1" step="0.5">
             </div>
 
@@ -357,7 +452,73 @@
         </div>
     </div>
 
+    <!-- نافذة لوحة الإدارة (حصرياً للحساب 7255100997) -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal-card">
+            <i class="fa-solid fa-xmark close-btn" onclick="closeModal('admin-modal')"></i>
+            <h2 style="text-align: center; color: var(--accent-gold); margin-bottom: 15px;">
+                <i class="fa-solid fa-user-shield"></i> لوحة تحكم الأدمن
+            </h2>
+
+            <div class="admin-nav">
+                <button class="admin-tab-btn active" onclick="switchAdminTab('algo')">الخوارزميات</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('users')">المستخدمين والأرصدة</button>
+            </div>
+
+            <!-- تبويب التحكم بالخوارزمية -->
+            <div id="admin-tab-algo">
+                <div class="admin-form-group">
+                    <label>اختر اللعبة:</label>
+                    <select id="admin-game-select" onchange="onAdminGameSelected()"></select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="admin-form-group">
+                        <label>نسبة الخسارة (%):</label>
+                        <input type="number" id="algo-loss" step="0.1">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>ربح عادي (%):</label>
+                        <input type="number" id="algo-normal" step="0.1">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>ربح متوسط (%):</label>
+                        <input type="number" id="algo-medium" step="0.1">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>ربح عالي (%):</label>
+                        <input type="number" id="algo-high" step="0.1">
+                    </div>
+                    <div class="admin-form-group" style="grid-column: span 2;">
+                        <label>ربح ضخم Mega (%):</label>
+                        <input type="number" id="algo-mega" step="0.1">
+                    </div>
+                </div>
+                <button class="btn-play" style="margin-top: 10px;" onclick="saveAlgorithm()">حفظ وتطبيق الخوارزمية</button>
+            </div>
+
+            <!-- تبويب إدارة المستخدمين والرصيد -->
+            <div id="admin-tab-users" style="display: none;">
+                <div class="admin-form-group">
+                    <label>معرف المستخدم (Telegram ID):</label>
+                    <input type="text" id="admin-target-user" placeholder="مثال: 123456789">
+                </div>
+                <div class="admin-form-group">
+                    <label>الرصيد الجديد (nps):</label>
+                    <input type="number" id="admin-target-balance" placeholder="0.00" step="0.5">
+                </div>
+                <button class="btn-play" style="margin-bottom: 15px;" onclick="updateUserBalance()">تحديث رصيد المستخدم</button>
+                
+                <h4 style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px;">آخر المستخدمين المسجلين:</h4>
+                <div id="admin-users-list" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+
+            <div id="admin-msg" class="result-box"></div>
+        </div>
+    </div>
+
     <script>
+        const ADMIN_ID = "7255100997";
+
         // تهيئة Telegram WebApp
         let tg = window.Telegram?.WebApp;
         if (tg) {
@@ -370,6 +531,12 @@
         let userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
         
         let currentGameId = null;
+        let loadedGamesCache = [];
+
+        // التحقق من صلاحيات الأدمن وإظهار الزر عند تطابق المعرف
+        if (String(userId) === ADMIN_ID) {
+            document.getElementById('admin-btn').style.display = 'inline-block';
+        }
 
         // 1. جلب بيانات المستخدم المحدثة تلقائياً من قواعد البيانات
         async function fetchUserData() {
@@ -386,7 +553,7 @@
             }
         }
 
-        // 2. جلب قائمة الألعاب المتاحة ديناميكياً من المجلد games/ عبر API
+        // 2. جلب قائمة الألعاب المتاحة ديناميكياً
         async function loadGames() {
             try {
                 const res = await fetch('/api/games');
@@ -398,6 +565,7 @@
                 container.innerHTML = '';
 
                 if (data.success && data.games.length > 0) {
+                    loadedGamesCache = data.games;
                     data.games.forEach(game => {
                         const card = document.createElement('div');
                         card.className = 'game-card';
@@ -429,7 +597,7 @@
             }
         }
 
-        // 3. فتح نافذة اللعبة
+        // 3. فتح/إغلاق النوافذ
         function openGameModal(game) {
             currentGameId = game.id;
             document.getElementById('modal-game-title').innerText = game.title || game.name || game.id;
@@ -438,11 +606,11 @@
             document.getElementById('game-modal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('game-modal').style.display = 'none';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
-        // 4. تنفيذ اللعبة وقراءة النتيجة والخصم/الإضافة اللحظية وفق الخوارزمية
+        // 4. تنفيذ اللعبة وقراءة النتيجة بالعملة nps
         async function executePlay() {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             const resultBox = document.getElementById('result-box');
@@ -470,15 +638,14 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // تحديث الرصيد بالصفحة
                     document.getElementById('u-balance').innerText = parseFloat(data.new_balance).toFixed(2);
 
                     if (data.multiplier > 0) {
                         resultBox.className = 'result-box result-win';
-                        resultBox.innerHTML = `🎉 مبروك! فزت بـ <b>$${data.win_amount.toFixed(2)}</b> (مضاعف: ${data.multiplier}x)<br><small>${data.tier_label}</small>`;
+                        resultBox.innerHTML = `🎉 مبروك! فزت بـ <b>${data.win_amount.toFixed(2)} nps</b> (مضاعف: ${data.multiplier}x)<br><small>${data.tier_label}</small>`;
                     } else {
                         resultBox.className = 'result-box result-loss';
-                        resultBox.innerHTML = `❌ حظ أوفر! خسرت الرهان ($${betAmount.toFixed(2)})`;
+                        resultBox.innerHTML = `❌ حظ أوفر! خسرت الرهان (${betAmount.toFixed(2)} nps)`;
                     }
                 } else {
                     resultBox.className = 'result-box result-loss';
@@ -487,6 +654,132 @@
             } catch (err) {
                 resultBox.className = 'result-box result-loss';
                 resultBox.innerText = 'تعذر الاتصال بالسيرفر!';
+            }
+        }
+
+        // ------------------------------------
+        // وظائف لوحة تحكم الأدمن (7255100997)
+        // ------------------------------------
+        function openAdminModal() {
+            if (String(userId) !== ADMIN_ID) return;
+            document.getElementById('admin-msg').style.display = 'none';
+            document.getElementById('admin-modal').style.display = 'flex';
+            populateAdminGames();
+            loadAdminUsers();
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById('admin-tab-algo').style.display = tab === 'algo' ? 'block' : 'none';
+            document.getElementById('admin-tab-users').style.display = tab === 'users' ? 'block' : 'none';
+            const tabs = document.querySelectorAll('.admin-tab-btn');
+            tabs[0].classList.toggle('active', tab === 'algo');
+            tabs[1].classList.toggle('active', tab === 'users');
+        }
+
+        function populateAdminGames() {
+            const select = document.getElementById('admin-game-select');
+            select.innerHTML = '';
+            loadedGamesCache.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.innerText = `${g.title || g.name} (${g.id})`;
+                select.appendChild(opt);
+            });
+            onAdminGameSelected();
+        }
+
+        function onAdminGameSelected() {
+            const selectedId = document.getElementById('admin-game-select').value;
+            const game = loadedGamesCache.find(g => g.id === selectedId);
+            if (game && game.algo) {
+                document.getElementById('algo-loss').value = game.algo.loss_rate;
+                document.getElementById('algo-normal').value = game.algo.normal_rate;
+                document.getElementById('algo-medium').value = game.algo.medium_rate;
+                document.getElementById('algo-high').value = game.algo.high_rate;
+                document.getElementById('algo-mega').value = game.algo.mega_rate;
+            }
+        }
+
+        async function saveAlgorithm() {
+            const msgBox = document.getElementById('admin-msg');
+            msgBox.style.display = 'block';
+            
+            const payload = {
+                admin_id: userId,
+                game_id: document.getElementById('admin-game-select').value,
+                loss_rate: parseFloat(document.getElementById('algo-loss').value),
+                normal_rate: parseFloat(document.getElementById('algo-normal').value),
+                medium_rate: parseFloat(document.getElementById('algo-medium').value),
+                high_rate: parseFloat(document.getElementById('algo-high').value),
+                mega_rate: parseFloat(document.getElementById('algo-mega').value)
+            };
+
+            try {
+                const res = await fetch('/api/admin/algo/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                msgBox.className = data.success ? 'result-box result-win' : 'result-box result-loss';
+                msgBox.innerText = data.message;
+                if(data.success) loadGames();
+            } catch(e) {
+                msgBox.className = 'result-box result-loss';
+                msgBox.innerText = 'حدث خطأ في الحفظ';
+            }
+        }
+
+        async function loadAdminUsers() {
+            try {
+                const res = await fetch(`/api/admin/users?admin_id=${userId}`);
+                const data = await res.json();
+                if (data.success) {
+                    const listContainer = document.getElementById('admin-users-list');
+                    listContainer.innerHTML = '';
+                    data.users.forEach(u => {
+                        const item = document.createElement('div');
+                        item.className = 'user-list-item';
+                        item.innerHTML = `
+                            <span><b>${u.full_name}</b> (ID: ${u.user_id})</span>
+                            <span style="color: var(--accent-gold);">${parseFloat(u.balance).toFixed(2)} nps</span>
+                        `;
+                        item.onclick = () => {
+                            document.getElementById('admin-target-user').value = u.user_id;
+                            document.getElementById('admin-target-balance').value = u.balance;
+                        };
+                        listContainer.appendChild(item);
+                    });
+                }
+            } catch(e){}
+        }
+
+        async function updateUserBalance() {
+            const msgBox = document.getElementById('admin-msg');
+            msgBox.style.display = 'block';
+
+            const payload = {
+                admin_id: userId,
+                user_id: document.getElementById('admin-target-user').value,
+                balance: parseFloat(document.getElementById('admin-target-balance').value)
+            };
+
+            try {
+                const res = await fetch('/api/admin/user/update-balance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                msgBox.className = data.success ? 'result-box result-win' : 'result-box result-loss';
+                msgBox.innerText = data.message;
+                if(data.success) {
+                    loadAdminUsers();
+                    fetchUserData();
+                }
+            } catch(e) {
+                msgBox.className = 'result-box result-loss';
+                msgBox.innerText = 'فشل تعديل الرصيد';
             }
         }
 
