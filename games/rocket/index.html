@@ -37,9 +37,114 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Top Header */
+        /* ----- واجهة الدخول الترحيبية (Modal) ----- */
+        .welcome-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 2, 4, 0.96);
+            backdrop-filter: blur(15px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .welcome-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .welcome-card {
+            background: linear-gradient(145deg, rgba(35, 10, 18, 0.95), rgba(12, 4, 7, 0.98));
+            border: 2px solid var(--primary-red);
+            border-radius: 24px;
+            padding: 30px 24px;
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(255, 0, 51, 0.35);
+            animation: popIn 0.4s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .welcome-icon {
+            font-size: 3.8rem;
+            color: var(--bright-red);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px var(--primary-red));
+            animation: float 2s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-card h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .welcome-card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .rules-list {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed var(--border-red);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: right;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            color: #ddd;
+        }
+
+        .rules-list div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .rules-list div:last-child { margin-bottom: 0; }
+        .rules-list i { color: var(--green-cashout); }
+
+        .btn-play-now {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, #ff5252 100%);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 25px rgba(255, 0, 51, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .btn-play-now:active { transform: scale(0.96); }
+
+        /* ----- شريط العلو والمعلومات ----- */
         .header {
             background: rgba(8, 3, 5, 0.95);
             backdrop-filter: blur(12px);
@@ -69,10 +174,10 @@
         }
         .balance-val { font-weight: 900; color: var(--gold); font-size: 1.1rem; }
 
-        /* Canvas Display */
+        /* ----- شاشة اللعب والـ Canvas ----- */
         .game-display {
             position: relative;
-            width: 100%; height: 360px;
+            width: 100%; height: 350px;
             background: #000;
             overflow: hidden;
             border-bottom: 2px solid var(--border-red);
@@ -80,7 +185,6 @@
 
         canvas { width: 100%; height: 100%; display: block; }
 
-        /* Multiplier Overlay */
         .canvas-overlay {
             position: absolute;
             top: 45%; left: 50%;
@@ -90,7 +194,7 @@
         }
 
         .multiplier-text {
-            font-size: 4rem;
+            font-size: 3.8rem;
             font-weight: 900;
             color: #fff;
             text-shadow: 0 0 25px var(--primary-red), 0 0 50px var(--bright-red);
@@ -106,7 +210,7 @@
         .status-crashed { color: var(--primary-red) !important; text-shadow: 0 0 15px var(--primary-red); }
         .status-cashed { color: var(--green-cashout) !important; text-shadow: 0 0 15px var(--green-cashout); }
 
-        /* Controls Panel */
+        /* ----- لوحة التحكم بالأزرار ----- */
         .controls-container {
             flex: 1;
             padding: 16px;
@@ -133,29 +237,31 @@
         .input-controls { display: flex; align-items: center; justify-content: space-between; }
 
         .btn-step {
-            width: 34px; height: 34px; border-radius: 8px;
+            width: 36px; height: 36px; border-radius: 10px;
             border: 1px solid var(--border-red);
             background: rgba(255, 0, 51, 0.15);
-            color: #fff; font-size: 1.2rem; font-weight: bold;
+            color: #fff; font-size: 1.3rem; font-weight: bold;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, transform 0.1s;
         }
-        .btn-step:active { transform: scale(0.92); background: var(--primary-red); }
+        .btn-step:active { transform: scale(0.9); background: var(--primary-red); }
 
         .bet-num {
-            font-size: 1.2rem; font-weight: 900; color: #fff;
-            background: transparent; border: none; text-align: center; width: 70px; outline: none;
+            font-size: 1.25rem; font-weight: 900; color: #fff;
+            background: transparent; border: none; text-align: center; width: 80px; outline: none;
         }
 
         /* Preset Row */
         .preset-row { display: flex; gap: 6px; }
         .btn-preset {
-            flex: 1; padding: 6px 0;
+            flex: 1; padding: 8px 0;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; color: var(--text-dim); font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            border-radius: 8px; color: var(--text-dim); font-size: 0.8rem; font-weight: 700; cursor: pointer;
         }
+        .btn-preset:active { background: rgba(255, 0, 51, 0.3); color: #fff; }
 
-        /* Main Buttons */
+        /* زر العمل الرئيسي (ابدأ الرهان / اسحب أرباحك) */
         .btn-action {
             width: 100%; padding: 18px; border: none; border-radius: 16px;
             font-size: 1.35rem; font-weight: 900; color: #fff; cursor: pointer;
@@ -168,7 +274,7 @@
             background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, #ff5252 100%);
         }
 
-        /* زر الانسحاب (سحب الأرباح) في وقت محدد */
+        /* زر الانسحاب وجمع الأرباح أثناء الطيران */
         .btn-withdraw {
             background: linear-gradient(135deg, #007e33 0%, var(--green-cashout) 100%) !important;
             box-shadow: 0 0 30px rgba(0, 230, 118, 0.8) !important;
@@ -185,21 +291,44 @@
 </head>
 <body>
 
+    <!-- واجهة الدخول الترحيبية -->
+    <div class="welcome-overlay" id="welcome-modal">
+        <div class="welcome-card">
+            <div class="welcome-icon">
+                <i class="fa-solid fa-rocket"></i>
+            </div>
+            <h2>إطلاق الصاروخ 🚀</h2>
+            <p>اقفز بالصاروخ واجمع أرباحك قبل وقوع الانفجار!</p>
+            
+            <div class="rules-list">
+                <div><i class="fa-solid fa-circle-check"></i> الرهان يبدأ من 5 ليرة وحتى 1000 ليرة.</div>
+                <div><i class="fa-solid fa-circle-check"></i> اضغط <b>ابدأ الرهان</b> لانطلاق الصاروخ.</div>
+                <div><i class="fa-solid fa-circle-check"></i> اضغط <b>اسحب أرباحك</b> قبل انفجار الصاروخ للفوز!</div>
+            </div>
+
+            <button class="btn-play-now" onclick="enterGame()">
+                <i class="fa-solid fa-play"></i> العب الآن
+            </button>
+        </div>
+    </div>
+
+    <!-- شريط الرأس -->
     <header class="header">
         <div class="user-box">
             <div class="avatar"><i class="fa-solid fa-rocket"></i></div>
             <div>
-                <div class="user-name" id="u-name">جاري التحميل...</div>
-                <div class="user-id">ID: <span id="u-id">--</span></div>
+                <div class="user-name" id="u-name">لاعب جديد</div>
+                <div class="user-id">ID: <span id="u-id">123456</span></div>
             </div>
         </div>
         <div class="balance-card">
             <i class="fa-solid fa-coins" style="color: var(--gold);"></i>
-            <span class="balance-val" id="u-balance">0.00</span>
-            <span style="font-size: 0.8rem;">$</span>
+            <span class="balance-val" id="u-balance">100.00</span>
+            <span style="font-size: 0.85rem;">ليرة</span>
         </div>
     </header>
 
+    <!-- منطقة عرض الصاروخ -->
     <div class="game-display" id="display-wrapper">
         <canvas id="gameCanvas"></canvas>
         <div class="canvas-overlay">
@@ -208,17 +337,20 @@
         </div>
     </div>
 
+    <!-- لوحة التحكم بالرهان -->
     <div class="controls-container">
         <div class="control-row">
+            <!-- التحكم بالمبلغ -->
             <div class="input-box">
-                <span class="input-label">مبلغ الرهان (يبدأ من 5$)</span>
+                <span class="input-label">مبلغ الرهان (5 - 1000 ليرة)</span>
                 <div class="input-controls">
                     <button class="btn-step" onclick="adjustBet(-5)">-</button>
-                    <input type="number" id="bet-amount" class="bet-num" value="5" min="5" step="5">
+                    <input type="number" id="bet-amount" class="bet-num" value="5" min="5" max="1000" step="5" onchange="validateBetInput(this.value)">
                     <button class="btn-step" onclick="adjustBet(5)">+</button>
                 </div>
             </div>
 
+            <!-- الانسحاب التلقائي -->
             <div class="input-box">
                 <span class="input-label">الانسحاب التلقائي (Auto)</span>
                 <div class="input-controls">
@@ -229,38 +361,47 @@
             </div>
         </div>
 
+        <!-- أزرار الاختصارات السريعة -->
         <div class="preset-row">
-            <button class="btn-preset" onclick="setBet(5)">5$</button>
-            <button class="btn-preset" onclick="adjustBet(5)">+5</button>
-            <button class="btn-preset" onclick="adjustBet(10)">+10</button>
-            <button class="btn-preset" onclick="multiplyBet(2)">X2</button>
-            <button class="btn-preset" onclick="multiplyBet(0.5)">1/2</button>
+            <button class="btn-preset" onclick="setBet(5)">5 ليرة</button>
+            <button class="btn-preset" onclick="setBet(10)">10 ليرة</button>
+            <button class="btn-preset" onclick="setBet(50)">50 ليرة</button>
+            <button class="btn-preset" onclick="setBet(100)">100 ليرة</button>
+            <button class="btn-preset" onclick="setBet(1000)">الأقصى (1000)</button>
         </div>
 
-        <!-- زر الإطلاق وزر الانسحاب في الوقت المحدد -->
+        <!-- زر الإطلاق الرئيسي يتحول تلقائياً إلى "اسحب أرباحك" -->
         <button id="action-btn" class="btn-action btn-launch" onclick="handleMainAction()">
-            <i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (5.00 $)</span>
+            <i class="fa-solid fa-paper-plane"></i> <span id="btn-text">ابدأ الرهان (5.00 ليرة)</span>
         </button>
     </div>
 
     <script>
+        // إعداد تلغرام WebApp
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.ready(); }
 
         const urlParams = new URLSearchParams(window.location.search);
         const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
 
-        let userBalance = 0.0;
-        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED, CASHED_OUT
+        let userBalance = 100.0; // رصيد افتراضي للبدء
+        let gameState = 'IDLE';  // IDLE, RUNNING, CRASHED, CASHED_OUT
         let currentMult = 1.00;
         let targetCrashMult = 1.00;
-        let betAmount = 5.0;
+        let betAmount = 5.0;     // تثبيت الرهان المبدئي على 5
         let animProgress = 0;
         let particles = [];
         let stars = [];
         let shakeTime = 0;
 
-        // Sound System
+        // دالة الدخول من الواجهة الترحيبية
+        function enterGame() {
+            const modal = document.getElementById('welcome-modal');
+            modal.classList.add('hidden');
+            playSound('launch');
+        }
+
+        // نظام الأصوات
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -273,10 +414,10 @@
 
                 if (type === 'launch') {
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(90, now);
-                    osc.frequency.exponentialRampToValueAtTime(350, now + 1.2);
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 1.0);
                     gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
                 } else if (type === 'win') {
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(523, now);
@@ -286,13 +427,13 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
                 } else if (type === 'boom') {
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(140, now);
-                    osc.frequency.exponentialRampToValueAtTime(25, now + 0.5);
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(20, now + 0.6);
                     gain.gain.setValueAtTime(0.5, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
                 }
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.5);
+                osc.start(now); osc.stop(now + 0.6);
             } catch(e) {}
         }
 
@@ -301,16 +442,19 @@
                 const res = await fetch(`/api/user/get?telegram_id=${userId}`);
                 const data = await res.json();
                 if (data.success) {
-                    userBalance = data.balance;
+                    userBalance = parseFloat(data.balance);
                     document.getElementById('u-name').innerText = data.full_name || 'مستخدم تلجرام';
                     document.getElementById('u-id').innerText = data.user_id;
-                    document.getElementById('u-balance').innerText = parseFloat(data.balance).toFixed(2);
+                    document.getElementById('u-balance').innerText = userBalance.toFixed(2);
                     updateActionBtnLabel();
                 }
-            } catch (err) {}
+            } catch (err) {
+                // في حال عدم ربط السيرفر بعد، نحتفظ بالبيانات المحلية
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+            }
         }
 
-        // Canvas Setup
+        // إعداد الـ Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -321,6 +465,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // توليد النجوم في الخلفية
         for (let i = 0; i < 70; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
@@ -330,26 +475,26 @@
             });
         }
 
-        // رسم الصاروخ الحي والنمو (Scaling Effect)
+        // رسم صاروخ مجسم وواقعي التفاصيل
         function drawRealisticRocket(x, y, scaleMult) {
             ctx.save();
             ctx.translate(x, y);
 
-            // اهتزاز محاكاة السرعة
-            if (gameState === 'RUNNING' && currentMult > 2.0) {
+            // اهتزاز محاكاة السرعة العالية
+            if (gameState === 'RUNNING' && currentMult > 1.8) {
                 const shake = Math.random() * 3 - 1.5;
                 ctx.translate(shake, shake);
             }
 
-            // نمو وتكبير الصاروخ مع ارتفاغ المضاعف
-            const baseScale = Math.min(1.8, 0.9 + (scaleMult - 1) * 0.12);
+            // تضخيم الصاروخ مع ارتفاع المضاعف
+            const baseScale = Math.min(1.6, 0.95 + (scaleMult - 1) * 0.1);
             ctx.scale(baseScale, baseScale);
             ctx.rotate(Math.PI / 3.8);
 
-            // 1. لهب المحرك المباشر (Fire Exhaust)
+            // 1. لهب المحرك الناري
             if (gameState === 'RUNNING') {
-                const flameLength = 20 + Math.random() * 15;
-                const grad = ctx.createLinearGradient(0, 15, 0, 15 + flameLength);
+                const flameLength = 22 + Math.random() * 16;
+                const grad = ctx.createLinearGradient(0, 16, 0, 16 + flameLength);
                 grad.addColorStop(0, '#ffffff');
                 grad.addColorStop(0.3, '#ffcc00');
                 grad.addColorStop(0.7, '#ff0033');
@@ -357,77 +502,84 @@
 
                 ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.moveTo(-6, 15);
-                ctx.lineTo(6, 15);
-                ctx.lineTo(0, 15 + flameLength);
+                ctx.moveTo(-7, 16);
+                ctx.lineTo(7, 16);
+                ctx.lineTo(0, 16 + flameLength);
                 ctx.closePath();
                 ctx.fill();
             }
 
-            // 2. هيكل الصاروخ (Body)
-            ctx.fillStyle = '#e6e6ed';
+            // 2. هيكل الصاروخ المعدني
+            const bodyGrad = ctx.createLinearGradient(-10, 0, 10, 0);
+            bodyGrad.addColorStop(0, '#d1d1e0');
+            bodyGrad.addColorStop(0.5, '#ffffff');
+            bodyGrad.addColorStop(1, '#9999bb');
+
+            ctx.fillStyle = bodyGrad;
             ctx.beginPath();
-            ctx.moveTo(0, -24);
-            ctx.quadraticCurveTo(10, -5, 8, 15);
-            ctx.lineTo(-8, 15);
-            ctx.quadraticCurveTo(-10, -5, 0, -24);
+            ctx.moveTo(0, -26);
+            ctx.quadraticCurveTo(11, -5, 9, 16);
+            ctx.lineTo(-9, 16);
+            ctx.quadraticCurveTo(-11, -5, 0, -26);
             ctx.closePath();
             ctx.fill();
 
-            // 3. أجنحة الصاروخ الحمراء (Wings)
+            // 3. أجنحة الصاروخ الحمراء
             ctx.fillStyle = '#ff0033';
-            // الجناح الأيمن
+            // جناح أيمن
             ctx.beginPath();
-            ctx.moveTo(7, 2); ctx.lineTo(16, 16); ctx.lineTo(7, 14);
+            ctx.moveTo(8, 2); ctx.lineTo(18, 18); ctx.lineTo(8, 15);
             ctx.closePath(); ctx.fill();
-            // الجناح الأيسر
+            // جناح أيسر
             ctx.beginPath();
-            ctx.moveTo(-7, 2); ctx.lineTo(-16, 16); ctx.lineTo(-7, 14);
+            ctx.moveTo(-8, 2); ctx.lineTo(-18, 18); ctx.lineTo(-8, 15);
             ctx.closePath(); ctx.fill();
 
-            // 4. مقدمة الصاروخ (Red Nose)
+            // 4. قمة الصاروخ الحمراء
             ctx.beginPath();
-            ctx.moveTo(0, -24);
-            ctx.quadraticCurveTo(6, -15, 6, -10);
-            ctx.lineTo(-6, -10);
-            ctx.quadraticCurveTo(-6, -15, 0, -24);
+            ctx.moveTo(0, -26);
+            ctx.quadraticCurveTo(7, -17, 7, -11);
+            ctx.lineTo(-7, -11);
+            ctx.quadraticCurveTo(-7, -17, 0, -26);
             ctx.fillStyle = '#ff0033';
             ctx.fill();
 
-            // 5. نافذة القيادة المضيئة (Window)
+            // 5. نافذة القيادة المضيئة
             ctx.fillStyle = '#00e676';
             ctx.shadowColor = '#00e676';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 10;
             ctx.beginPath();
-            ctx.arc(0, -3, 3.5, 0, Math.PI * 2);
+            ctx.arc(0, -3, 4, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
 
             ctx.restore();
         }
 
+        // رسم انفجار الصاروخ عند الخسارة
         function drawExplosion(x, y) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(x, y, (1 - shakeTime) * 60, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 0, 51, 0.4)';
+            ctx.arc(x, y, (1 - shakeTime) * 70, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 0, 51, 0.45)';
             ctx.fill();
             ctx.restore();
         }
 
+        // الحلقة التكرارية للرسم والتحريك
         function renderLoop() {
-            // Background
+            // الخلفية
             ctx.fillStyle = '#050204';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Stars Movement
+            // تحريك النجوم في الخلفية
             ctx.fillStyle = '#ffffff';
             stars.forEach(s => {
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
                 if (gameState === 'RUNNING') {
-                    s.y += s.speed * (currentMult * 0.4);
+                    s.y += s.speed * (currentMult * 0.45);
                     if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
                 }
             });
@@ -444,7 +596,7 @@
                 const curX = startX + (targetX - startX) * Math.min(animProgress, 0.85);
                 const curY = startY - (startY - targetY) * Math.min(animProgress, 0.85);
 
-                // Trajectory Glow Line
+                // مسار الطيران المضيء
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
                 ctx.quadraticCurveTo(canvas.width * 0.35, canvas.height - 40, curX, curY);
@@ -455,7 +607,7 @@
                 ctx.stroke();
                 ctx.shadowBlur = 0;
 
-                // Fire Particles
+                // جزيئات شرار النار
                 for (let i = 0; i < 2; i++) {
                     particles.push({
                         x: curX - 10, y: curY + 10,
@@ -468,18 +620,18 @@
 
                 drawRealisticRocket(curX, curY, currentMult);
 
-                // Growth Rate
+                // تسارع المضاعف
                 currentMult += 0.012 * Math.pow(currentMult, 1.04);
                 document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
                 updateActionBtnLabel();
 
-                // Auto Cashout
+                // الانسحاب التلقائي
                 const autoVal = parseFloat(document.getElementById('auto-cashout').value);
                 if (autoVal && currentMult >= autoVal) {
                     executeCashout();
                 }
 
-                // Crash Check
+                // فحص الانفجار
                 if (currentMult >= targetCrashMult) {
                     gameState = 'CRASHED';
                     playSound('boom');
@@ -537,17 +689,19 @@
 
         requestAnimationFrame(renderLoop);
 
-        // التحكم بالأزرار و "زر الانسحاب في الوقت المحدد"
+        // تحديث نص وشكل زر التحكم الرئيسي
         function updateActionBtnLabel() {
             const btn = document.getElementById('action-btn');
+            const btnText = document.getElementById('btn-text');
+
             if (gameState === 'IDLE') {
                 btn.className = 'btn-action btn-launch';
-                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (${betAmount.toFixed(2)} $)</span>`;
+                btnText.innerText = `ابدأ الرهان (${betAmount.toFixed(2)} ليرة)`;
             } else if (gameState === 'RUNNING') {
-                // زر الانسحاب المباشر مفعل فقط أثناء الطيران
+                // يتحول الزر تلقائياً إلى "اسحب أرباحك" أثناء الطيران
                 const currentProfit = (betAmount * currentMult).toFixed(2);
                 btn.className = 'btn-action btn-withdraw';
-                btn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>انسحاب الآن ($${currentProfit})</span>`;
+                btnText.innerText = `اسحب أرباحك (${currentProfit} ليرة)`;
             }
         }
 
@@ -570,6 +724,10 @@
             actionBtn.className = 'btn-action btn-disabled';
 
             try {
+                // اقتطاع رهان اللاعب مبدئياً
+                userBalance -= betAmount;
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -578,27 +736,24 @@
 
                 const data = await res.json();
                 if (!data.success) {
-                    alert(data.message || "خطأ في السيرفر!");
-                    fetchUserData(); actionBtn.disabled = false; return;
+                    targetCrashMult = (Math.random() * 3.5 + 1.1); // مضاعف عشوائي في حال عدم وجود سيرفر
+                } else {
+                    targetCrashMult = data.multiplier === 0 ? (Math.random() * 0.25 + 1.03) : data.multiplier;
                 }
-
-                userBalance = data.new_balance;
-                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
-                targetCrashMult = data.multiplier === 0 ? (Math.random() * 0.25 + 1.03) : data.multiplier;
-
-                gameState = 'RUNNING';
-                currentMult = 1.00;
-                animProgress = 0;
-                document.getElementById('status-display').innerText = '🚀 الصاروخ يحلق بك... اضغط انسحاب قبل الانفجار!';
-                document.getElementById('status-display').className = 'status-text';
-                playSound('launch');
-
-                actionBtn.disabled = false;
-                updateActionBtnLabel();
             } catch (e) {
-                alert("تعذر الاتصال بالسيرفر!");
-                fetchUserData(); actionBtn.disabled = false;
+                // تجربة محاكاة سريعة في حال تشغيل الملف محلياً بدون سيرفر
+                targetCrashMult = (Math.random() * 3.5 + 1.1);
             }
+
+            gameState = 'RUNNING';
+            currentMult = 1.00;
+            animProgress = 0;
+            document.getElementById('status-display').innerText = '🚀 الصاروخ يحلق... اضغط "اسحب أرباحك" قبل الانفجار!';
+            document.getElementById('status-display').className = 'status-text';
+            playSound('launch');
+
+            actionBtn.disabled = false;
+            updateActionBtnLabel();
         }
 
         function executeCashout() {
@@ -607,24 +762,30 @@
             playSound('win');
 
             const winMult = currentMult.toFixed(2);
-            document.getElementById('status-display').innerText = `🎉 تم الانسحاب بنجاح عند ${winMult}x!`;
+            const winAmount = (betAmount * currentMult);
+            userBalance += winAmount;
+            document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+
+            document.getElementById('status-display').innerText = `🎉 تم سحب الأرباح بنجاح: +${winAmount.toFixed(2)} ليرة (${winMult}x)!`;
             document.getElementById('status-display').className = 'status-text status-cashed';
             document.getElementById('mult-display').style.color = '#00e676';
 
-            fetchUserData();
+            const btn = document.getElementById('action-btn');
+            btn.className = 'btn-action btn-disabled';
+            document.getElementById('btn-text').innerText = `تم سحب الأرباح بنجاح!`;
+
             setTimeout(resetToIdle, 3000);
         }
 
         function onRocketCrashed() {
-            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${targetCrashMult.toFixed(2)}x! (خسارة)`;
+            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${currentMult.toFixed(2)}x! (خسارة)`;
             document.getElementById('status-display').className = 'status-text status-crashed';
             document.getElementById('mult-display').style.color = '#ff0033';
 
             const btn = document.getElementById('action-btn');
             btn.className = 'btn-action btn-disabled';
-            btn.innerHTML = `<span>انفجر الصاروخ!</span>`;
+            document.getElementById('btn-text').innerText = `انفجر الصاروخ!`;
 
-            fetchUserData();
             setTimeout(resetToIdle, 3000);
         }
 
@@ -635,24 +796,33 @@
             document.getElementById('mult-display').style.color = '#ffffff';
             document.getElementById('status-display').innerText = 'جاهز للإطلاق';
             document.getElementById('status-display').className = 'status-text';
+            const btn = document.getElementById('action-btn');
+            btn.disabled = false;
             updateActionBtnLabel();
         }
 
+        // التحكم بالرهان والحدود (5 - 1000)
         function adjustBet(delta) {
-            betAmount = Math.max(5, betAmount + delta);
+            betAmount = Math.max(5, Math.min(1000, betAmount + delta));
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
+
         function setBet(val) {
-            betAmount = Math.max(5, val);
+            betAmount = Math.max(5, Math.min(1000, val));
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
-        function multiplyBet(factor) {
-            betAmount = Math.max(5, Math.round(betAmount * factor));
+
+        function validateBetInput(val) {
+            let num = parseFloat(val) || 5;
+            if (num < 5) num = 5;
+            if (num > 1000) num = 1000;
+            betAmount = num;
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
+
         function adjustAuto(delta) {
             const el = document.getElementById('auto-cashout');
             let val = parseFloat(el.value) || 2.0;
