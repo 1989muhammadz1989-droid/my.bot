@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 لعبة إطلاق الصاروخ الاحترافية | Crash Rocket</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #080305;
+            --bg-card: rgba(20, 8, 12, 0.9);
+            --primary-red: #ff0033;
+            --bright-red: #ff2a55;
+            --dark-red: #8b001a;
+            --gold: #ffcc00;
+            --green-win: #00e676;
+            --text-light: #f5f5f7;
+            --text-dim: #a0a0ab;
+            --border-red: rgba(255, 0, 51, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #240008 0%, var(--bg-dark) 85%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .header {
+            background: rgba(10, 4, 7, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-red);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(255, 0, 51, 0.2);
+            z-index: 50;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 0 12px rgba(255, 0, 51, 0.6);
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .user-id {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, rgba(139, 0, 26, 0.5), rgba(10, 0, 3, 0.9));
+            border: 1px solid var(--primary-red);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+        }
+
+        .balance-val {
+            font-weight: 900;
+            color: var(--gold);
+            font-size: 1.05rem;
+        }
+
+        /* History Bar */
+        .history-bar {
+            display: flex;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(255, 0, 51, 0.15);
+        }
+
+        .history-bar::-webkit-scrollbar { display: none; }
+
+        .hist-chip {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hist-chip.low { color: #ff5252; border-color: rgba(255, 82, 82, 0.4); }
+        .hist-chip.mid { color: #00e676; border-color: rgba(0, 230, 118, 0.4); }
+        .hist-chip.high { color: var(--gold); border-color: rgba(255, 204, 0, 0.5); text-shadow: 0 0 5px var(--gold); }
+
+        /* Canvas Wrapper */
+        .game-display {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            background: #000;
+            overflow: hidden;
+            border-bottom: 2px solid var(--border-red);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Multiplier & Status Overlay */
+        .canvas-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .multiplier-text {
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--primary-red), 0 0 40px var(--bright-red);
+            line-height: 1;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        .status-crashed {
+            color: var(--primary-red) !important;
+            text-shadow: 0 0 15px var(--primary-red);
+        }
+
+        /* Controls Panel */
+        .controls-container {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-box {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-red);
+            border-radius: 14px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            font-weight: 700;
+        }
+
+        .input-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-step {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-red);
+            background: rgba(255, 0, 51, 0.15);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+        }
+
+        .btn-step:active {
+            transform: scale(0.92);
+            background: var(--primary-red);
+        }
+
+        .bet-num {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            background: transparent;
+            border: none;
+            text-align: center;
+            width: 70px;
+            outline: none;
+        }
+
+        /* Quick Bet Presets */
+        .preset-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-preset {
+            flex: 1;
+            padding: 6px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-preset:active {
+            background: var(--dark-red);
+            color: #fff;
+        }
+
+        /* Main Launch/Cashout Button */
+        .btn-action {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 6px 25px rgba(255, 0, 51, 0.4);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        .btn-launch {
+            background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, #ff5252 100%);
+        }
+        .btn-launch:active { transform: scale(0.98); }
+
+        .btn-cashout {
+            background: linear-gradient(135deg, #007e33 0%, var(--green-win) 100%);
+            box-shadow: 0 6px 25px rgba(0, 230, 118, 0.4);
+            animation: pulse-green 1s infinite alternate;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
+            100% { box-shadow: 0 0 30px rgba(0, 230, 118, 0.9); }
+        }
+
+        .btn-disabled {
+            background: #333 !important;
+            color: #777 !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+        }
+
+        /* Sound Control */
+        .sound-toggle {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="user-box">
+            <div class="avatar"><i class="fa-solid fa-rocket"></i></div>
+            <div>
+                <div class="user-name" id="u-name">جاري التحميل...</div>
+                <div class="user-id">ID: <span id="u-id">--</span></div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="sound-toggle" onclick="toggleSound()" id="snd-btn"><i class="fa-solid fa-volume-high"></i></button>
+            <div class="balance-card">
+                <i class="fa-solid fa-coins" style="color: var(--gold);"></i>
+                <span class="balance-val" id="u-balance">0.00</span>
+                <span style="font-size: 0.8rem;">$</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- History Chips -->
+    <div class="history-bar" id="history-bar">
+        <span class="hist-chip low">1.12x</span>
+        <span class="hist-chip mid">2.45x</span>
+        <span class="hist-chip high">15.80x</span>
+        <span class="hist-chip low">1.04x</span>
+        <span class="hist-chip mid">3.10x</span>
+    </div>
+
+    <!-- Canvas Game Display -->
+    <div class="game-display">
+        <canvas id="gameCanvas"></canvas>
+        <div class="canvas-overlay">
+            <div class="multiplier-text" id="mult-display">1.00x</div>
+            <div class="status-text" id="status-display">جاهز للإطلاق</div>
+        </div>
+    </div>
+
+    <!-- Bet & Play Controls -->
+    <div class="controls-container">
+        
+        <div class="control-row">
+            <!-- Bet Amount Input (Starts at 5) -->
+            <div class="input-box">
+                <span class="input-label">مبلغ الرهان (يبدأ من 5 ليرة/$)</span>
+                <div class="input-controls">
+                    <button class="btn-step" onclick="adjustBet(-5)">-</button>
+                    <input type="number" id="bet-amount" class="bet-num" value="5" min="5" step="5">
+                    <button class="btn-step" onclick="adjustBet(5)">+</button>
+                </div>
+            </div>
+
+            <!-- Auto Cashout Multiplier -->
+            <div class="input-box">
+                <span class="input-label">السحب التلقائي (Auto Cashout)</span>
+                <div class="input-controls">
+                    <button class="btn-step" onclick="adjustAuto(-0.5)">-</button>
+                    <input type="number" id="auto-cashout" class="bet-num" value="2.00" min="1.1" step="0.5">
+                    <button class="btn-step" onclick="adjustAuto(0.5)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Bet Presets -->
+        <div class="preset-row">
+            <button class="btn-preset" onclick="setBet(5)">5$</button>
+            <button class="btn-preset" onclick="adjustBet(5)">+5</button>
+            <button class="btn-preset" onclick="adjustBet(10)">+10</button>
+            <button class="btn-preset" onclick="adjustBet(50)">+50</button>
+            <button class="btn-preset" onclick="multiplyBet(2)">X2</button>
+            <button class="btn-preset" onclick="multiplyBet(0.5)">1/2</button>
+        </div>
+
+        <!-- Main Action Button -->
+        <button id="action-btn" class="btn-action btn-launch" onclick="handleMainAction()">
+            <i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (5.00 $)</span>
+        </button>
+
+    </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // 1. Telegram & User Initialization
+        // ---------------------------------------------------------
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.expand(); tg.ready(); }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
+
+        let userBalance = 0.0;
+        let soundEnabled = true;
+
+        async function fetchUserData() {
+            try {
+                const res = await fetch(`/api/user/get?telegram_id=${userId}`);
+                const data = await res.json();
+                if (data.success) {
+                    userBalance = data.balance;
+                    document.getElementById('u-name').innerText = data.full_name || 'مستخدم تلجرام';
+                    document.getElementById('u-id').innerText = data.user_id;
+                    document.getElementById('u-balance').innerText = parseFloat(data.balance).toFixed(2);
+                    updateActionBtnLabel();
+                }
+            } catch (err) { console.error("User fetch error:", err); }
+        }
+
+        // ---------------------------------------------------------
+        // 2. Web Audio Synthesizer (No External Files Required)
+        // ---------------------------------------------------------
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const now = audioCtx.currentTime;
+
+                if (type === 'launch') {
+                    // Rocket thrust noise
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(80, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 1.5);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 1.5);
+                } else if (type === 'win') {
+                    // Cashout chime
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.5);
+                } else if (type === 'boom') {
+                    // Explosion noise
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(120, now);
+                    osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.4);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('snd-btn').innerHTML = soundEnabled ? 
+                '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark" style="color:#777"></i>';
+        }
+
+        // ---------------------------------------------------------
+        // 3. Canvas Engine (Rocket & Particle System)
+        // ---------------------------------------------------------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED, CASHED_OUT
+        let currentMult = 1.00;
+        let targetCrashMult = 1.00;
+        let serverWinAmount = 0.0;
+        let betAmount = 5.0;
+        let animProgress = 0;
+        let particles = [];
+        let stars = [];
+
+        // Generate background stars
+        for (let i = 0; i < 60; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 1.5 + 0.5
+            });
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#080305';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw moving stars
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (gameState === 'RUNNING') {
+                    s.y += s.speed * (currentMult * 0.5);
+                    if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+                }
+            });
+
+            // Grid Altitude Lines
+            ctx.strokeStyle = 'rgba(255, 0, 51, 0.08)';
+            ctx.lineWidth = 1;
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawRocketCurve(x, y) {
+            // Trajectory Glow Line
+            ctx.beginPath();
+            ctx.moveTo(30, canvas.height - 30);
+            ctx.quadraticCurveTo(canvas.width * 0.4, canvas.height - 30, x, y);
+            ctx.strokeStyle = '#ff0033';
+            ctx.lineWidth = 4;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff0033';
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Draw Flame Particles behind rocket tail
+            if (gameState === 'RUNNING') {
+                for (let i = 0; i < 3; i++) {
+                    particles.push({
+                        x: x - 12 + (Math.random() * 8 - 4),
+                        y: y + 15 + (Math.random() * 8 - 4),
+                        vx: -Math.random() * 2 - 1,
+                        vy: Math.random() * 3 + 2,
+                        size: Math.random() * 6 + 3,
+                        color: Math.random() > 0.5 ? '#ffcc00' : '#ff0033',
+                        life: 1.0
+                    });
+                }
+            }
+
+            // Draw Rocket Body
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4); // Angle pointing upwards
+
+            // Rocket Body Curve
+            ctx.fillStyle = '#f5f5f7';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 8, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Red Nose Cone
+            ctx.fillStyle = '#ff0033';
+            ctx.beginPath();
+            ctx.arc(0, -12, 6, Math.PI, 0);
+            ctx.fill();
+
+            // Cockpit Window
+            ctx.fillStyle = '#00e676';
+            ctx.beginPath();
+            ctx.arc(0, -4, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.04;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function triggerExplosion(x, y) {
+            playSound('boom');
+            particles = [];
+            for (let i = 0; i < 70; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 8 + 3,
+                    color: ['#ff0033', '#ffcc00', '#ff5252', '#ffffff'][Math.floor(Math.random() * 4)],
+                    life: 1.0
+                });
+            }
+        }
+
+        // Main Animation Loop
+        function renderLoop() {
+            drawBackground();
+
+            const startX = 40;
+            const startY = canvas.height - 40;
+            const targetX = canvas.width - 60;
+            const targetY = 60;
+
+            if (gameState === 'RUNNING') {
+                animProgress += 0.008 * (1 + currentMult * 0.1);
+                if (animProgress > 1) animProgress = 1;
+
+                const curX = startX + (targetX - startX) * Math.min(animProgress, 0.85);
+                const curY = startY - (startY - targetY) * Math.min(animProgress, 0.85);
+
+                drawRocketCurve(curX, curY);
+
+                // Multiplier Growth
+                currentMult += 0.015 * Math.pow(currentMult, 1.05);
+                document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
+                document.getElementById('mult-display').style.color = '#ffffff';
+
+                // Auto Cashout Check
+                const autoVal = parseFloat(document.getElementById('auto-cashout').value);
+                if (autoVal && currentMult >= autoVal && gameState === 'RUNNING') {
+                    executeCashout();
+                }
+
+                // Crash Check
+                if (currentMult >= targetCrashMult) {
+                    gameState = 'CRASHED';
+                    triggerExplosion(curX, curY);
+                    onRocketCrashed();
+                }
+
+            } else if (gameState === 'CRASHED' || gameState === 'CASHED_OUT') {
+                drawParticles();
+            } else {
+                // IDLE State - Draw static rocket on pad
+                drawRocketCurve(startX, startY);
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        requestAnimationFrame(renderLoop);
+
+        // ---------------------------------------------------------
+        // 4. Game Control & API Integration
+        // ---------------------------------------------------------
+        function updateActionBtnLabel() {
+            const btn = document.getElementById('action-btn');
+            if (gameState === 'IDLE') {
+                btn.className = 'btn-action btn-launch';
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (${betAmount.toFixed(2)} $)</span>`;
+            } else if (gameState === 'RUNNING') {
+                const currentWin = (betAmount * currentMult).toFixed(2);
+                btn.className = 'btn-action btn-cashout';
+                btn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>سحب الأرباح ($${currentWin})</span>`;
+            }
+        }
+
+        async function handleMainAction() {
+            if (gameState === 'IDLE') {
+                await startLaunch();
+            } else if (gameState === 'RUNNING') {
+                executeCashout();
+            }
+        }
+
+        async function startLaunch() {
+            if (userBalance < betAmount) {
+                alert("رصيدك غير كافٍ للرهان!");
+                return;
+            }
+
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.disabled = true;
+            actionBtn.className = 'btn-action btn-disabled';
+            actionBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الإطلاق...</span>`;
+
+            try {
+                // Call Server API /api/play
+                const res = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        game_id: "rocket",
+                        bet_amount: betAmount
+                    })
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    alert(data.message || "حدث خطأ في السيرفر!");
+                    fetchUserData();
+                    updateActionBtnLabel();
+                    actionBtn.disabled = false;
+                    return;
+                }
+
+                // Backend return setup
+                serverWinAmount = data.win_amount;
+                userBalance = data.new_balance;
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+
+                if (data.multiplier === 0) {
+                    // Loss outcome: crash between 1.02x and 1.30x
+                    targetCrashMult = (Math.random() * 0.28 + 1.02);
+                } else {
+                    // Win outcome: rocket flies until server multiplier
+                    targetCrashMult = data.multiplier;
+                }
+
+                // Start flight
+                gameState = 'RUNNING';
+                currentMult = 1.00;
+                animProgress = 0;
+                document.getElementById('status-display').innerText = 'الصاروخ محلق...';
+                document.getElementById('status-display').className = 'status-text';
+                playSound('launch');
+
+                actionBtn.disabled = false;
+                updateActionBtnLabel();
+
+            } catch (e) {
+                alert("تعذر الاتصال بالسيرفر!");
+                fetchUserData();
+                actionBtn.disabled = false;
+                updateActionBtnLabel();
+            }
+        }
+
+        function executeCashout() {
+            if (gameState !== 'RUNNING') return;
+            gameState = 'CASHED_OUT';
+            playSound('win');
+
+            const cashedMult = currentMult.toFixed(2);
+            document.getElementById('status-display').innerText = `🎉 تم السحب بنجاح عند ${cashedMult}x!`;
+            document.getElementById('status-display').className = 'status-text';
+            document.getElementById('mult-display').style.color = '#00e676';
+
+            addHistoryChip(cashedMult, 'mid');
+            fetchUserData();
+
+            setTimeout(resetToIdle, 3000);
+        }
+
+        function onRocketCrashed() {
+            playSound('boom');
+            const crashMult = targetCrashMult.toFixed(2);
+            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${crashMult}x!`;
+            document.getElementById('status-display').className = 'status-text status-crashed';
+            document.getElementById('mult-display').style.color = '#ff0033';
+
+            addHistoryChip(crashMult, 'low');
+            fetchUserData();
+
+            setTimeout(resetToIdle, 3000);
+        }
+
+        function resetToIdle() {
+            gameState = 'IDLE';
+            currentMult = 1.00;
+            document.getElementById('mult-display').innerText = '1.00x';
+            document.getElementById('mult-display').style.color = '#ffffff';
+            document.getElementById('status-display').innerText = 'جاهز للإطلاق';
+            document.getElementById('status-display').className = 'status-text';
+            updateActionBtnLabel();
+        }
+
+        function addHistoryChip(val, type) {
+            const bar = document.getElementById('history-bar');
+            const chip = document.createElement('span');
+            chip.className = `hist-chip ${parseFloat(val) > 5 ? 'high' : type}`;
+            chip.innerText = val + 'x';
+            bar.insertBefore(chip, bar.firstChild);
+        }
+
+        // ---------------------------------------------------------
+        // 5. Input Controls (+ / - Buttons)
+        // ---------------------------------------------------------
+        function adjustBet(delta) {
+            betAmount = Math.max(5, betAmount + delta);
+            document.getElementById('bet-amount').value = betAmount;
+            updateActionBtnLabel();
+        }
+
+        function setBet(val) {
+            betAmount = Math.max(5, val);
+            document.getElementById('bet-amount').value = betAmount;
+            updateActionBtnLabel();
+        }
+
+        function multiplyBet(factor) {
+            betAmount = Math.max(5, Math.round(betAmount * factor));
+            document.getElementById('bet-amount').value = betAmount;
+            updateActionBtnLabel();
+        }
+
+        function adjustAuto(delta) {
+            const el = document.getElementById('auto-cashout');
+            let val = parseFloat(el.value) || 2.0;
+            val = Math.max(1.1, val + delta);
+            el.value = val.toFixed(2);
+        }
+
+        document.getElementById('bet-amount').addEventListener('change', (e) => {
+            betAmount = Math.max(5, parseFloat(e.target.value) || 5);
+            e.target.value = betAmount;
+            updateActionBtnLabel();
+        });
+
+        // Initialize on load
+        window.onload = () => {
+            fetchUserData();
+        };
+    </script>
+</body>
+</html>
