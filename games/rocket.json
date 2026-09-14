@@ -1,0 +1,14 @@
+{
+  "id": "rocket",
+  "name": "إطلاق الصاروخ",
+  "title": "🚀 إطلاق الصاروخ (Crash)",
+  "description": "اقفز بالصاروخ واجمع أرباحك قبل الانفجار! الرهان يبدأ من 5 ليرة.",
+  "icon": "rocket.png",
+  "default_algo": {
+    "loss_rate": 55.0,
+    "normal_rate": 30.0,
+    "medium_rate": 10.0,
+    "high_rate": 4.5,
+    "mega_rate": 0.5
+  }
+}
