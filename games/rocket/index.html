@@ -3,37 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 لعبة إطلاق الصاروخ الاحترافية | Crash Rocket</title>
-    <!-- Telegram WebApp SDK -->
+    <title>🚀 لعبة إطلاق الصاروخ التفاعلية | Live Crash Rocket</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-dark: #080305;
-            --bg-card: rgba(20, 8, 12, 0.9);
+            --bg-dark: #050204;
+            --bg-card: rgba(18, 6, 10, 0.92);
             --primary-red: #ff0033;
             --bright-red: #ff2a55;
-            --dark-red: #8b001a;
+            --dark-red: #7a0016;
             --gold: #ffcc00;
-            --green-win: #00e676;
-            --text-light: #f5f5f7;
+            --green-cashout: #00e676;
+            --text-light: #ffffff;
             --text-dim: #a0a0ab;
-            --border-red: rgba(255, 0, 51, 0.35);
+            --border-red: rgba(255, 0, 51, 0.4);
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Tajawal', sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: radial-gradient(circle at center, #240008 0%, var(--bg-dark) 85%);
+            background: radial-gradient(circle at center, #260008 0%, var(--bg-dark) 85%);
             color: var(--text-light);
             min-height: 100vh;
             display: flex;
@@ -43,138 +41,75 @@
 
         /* Top Header */
         .header {
-            background: rgba(10, 4, 7, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(8, 3, 5, 0.95);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-red);
             padding: 12px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(255, 0, 51, 0.2);
+            box-shadow: 0 4px 20px rgba(255, 0, 51, 0.25);
             z-index: 50;
         }
 
-        .user-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .user-box { display: flex; align-items: center; gap: 10px; }
         .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 42px; height: 42px; border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            box-shadow: 0 0 12px rgba(255, 0, 51, 0.6);
-        }
-
-        .user-name {
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-
-        .user-id {
-            font-size: 0.7rem;
-            color: var(--text-dim);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; box-shadow: 0 0 12px rgba(255, 0, 51, 0.6);
         }
 
         .balance-card {
-            background: linear-gradient(135deg, rgba(139, 0, 26, 0.5), rgba(10, 0, 3, 0.9));
+            background: linear-gradient(135deg, rgba(122, 0, 22, 0.6), rgba(8, 0, 3, 0.95));
             border: 1px solid var(--primary-red);
-            padding: 6px 14px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+            padding: 6px 14px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.35);
         }
+        .balance-val { font-weight: 900; color: var(--gold); font-size: 1.1rem; }
 
-        .balance-val {
-            font-weight: 900;
-            color: var(--gold);
-            font-size: 1.05rem;
-        }
-
-        /* History Bar */
-        .history-bar {
-            display: flex;
-            gap: 8px;
-            padding: 8px 15px;
-            background: rgba(0, 0, 0, 0.6);
-            overflow-x: auto;
-            white-space: nowrap;
-            border-bottom: 1px solid rgba(255, 0, 51, 0.15);
-        }
-
-        .history-bar::-webkit-scrollbar { display: none; }
-
-        .hist-chip {
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .hist-chip.low { color: #ff5252; border-color: rgba(255, 82, 82, 0.4); }
-        .hist-chip.mid { color: #00e676; border-color: rgba(0, 230, 118, 0.4); }
-        .hist-chip.high { color: var(--gold); border-color: rgba(255, 204, 0, 0.5); text-shadow: 0 0 5px var(--gold); }
-
-        /* Canvas Wrapper */
+        /* Canvas Display */
         .game-display {
             position: relative;
-            width: 100%;
-            height: 340px;
+            width: 100%; height: 360px;
             background: #000;
             overflow: hidden;
             border-bottom: 2px solid var(--border-red);
         }
 
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        canvas { width: 100%; height: 100%; display: block; }
 
-        /* Multiplier & Status Overlay */
+        /* Multiplier Overlay */
         .canvas-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 45%; left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
             pointer-events: none;
         }
 
         .multiplier-text {
-            font-size: 3.8rem;
+            font-size: 4rem;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 20px var(--primary-red), 0 0 40px var(--bright-red);
+            text-shadow: 0 0 25px var(--primary-red), 0 0 50px var(--bright-red);
             line-height: 1;
         }
 
         .status-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-dim);
-            margin-top: 5px;
-            letter-spacing: 1px;
+            margin-top: 8px;
         }
-
-        .status-crashed {
-            color: var(--primary-red) !important;
-            text-shadow: 0 0 15px var(--primary-red);
-        }
+        .status-crashed { color: var(--primary-red) !important; text-shadow: 0 0 15px var(--primary-red); }
+        .status-cashed { color: var(--green-cashout) !important; text-shadow: 0 0 15px var(--green-cashout); }
 
         /* Controls Panel */
         .controls-container {
             flex: 1;
-            padding: 15px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -183,11 +118,7 @@
             width: 100%;
         }
 
-        .control-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        .control-row { display: flex; gap: 10px; }
 
         .input-box {
             flex: 1;
@@ -195,134 +126,65 @@
             border: 1px solid var(--border-red);
             border-radius: 14px;
             padding: 8px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            display: flex; flex-direction: column; gap: 4px;
         }
 
-        .input-label {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            font-weight: 700;
-        }
-
-        .input-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .input-label { font-size: 0.72rem; color: var(--text-dim); font-weight: 700; }
+        .input-controls { display: flex; align-items: center; justify-content: space-between; }
 
         .btn-step {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 34px; height: 34px; border-radius: 8px;
             border: 1px solid var(--border-red);
             background: rgba(255, 0, 51, 0.15);
-            color: #fff;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.1s;
+            color: #fff; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-
-        .btn-step:active {
-            transform: scale(0.92);
-            background: var(--primary-red);
-        }
+        .btn-step:active { transform: scale(0.92); background: var(--primary-red); }
 
         .bet-num {
-            font-size: 1.2rem;
-            font-weight: 900;
-            color: #fff;
-            background: transparent;
-            border: none;
-            text-align: center;
-            width: 70px;
-            outline: none;
+            font-size: 1.2rem; font-weight: 900; color: #fff;
+            background: transparent; border: none; text-align: center; width: 70px; outline: none;
         }
 
-        /* Quick Bet Presets */
-        .preset-row {
-            display: flex;
-            gap: 6px;
-        }
-
+        /* Preset Row */
+        .preset-row { display: flex; gap: 6px; }
         .btn-preset {
-            flex: 1;
-            padding: 6px 0;
+            flex: 1; padding: 6px 0;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
+            border-radius: 8px; color: var(--text-dim); font-size: 0.75rem; font-weight: 700; cursor: pointer;
         }
 
-        .btn-preset:active {
-            background: var(--dark-red);
-            color: #fff;
-        }
-
-        /* Main Launch/Cashout Button */
+        /* Main Buttons */
         .btn-action {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 16px;
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: #fff;
-            cursor: pointer;
+            width: 100%; padding: 18px; border: none; border-radius: 16px;
+            font-size: 1.35rem; font-weight: 900; color: #fff; cursor: pointer;
             box-shadow: 0 6px 25px rgba(255, 0, 51, 0.4);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-transform: uppercase;
         }
 
         .btn-launch {
             background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, #ff5252 100%);
         }
-        .btn-launch:active { transform: scale(0.98); }
 
-        .btn-cashout {
-            background: linear-gradient(135deg, #007e33 0%, var(--green-win) 100%);
-            box-shadow: 0 6px 25px rgba(0, 230, 118, 0.4);
-            animation: pulse-green 1s infinite alternate;
+        /* زر الانسحاب (سحب الأرباح) في وقت محدد */
+        .btn-withdraw {
+            background: linear-gradient(135deg, #007e33 0%, var(--green-cashout) 100%) !important;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.8) !important;
+            animation: pulse-withdraw 0.8s infinite alternate;
         }
 
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
-            100% { box-shadow: 0 0 30px rgba(0, 230, 118, 0.9); }
+        @keyframes pulse-withdraw {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 230, 118, 0.6); }
+            100% { transform: scale(1.02); box-shadow: 0 0 40px rgba(0, 230, 118, 1); }
         }
 
-        .btn-disabled {
-            background: #333 !important;
-            color: #777 !important;
-            box-shadow: none !important;
-            cursor: not-allowed;
-        }
-
-        /* Sound Control */
-        .sound-toggle {
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
+        .btn-disabled { background: #333 !important; color: #666 !important; box-shadow: none !important; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header class="header">
         <div class="user-box">
             <div class="avatar"><i class="fa-solid fa-rocket"></i></div>
@@ -331,28 +193,14 @@
                 <div class="user-id">ID: <span id="u-id">--</span></div>
             </div>
         </div>
-
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <button class="sound-toggle" onclick="toggleSound()" id="snd-btn"><i class="fa-solid fa-volume-high"></i></button>
-            <div class="balance-card">
-                <i class="fa-solid fa-coins" style="color: var(--gold);"></i>
-                <span class="balance-val" id="u-balance">0.00</span>
-                <span style="font-size: 0.8rem;">$</span>
-            </div>
+        <div class="balance-card">
+            <i class="fa-solid fa-coins" style="color: var(--gold);"></i>
+            <span class="balance-val" id="u-balance">0.00</span>
+            <span style="font-size: 0.8rem;">$</span>
         </div>
     </header>
 
-    <!-- History Chips -->
-    <div class="history-bar" id="history-bar">
-        <span class="hist-chip low">1.12x</span>
-        <span class="hist-chip mid">2.45x</span>
-        <span class="hist-chip high">15.80x</span>
-        <span class="hist-chip low">1.04x</span>
-        <span class="hist-chip mid">3.10x</span>
-    </div>
-
-    <!-- Canvas Game Display -->
-    <div class="game-display">
+    <div class="game-display" id="display-wrapper">
         <canvas id="gameCanvas"></canvas>
         <div class="canvas-overlay">
             <div class="multiplier-text" id="mult-display">1.00x</div>
@@ -360,13 +208,10 @@
         </div>
     </div>
 
-    <!-- Bet & Play Controls -->
     <div class="controls-container">
-        
         <div class="control-row">
-            <!-- Bet Amount Input (Starts at 5) -->
             <div class="input-box">
-                <span class="input-label">مبلغ الرهان (يبدأ من 5 ليرة/$)</span>
+                <span class="input-label">مبلغ الرهان (يبدأ من 5$)</span>
                 <div class="input-controls">
                     <button class="btn-step" onclick="adjustBet(-5)">-</button>
                     <input type="number" id="bet-amount" class="bet-num" value="5" min="5" step="5">
@@ -374,9 +219,8 @@
                 </div>
             </div>
 
-            <!-- Auto Cashout Multiplier -->
             <div class="input-box">
-                <span class="input-label">السحب التلقائي (Auto Cashout)</span>
+                <span class="input-label">الانسحاب التلقائي (Auto)</span>
                 <div class="input-controls">
                     <button class="btn-step" onclick="adjustAuto(-0.5)">-</button>
                     <input type="number" id="auto-cashout" class="bet-num" value="2.00" min="1.1" step="0.5">
@@ -385,27 +229,21 @@
             </div>
         </div>
 
-        <!-- Quick Bet Presets -->
         <div class="preset-row">
             <button class="btn-preset" onclick="setBet(5)">5$</button>
             <button class="btn-preset" onclick="adjustBet(5)">+5</button>
             <button class="btn-preset" onclick="adjustBet(10)">+10</button>
-            <button class="btn-preset" onclick="adjustBet(50)">+50</button>
             <button class="btn-preset" onclick="multiplyBet(2)">X2</button>
             <button class="btn-preset" onclick="multiplyBet(0.5)">1/2</button>
         </div>
 
-        <!-- Main Action Button -->
+        <!-- زر الإطلاق وزر الانسحاب في الوقت المحدد -->
         <button id="action-btn" class="btn-action btn-launch" onclick="handleMainAction()">
             <i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (5.00 $)</span>
         </button>
-
     </div>
 
     <script>
-        // ---------------------------------------------------------
-        // 1. Telegram & User Initialization
-        // ---------------------------------------------------------
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.ready(); }
 
@@ -413,7 +251,50 @@
         const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
 
         let userBalance = 0.0;
-        let soundEnabled = true;
+        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED, CASHED_OUT
+        let currentMult = 1.00;
+        let targetCrashMult = 1.00;
+        let betAmount = 5.0;
+        let animProgress = 0;
+        let particles = [];
+        let stars = [];
+        let shakeTime = 0;
+
+        // Sound System
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                if (type === 'launch') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(90, now);
+                    osc.frequency.exponentialRampToValueAtTime(350, now + 1.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523, now);
+                    osc.frequency.setValueAtTime(659, now + 0.1);
+                    osc.frequency.setValueAtTime(783, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                } else if (type === 'boom') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(140, now);
+                    osc.frequency.exponentialRampToValueAtTime(25, now + 0.5);
+                    gain.gain.setValueAtTime(0.5, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                }
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.5);
+            } catch(e) {}
+        }
 
         async function fetchUserData() {
             try {
@@ -426,68 +307,10 @@
                     document.getElementById('u-balance').innerText = parseFloat(data.balance).toFixed(2);
                     updateActionBtnLabel();
                 }
-            } catch (err) { console.error("User fetch error:", err); }
+            } catch (err) {}
         }
 
-        // ---------------------------------------------------------
-        // 2. Web Audio Synthesizer (No External Files Required)
-        // ---------------------------------------------------------
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-
-        function playSound(type) {
-            if (!soundEnabled) return;
-            try {
-                if (!audioCtx) audioCtx = new AudioCtx();
-                const now = audioCtx.currentTime;
-
-                if (type === 'launch') {
-                    // Rocket thrust noise
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(80, now);
-                    osc.frequency.exponentialRampToValueAtTime(300, now + 1.5);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now); osc.stop(now + 1.5);
-                } else if (type === 'win') {
-                    // Cashout chime
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, now);
-                    osc.frequency.setValueAtTime(659.25, now + 0.1);
-                    osc.frequency.setValueAtTime(783.99, now + 0.2);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now); osc.stop(now + 0.5);
-                } else if (type === 'boom') {
-                    // Explosion noise
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(120, now);
-                    osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
-                    gain.gain.setValueAtTime(0.4, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now); osc.stop(now + 0.4);
-                }
-            } catch (e) {}
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('snd-btn').innerHTML = soundEnabled ? 
-                '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark" style="color:#777"></i>';
-        }
-
-        // ---------------------------------------------------------
-        // 3. Canvas Engine (Rocket & Particle System)
-        // ---------------------------------------------------------
+        // Canvas Setup
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -498,103 +321,202 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED, CASHED_OUT
-        let currentMult = 1.00;
-        let targetCrashMult = 1.00;
-        let serverWinAmount = 0.0;
-        let betAmount = 5.0;
-        let animProgress = 0;
-        let particles = [];
-        let stars = [];
-
-        // Generate background stars
-        for (let i = 0; i < 60; i++) {
+        for (let i = 0; i < 70; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                size: Math.random() * 2,
-                speed: Math.random() * 1.5 + 0.5
+                size: Math.random() * 2.2,
+                speed: Math.random() * 2 + 0.5
             });
         }
 
-        function drawBackground() {
-            ctx.fillStyle = '#080305';
+        // رسم الصاروخ الحي والنمو (Scaling Effect)
+        function drawRealisticRocket(x, y, scaleMult) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // اهتزاز محاكاة السرعة
+            if (gameState === 'RUNNING' && currentMult > 2.0) {
+                const shake = Math.random() * 3 - 1.5;
+                ctx.translate(shake, shake);
+            }
+
+            // نمو وتكبير الصاروخ مع ارتفاغ المضاعف
+            const baseScale = Math.min(1.8, 0.9 + (scaleMult - 1) * 0.12);
+            ctx.scale(baseScale, baseScale);
+            ctx.rotate(Math.PI / 3.8);
+
+            // 1. لهب المحرك المباشر (Fire Exhaust)
+            if (gameState === 'RUNNING') {
+                const flameLength = 20 + Math.random() * 15;
+                const grad = ctx.createLinearGradient(0, 15, 0, 15 + flameLength);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, '#ffcc00');
+                grad.addColorStop(0.7, '#ff0033');
+                grad.addColorStop(1, 'transparent');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(-6, 15);
+                ctx.lineTo(6, 15);
+                ctx.lineTo(0, 15 + flameLength);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // 2. هيكل الصاروخ (Body)
+            ctx.fillStyle = '#e6e6ed';
+            ctx.beginPath();
+            ctx.moveTo(0, -24);
+            ctx.quadraticCurveTo(10, -5, 8, 15);
+            ctx.lineTo(-8, 15);
+            ctx.quadraticCurveTo(-10, -5, 0, -24);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3. أجنحة الصاروخ الحمراء (Wings)
+            ctx.fillStyle = '#ff0033';
+            // الجناح الأيمن
+            ctx.beginPath();
+            ctx.moveTo(7, 2); ctx.lineTo(16, 16); ctx.lineTo(7, 14);
+            ctx.closePath(); ctx.fill();
+            // الجناح الأيسر
+            ctx.beginPath();
+            ctx.moveTo(-7, 2); ctx.lineTo(-16, 16); ctx.lineTo(-7, 14);
+            ctx.closePath(); ctx.fill();
+
+            // 4. مقدمة الصاروخ (Red Nose)
+            ctx.beginPath();
+            ctx.moveTo(0, -24);
+            ctx.quadraticCurveTo(6, -15, 6, -10);
+            ctx.lineTo(-6, -10);
+            ctx.quadraticCurveTo(-6, -15, 0, -24);
+            ctx.fillStyle = '#ff0033';
+            ctx.fill();
+
+            // 5. نافذة القيادة المضيئة (Window)
+            ctx.fillStyle = '#00e676';
+            ctx.shadowColor = '#00e676';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(0, -3, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.restore();
+        }
+
+        function drawExplosion(x, y) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, (1 - shakeTime) * 60, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 0, 51, 0.4)';
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function renderLoop() {
+            // Background
+            ctx.fillStyle = '#050204';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw moving stars
+            // Stars Movement
             ctx.fillStyle = '#ffffff';
             stars.forEach(s => {
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
-
                 if (gameState === 'RUNNING') {
-                    s.y += s.speed * (currentMult * 0.5);
+                    s.y += s.speed * (currentMult * 0.4);
                     if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
                 }
             });
 
-            // Grid Altitude Lines
-            ctx.strokeStyle = 'rgba(255, 0, 51, 0.08)';
-            ctx.lineWidth = 1;
-            for (let y = 0; y < canvas.height; y += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-        }
+            const startX = 50;
+            const startY = canvas.height - 50;
+            const targetX = canvas.width - 70;
+            const targetY = 70;
 
-        function drawRocketCurve(x, y) {
-            // Trajectory Glow Line
-            ctx.beginPath();
-            ctx.moveTo(30, canvas.height - 30);
-            ctx.quadraticCurveTo(canvas.width * 0.4, canvas.height - 30, x, y);
-            ctx.strokeStyle = '#ff0033';
-            ctx.lineWidth = 4;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ff0033';
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            // Draw Flame Particles behind rocket tail
             if (gameState === 'RUNNING') {
-                for (let i = 0; i < 3; i++) {
+                animProgress += 0.006 * (1 + currentMult * 0.08);
+                if (animProgress > 1) animProgress = 1;
+
+                const curX = startX + (targetX - startX) * Math.min(animProgress, 0.85);
+                const curY = startY - (startY - targetY) * Math.min(animProgress, 0.85);
+
+                // Trajectory Glow Line
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.quadraticCurveTo(canvas.width * 0.35, canvas.height - 40, curX, curY);
+                ctx.strokeStyle = '#ff0033';
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff0033';
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Fire Particles
+                for (let i = 0; i < 2; i++) {
                     particles.push({
-                        x: x - 12 + (Math.random() * 8 - 4),
-                        y: y + 15 + (Math.random() * 8 - 4),
-                        vx: -Math.random() * 2 - 1,
-                        vy: Math.random() * 3 + 2,
-                        size: Math.random() * 6 + 3,
+                        x: curX - 10, y: curY + 10,
+                        vx: -Math.random() * 3, vy: Math.random() * 3 + 2,
+                        size: Math.random() * 5 + 2,
                         color: Math.random() > 0.5 ? '#ffcc00' : '#ff0033',
                         life: 1.0
                     });
                 }
+
+                drawRealisticRocket(curX, curY, currentMult);
+
+                // Growth Rate
+                currentMult += 0.012 * Math.pow(currentMult, 1.04);
+                document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
+                updateActionBtnLabel();
+
+                // Auto Cashout
+                const autoVal = parseFloat(document.getElementById('auto-cashout').value);
+                if (autoVal && currentMult >= autoVal) {
+                    executeCashout();
+                }
+
+                // Crash Check
+                if (currentMult >= targetCrashMult) {
+                    gameState = 'CRASHED';
+                    playSound('boom');
+                    shakeTime = 1.0;
+                    createExplosionParticles(curX, curY);
+                    onRocketCrashed();
+                }
+
+            } else if (gameState === 'CRASHED') {
+                if (shakeTime > 0) {
+                    shakeTime -= 0.03;
+                    drawExplosion(targetX, targetY);
+                }
+                drawParticles();
+            } else if (gameState === 'CASHED_OUT') {
+                drawParticles();
+            } else {
+                drawRealisticRocket(startX, startY, 1.0);
             }
 
-            // Draw Rocket Body
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(Math.PI / 4); // Angle pointing upwards
+            requestAnimationFrame(renderLoop);
+        }
 
-            // Rocket Body Curve
-            ctx.fillStyle = '#f5f5f7';
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 8, 20, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Red Nose Cone
-            ctx.fillStyle = '#ff0033';
-            ctx.beginPath();
-            ctx.arc(0, -12, 6, Math.PI, 0);
-            ctx.fill();
-
-            // Cockpit Window
-            ctx.fillStyle = '#00e676';
-            ctx.beginPath();
-            ctx.arc(0, -4, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore();
+        function createExplosionParticles(x, y) {
+            particles = [];
+            for (let i = 0; i < 80; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 9 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 7 + 2,
+                    color: ['#ff0033', '#ffcc00', '#ffffff', '#ff2a55'][Math.floor(Math.random() * 4)],
+                    life: 1.0
+                });
+            }
         }
 
         function drawParticles() {
@@ -607,90 +529,25 @@
                 ctx.fill();
                 ctx.globalAlpha = 1.0;
 
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.04;
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.03;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
-        function triggerExplosion(x, y) {
-            playSound('boom');
-            particles = [];
-            for (let i = 0; i < 70; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 8 + 2;
-                particles.push({
-                    x: x, y: y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    size: Math.random() * 8 + 3,
-                    color: ['#ff0033', '#ffcc00', '#ff5252', '#ffffff'][Math.floor(Math.random() * 4)],
-                    life: 1.0
-                });
-            }
-        }
-
-        // Main Animation Loop
-        function renderLoop() {
-            drawBackground();
-
-            const startX = 40;
-            const startY = canvas.height - 40;
-            const targetX = canvas.width - 60;
-            const targetY = 60;
-
-            if (gameState === 'RUNNING') {
-                animProgress += 0.008 * (1 + currentMult * 0.1);
-                if (animProgress > 1) animProgress = 1;
-
-                const curX = startX + (targetX - startX) * Math.min(animProgress, 0.85);
-                const curY = startY - (startY - targetY) * Math.min(animProgress, 0.85);
-
-                drawRocketCurve(curX, curY);
-
-                // Multiplier Growth
-                currentMult += 0.015 * Math.pow(currentMult, 1.05);
-                document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
-                document.getElementById('mult-display').style.color = '#ffffff';
-
-                // Auto Cashout Check
-                const autoVal = parseFloat(document.getElementById('auto-cashout').value);
-                if (autoVal && currentMult >= autoVal && gameState === 'RUNNING') {
-                    executeCashout();
-                }
-
-                // Crash Check
-                if (currentMult >= targetCrashMult) {
-                    gameState = 'CRASHED';
-                    triggerExplosion(curX, curY);
-                    onRocketCrashed();
-                }
-
-            } else if (gameState === 'CRASHED' || gameState === 'CASHED_OUT') {
-                drawParticles();
-            } else {
-                // IDLE State - Draw static rocket on pad
-                drawRocketCurve(startX, startY);
-            }
-
-            requestAnimationFrame(renderLoop);
-        }
-
         requestAnimationFrame(renderLoop);
 
-        // ---------------------------------------------------------
-        // 4. Game Control & API Integration
-        // ---------------------------------------------------------
+        // التحكم بالأزرار و "زر الانسحاب في الوقت المحدد"
         function updateActionBtnLabel() {
             const btn = document.getElementById('action-btn');
             if (gameState === 'IDLE') {
                 btn.className = 'btn-action btn-launch';
                 btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>إطلاق الصاروخ (${betAmount.toFixed(2)} $)</span>`;
             } else if (gameState === 'RUNNING') {
-                const currentWin = (betAmount * currentMult).toFixed(2);
-                btn.className = 'btn-action btn-cashout';
-                btn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>سحب الأرباح ($${currentWin})</span>`;
+                // زر الانسحاب المباشر مفعل فقط أثناء الطيران
+                const currentProfit = (betAmount * currentMult).toFixed(2);
+                btn.className = 'btn-action btn-withdraw';
+                btn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>انسحاب الآن ($${currentProfit})</span>`;
             }
         }
 
@@ -711,58 +568,36 @@
             const actionBtn = document.getElementById('action-btn');
             actionBtn.disabled = true;
             actionBtn.className = 'btn-action btn-disabled';
-            actionBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الإطلاق...</span>`;
 
             try {
-                // Call Server API /api/play
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        game_id: "rocket",
-                        bet_amount: betAmount
-                    })
+                    body: JSON.stringify({ user_id: userId, game_id: "rocket", bet_amount: betAmount })
                 });
 
                 const data = await res.json();
                 if (!data.success) {
-                    alert(data.message || "حدث خطأ في السيرفر!");
-                    fetchUserData();
-                    updateActionBtnLabel();
-                    actionBtn.disabled = false;
-                    return;
+                    alert(data.message || "خطأ في السيرفر!");
+                    fetchUserData(); actionBtn.disabled = false; return;
                 }
 
-                // Backend return setup
-                serverWinAmount = data.win_amount;
                 userBalance = data.new_balance;
                 document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+                targetCrashMult = data.multiplier === 0 ? (Math.random() * 0.25 + 1.03) : data.multiplier;
 
-                if (data.multiplier === 0) {
-                    // Loss outcome: crash between 1.02x and 1.30x
-                    targetCrashMult = (Math.random() * 0.28 + 1.02);
-                } else {
-                    // Win outcome: rocket flies until server multiplier
-                    targetCrashMult = data.multiplier;
-                }
-
-                // Start flight
                 gameState = 'RUNNING';
                 currentMult = 1.00;
                 animProgress = 0;
-                document.getElementById('status-display').innerText = 'الصاروخ محلق...';
+                document.getElementById('status-display').innerText = '🚀 الصاروخ يحلق بك... اضغط انسحاب قبل الانفجار!';
                 document.getElementById('status-display').className = 'status-text';
                 playSound('launch');
 
                 actionBtn.disabled = false;
                 updateActionBtnLabel();
-
             } catch (e) {
                 alert("تعذر الاتصال بالسيرفر!");
-                fetchUserData();
-                actionBtn.disabled = false;
-                updateActionBtnLabel();
+                fetchUserData(); actionBtn.disabled = false;
             }
         }
 
@@ -771,27 +606,25 @@
             gameState = 'CASHED_OUT';
             playSound('win');
 
-            const cashedMult = currentMult.toFixed(2);
-            document.getElementById('status-display').innerText = `🎉 تم السحب بنجاح عند ${cashedMult}x!`;
-            document.getElementById('status-display').className = 'status-text';
+            const winMult = currentMult.toFixed(2);
+            document.getElementById('status-display').innerText = `🎉 تم الانسحاب بنجاح عند ${winMult}x!`;
+            document.getElementById('status-display').className = 'status-text status-cashed';
             document.getElementById('mult-display').style.color = '#00e676';
 
-            addHistoryChip(cashedMult, 'mid');
             fetchUserData();
-
             setTimeout(resetToIdle, 3000);
         }
 
         function onRocketCrashed() {
-            playSound('boom');
-            const crashMult = targetCrashMult.toFixed(2);
-            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${crashMult}x!`;
+            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${targetCrashMult.toFixed(2)}x! (خسارة)`;
             document.getElementById('status-display').className = 'status-text status-crashed';
             document.getElementById('mult-display').style.color = '#ff0033';
 
-            addHistoryChip(crashMult, 'low');
-            fetchUserData();
+            const btn = document.getElementById('action-btn');
+            btn.className = 'btn-action btn-disabled';
+            btn.innerHTML = `<span>انفجر الصاروخ!</span>`;
 
+            fetchUserData();
             setTimeout(resetToIdle, 3000);
         }
 
@@ -805,35 +638,21 @@
             updateActionBtnLabel();
         }
 
-        function addHistoryChip(val, type) {
-            const bar = document.getElementById('history-bar');
-            const chip = document.createElement('span');
-            chip.className = `hist-chip ${parseFloat(val) > 5 ? 'high' : type}`;
-            chip.innerText = val + 'x';
-            bar.insertBefore(chip, bar.firstChild);
-        }
-
-        // ---------------------------------------------------------
-        // 5. Input Controls (+ / - Buttons)
-        // ---------------------------------------------------------
         function adjustBet(delta) {
             betAmount = Math.max(5, betAmount + delta);
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
-
         function setBet(val) {
             betAmount = Math.max(5, val);
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
-
         function multiplyBet(factor) {
             betAmount = Math.max(5, Math.round(betAmount * factor));
             document.getElementById('bet-amount').value = betAmount;
             updateActionBtnLabel();
         }
-
         function adjustAuto(delta) {
             const el = document.getElementById('auto-cashout');
             let val = parseFloat(el.value) || 2.0;
@@ -841,16 +660,7 @@
             el.value = val.toFixed(2);
         }
 
-        document.getElementById('bet-amount').addEventListener('change', (e) => {
-            betAmount = Math.max(5, parseFloat(e.target.value) || 5);
-            e.target.value = betAmount;
-            updateActionBtnLabel();
-        });
-
-        // Initialize on load
-        window.onload = () => {
-            fetchUserData();
-        };
+        window.onload = fetchUserData;
     </script>
 </body>
 </html>
