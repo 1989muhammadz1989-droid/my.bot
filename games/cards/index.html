@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎴 لعبة الشدة الملكية | Royal Cards</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --table-felt: radial-gradient(circle at center, #1b6632 0%, #0d3b1b 70%, #051d0c 100%);
+            --gold: #ffcf33;
+            --gold-dark: #b38f00;
+            --red-card: #d32f2f;
+            --black-card: #212121;
+            --btn-red: #c62828;
+            --btn-green: #2e7d32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--table-felt);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .header {
+            background: rgba(4, 20, 9, 0.9);
+            border-bottom: 2px solid var(--gold);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+
+        .balance-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--gold);
+            padding: 6px 14px; border-radius: 20px;
+            color: var(--gold); font-weight: 900; font-size: 1.1rem;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Felt Table Area */
+        .poker-table {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            position: relative;
+        }
+
+        .table-center-logo {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.12;
+            font-size: 8rem;
+            color: #fff;
+            pointer-events: none;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            min-height: 130px;
+        }
+
+        /* Card Styles */
+        .card {
+            width: 80px;
+            height: 118px;
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+        }
+
+        /* ظهر الورقة */
+        .card-back {
+            background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%);
+            border: 2px solid #fff;
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 10px, transparent 0, transparent 20px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card-back::after {
+            content: '♠♥'; color: rgba(255,255,255,0.4); font-size: 1.5rem;
+        }
+
+        /* وجه الورقة */
+        .card-front {
+            background: #ffffff;
+            color: var(--black-card);
+            transform: rotateY(180deg);
+            border: 1px solid #ccc;
+        }
+        .card-front.red { color: var(--red-card); }
+
+        .card-corner { font-size: 0.85rem; font-weight: 900; line-height: 1; text-align: right; }
+        .card-center-suit { font-size: 2.2rem; align-self: center; }
+
+        /* Game Outcome Banner */
+        .game-status {
+            text-align: center;
+            padding: 10px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            margin: 10px 0;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            background: rgba(0, 0, 0, 0.85);
+            border-top: 2px solid var(--gold);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bet-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,207,51,0.3);
+        }
+
+        .btn-step {
+            width: 38px; height: 38px;
+            border-radius: 8px; border: none;
+            background: var(--gold); color: #000;
+            font-size: 1.3rem; font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bet-input {
+            background: transparent; border: none;
+            color: var(--gold); font-size: 1.4rem;
+            font-weight: 900; text-align: center; width: 100px; outline: none;
+        }
+
+        .action-btns { display: flex; gap: 10px; }
+
+        .btn-act {
+            flex: 1; padding: 14px;
+            border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 900;
+            color: #fff; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-deal { background: linear-gradient(135deg, #2e7d32, #1b5e20); box-shadow: 0 4px 15px rgba(46,125,50,0.4); }
+        .btn-change { background: linear-gradient(135deg, #c62828, #8e0000); box-shadow: 0 4px 15px rgba(198,40,40,0.4); }
+        .btn-confirm { background: linear-gradient(135deg, #f57f17, #ff6f00); box-shadow: 0 4px 15px rgba(245,127,23,0.4); }
+        .btn-act:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="user-info">
+            <div class="avatar"><i class="fa-solid fa-crown"></i></div>
+            <div>
+                <div id="u-name" style="font-weight: bold;">لاعب الشدة</div>
+                <div style="font-size: 0.75rem; color: #aaa;">ID: <span id="u-id">--</span></div>
+            </div>
+        </div>
+        <div class="balance-box">
+            <i class="fa-solid fa-coins"></i>
+            <span id="u-balance">0.00</span> $
+        </div>
+    </header>
+
+    <div class="poker-table">
+        <i class="fa-solid fa-suit-spade table-center-logo"></i>
+
+        <!-- Opponent Area -->
+        <div>
+            <div class="section-title">أوراق الخصم (المجموع: <span id="opp-score">?</span>)</div>
+            <div class="cards-container" id="opp-cards">
+                <!-- 3 Cards -->
+            </div>
+        </div>
+
+        <!-- Status Banner -->
+        <div class="game-status" id="status-text">اختر مبلغ الرهان واضغط توزيع الأوراق</div>
+
+        <!-- Player Area -->
+        <div>
+            <div class="section-title">أوراقك (المجموع المعلن: <span id="player-score">0</span>)</div>
+            <div class="cards-container" id="player-cards">
+                <!-- 3 Cards -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+        <div class="bet-selector" id="bet-box">
+            <span style="font-size: 0.85rem; color: #ccc;">الرهان ($5 - $1000):</span>
+            <button class="btn-step" onclick="adjustBet(-5)">-</button>
+            <input type="number" id="bet-amount" class="bet-input" value="5" min="5" max="1000" step="5">
+            <button class="btn-step" onclick="adjustBet(5)">+</button>
+        </div>
+
+        <div class="action-btns" id="action-area">
+            <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
+                <i class="fa-solid fa-play"></i> توزيع الأوراق ($<span id="btn-bet-lbl">5</span>)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.expand(); tg.ready(); }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
+
+        let userBalance = 0.0;
+        let betAmount = 5;
+        let gameState = 'IDLE'; // IDLE, REVEALED_1, FINISHED
+        let playerHand = [];
+        let oppHand = [];
+
+        const suits = [
+            { symbol: '♠', color: 'black' },
+            { symbol: '♥', color: 'red' },
+            { symbol: '♦', color: 'red' },
+            { symbol: '♣', color: 'black' }
+        ];
+
+        const ranks = [
+            { name: '2', val: 2 }, { name: '3', val: 3 }, { name: '4', val: 4 },
+            { name: '5', val: 5 }, { name: '6', val: 6 }, { name: '7', val: 7 },
+            { name: '8', val: 8 }, { name: '9', val: 9 }, { name: '10', val: 10 },
+            { name: 'J', val: 10 }, { name: 'Q', val: 10 }, { name: 'K', val: 10 },
+            { name: 'A', val: 11 }
+        ];
+
+        async function fetchUserData() {
+            try {
+                const res = await fetch(`/api/user/get?telegram_id=${userId}`);
+                const data = await res.json();
+                if (data.success) {
+                    userBalance = parseFloat(data.balance);
+                    document.getElementById('u-name').innerText = data.full_name || 'لاعب الشدة';
+                    document.getElementById('u-id').innerText = data.user_id;
+                    document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+                }
+            } catch (e) {}
+        }
+
+        function generateCard() {
+            const suit = suits[Math.floor(Math.random() * suits.length)];
+            const rank = ranks[Math.floor(Math.random() * ranks.length)];
+            return { ...rank, ...suit };
+        }
+
+        function createCardHTML(idPrefix, index) {
+            return `
+                <div class="card" id="${idPrefix}-${index}">
+                    <div class="card-inner">
+                        <div class="card-back"></div>
+                        <div class="card-front" id="${idPrefix}-${index}-front">
+                            <div class="card-corner" id="${idPrefix}-${index}-rank"></div>
+                            <div class="card-center-suit" id="${idPrefix}-${index}-suit"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initTableUI() {
+            const oppContainer = document.getElementById('opp-cards');
+            const pContainer = document.getElementById('player-cards');
+            oppContainer.innerHTML = '';
+            pContainer.innerHTML = '';
+
+            for (let i = 0; i < 3; i++) {
+                oppContainer.innerHTML += createCardHTML('opp', i);
+                pContainer.innerHTML += createCardHTML('p', i);
+            }
+            document.getElementById('opp-score').innerText = '?';
+            document.getElementById('player-score').innerText = '0';
+        }
+
+        function setCardData(idPrefix, index, card) {
+            const frontEl = document.getElementById(`${idPrefix}-${index}-front`);
+            const rankEl = document.getElementById(`${idPrefix}-${index}-rank`);
+            const suitEl = document.getElementById(`${idPrefix}-${index}-suit`);
+
+            frontEl.className = `card-front ${card.color}`;
+            rankEl.innerText = `${card.name}\n${card.symbol}`;
+            suitEl.innerText = card.symbol;
+        }
+
+        function flipCard(idPrefix, index) {
+            document.getElementById(`${idPrefix}-${index}`).classList.add('flipped');
+        }
+
+        function adjustBet(delta) {
+            if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
+            betAmount = Math.min(1000, Math.max(5, betAmount + delta));
+            document.getElementById('bet-amount').value = betAmount;
+            document.getElementById('btn-bet-lbl').innerText = betAmount;
+        }
+
+        document.getElementById('bet-amount').addEventListener('change', (e) => {
+            let val = parseInt(e.target.value) || 5;
+            betAmount = Math.min(1000, Math.max(5, val));
+            e.target.value = betAmount;
+            document.getElementById('btn-bet-lbl').innerText = betAmount;
+        });
+
+        // المرحلة الأولى: بدء الجولة وتوزيع الأوراق + فتح أول ورقة
+        async function startRound() {
+            if (userBalance < betAmount) {
+                alert("رصيدك غير كافٍ للرهان!");
+                return;
+            }
+
+            initTableUI();
+
+            // توليد أوراق اللاعب والخصم
+            playerHand = [generateCard(), generateCard(), generateCard()];
+            oppHand = [generateCard(), generateCard(), generateCard()];
+
+            for (let i = 0; i < 3; i++) {
+                setCardData('p', i, playerHand[i]);
+                setCardData('opp', i, oppHand[i]);
+            }
+
+            gameState = 'REVEALED_1';
+            
+            // كشف أول ورقة للاعب فقط
+            setTimeout(() => {
+                flipCard('p', 0);
+                document.getElementById('player-score').innerText = playerHand[0].val;
+            }, 300);
+
+            document.getElementById('status-text').innerText = "تم فتح الورقة الأولى! اختر: متابعة الرهان أم تغيير الرهان؟";
+            document.getElementById('status-text').style.color = "#ffcf33";
+
+            // إظهار أزرار القرار
+            renderDecisionButtons();
+        }
+
+        function renderDecisionButtons() {
+            const actionArea = document.getElementById('action-area');
+            actionArea.innerHTML = `
+                <button class="btn-act btn-change" onclick="changeBetOption()">
+                    <i class="fa-solid fa-rotate-left"></i> غير الرهان (-$10)
+                </button>
+                <button class="btn-act btn-confirm" onclick="confirmAndPlay()">
+                    <i class="fa-solid fa-check"></i> راهن ومتابعة ($${betAmount})
+                </button>
+            `;
+        }
+
+        // خيار "غير الرهان" خصم 10 دولار وإتاحة التعديل
+        async function changeBetOption() {
+            if (userBalance < 10) {
+                alert("رصيدك لا يكفي لدفع غرامة تغيير الرهان ($10)!");
+                return;
+            }
+
+            // خصم 10$ رسوم تغيير الرهان عبر backend
+            try {
+                const res = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, game_id: "cards", bet_amount: 10 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    userBalance = data.new_balance;
+                    document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+                }
+            } catch (e) {}
+
+            document.getElementById('status-text').innerText = "تم خصم 10$. يمكنك تغيير مبلغ الرهان الآن ثم اضغط تأكيد.";
+            document.getElementById('status-text').style.color = "#ff5252";
+
+            const actionArea = document.getElementById('action-area');
+            actionArea.innerHTML = `
+                <button class="btn-act btn-confirm" style="width:100%" onclick="confirmAndPlay()">
+                    <i class="fa-solid fa-circle-check"></i> تأكيد الرهان الجديد ومتابعة ($<span id="btn-bet-lbl">${betAmount}</span>)
+                </button>
+            `;
+        }
+
+        // المرحلة النهائية: كشف بقية الأوراق وتحديد الفائز
+        async function confirmAndPlay() {
+            if (userBalance < betAmount) {
+                alert("رصيدك الحالي أقل من الرهان المحدد!");
+                return;
+            }
+
+            const pScore = playerHand[0].val + playerHand[1].val + playerHand[2].val;
+            const oppScore = oppHand[0].val + oppHand[1].val + oppHand[2].val;
+
+            let isWin = pScore > oppScore;
+
+            // إرسال الرهان للسيرفر
+            try {
+                const res = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, game_id: "cards", bet_amount: betAmount })
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    alert(data.message || "حدث خطأ في الرهان!");
+                    return;
+                }
+                userBalance = data.new_balance;
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+            } catch(e) {}
+
+            // كشف باقي أوراق اللاعب ثم الخصم
+            flipCard('p', 1);
+            flipCard('p', 2);
+            document.getElementById('player-score').innerText = pScore;
+
+            setTimeout(() => {
+                flipCard('opp', 0);
+                flipCard('opp', 1);
+                flipCard('opp', 2);
+                document.getElementById('opp-score').innerText = oppScore;
+
+                // النتيجة النهائية
+                setTimeout(() => {
+                    if (isWin) {
+                        document.getElementById('status-text').innerText = `🎉 مبروك! مجموعك (${pScore}) أعلى من الخصم (${oppScore}). ربحت الجولة!`;
+                        document.getElementById('status-text').style.color = "#00e676";
+                    } else if (pScore === oppScore) {
+                        document.getElementById('status-text').innerText = `🤝 تعادل! مجموعكما متساوي (${pScore}).`;
+                        document.getElementById('status-text').style.color = "#ffcf33";
+                    } else {
+                        document.getElementById('status-text').innerText = `💥 خسرت الجولة! أوراق الخصم (${oppScore}) أعلى من أوراقك (${pScore}).`;
+                        document.getElementById('status-text').style.color = "#ff3d00";
+                    }
+
+                    resetControls();
+                    fetchUserData();
+                }, 600);
+            }, 500);
+        }
+
+        function resetControls() {
+            gameState = 'IDLE';
+            const actionArea = document.getElementById('action-area');
+            actionArea.innerHTML = `
+                <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
+                    <i class="fa-solid fa-play"></i> جولة جديدة ($<span id="btn-bet-lbl">${betAmount}</span>)
+                </button>
+            `;
+        }
+
+        window.onload = () => {
+            fetchUserData();
+            initTableUI();
+        };
+    </script>
+</body>
+</html>
