@@ -195,8 +195,8 @@ def get_user():
         free_spins = 0
         full_name = f"User_{user_id}"
     else:
-        balance = user["balance"]
-        free_spins = user["free_spins"]
+        balance = user["balance"] or 0.0
+        free_spins = user["free_spins"] or 0
         full_name = user["full_name"] or f"User_{user_id}"
 
     conn.close()
@@ -221,7 +221,11 @@ def play_game():
     data = request.json or {}
     user_id = str(data.get("user_id") or data.get("telegram_id", ""))
     game_id = data.get("game_id", "")
-    bet_amount = float(data.get("bet_amount", 0))
+
+    try:
+        bet_amount = round(float(data.get("bet_amount", 0)), 2)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "message": "مبلغ الرهان غير صالح"}), 400
 
     if not user_id or not game_id or bet_amount <= 0:
         return jsonify({"success": False, "message": "بيانات غير صالحة"}), 400
@@ -232,14 +236,20 @@ def play_game():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT balance, total_spent, games_played FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
     user = cursor.fetchone()
 
-    if not user or user["balance"] < bet_amount:
+    if not user:
         conn.close()
-        return jsonify({"success": False, "message": "رصيدك في تلجرام غير كافٍ للرهان"}), 400
+        return jsonify({"success": False, "message": "المستخدم غير موجود"}), 404
 
-    current_balance = user["balance"]
+    current_balance = user["balance"] if user["balance"] is not None else 0.0
+
+    # منع التشغيل نهائياً إن لم يكن هناك رصيد كافٍ
+    if current_balance < bet_amount:
+        conn.close()
+        return jsonify({"success": False, "message": "رصيدك غير كافٍ للعب"}), 400
+
     game = games[game_id]
     algo = game["algo"]
 
@@ -270,18 +280,26 @@ def play_game():
         multiplier = round(random.uniform(50.1, 500.0), 2)
         tier_label = "ربح ضخم (حتى 500x)"
 
-    win_amount = bet_amount * multiplier
-    net_change = win_amount - bet_amount
-    new_balance = round(current_balance + net_change, 2)
-    new_total_spent = (user["total_spent"] or 0.0) + bet_amount
-    new_games_played = (user["games_played"] or 0) + 1
+    win_amount = round(bet_amount * multiplier, 2)
+    net_change = round(win_amount - bet_amount, 2)
 
+    # تحديث الرصيد ذرياً بحسب الربح/الخسارة فقط، مع التأكد من وجود الرصيد
     cursor.execute("""
         UPDATE users 
-        SET balance = ?, total_spent = ?, games_played = ?, updated_at = CURRENT_TIMESTAMP 
-        WHERE user_id = ?
-    """, (new_balance, new_total_spent, new_games_played, user_id))
-    
+        SET balance = round(balance + ?, 2), 
+            total_spent = total_spent + ?, 
+            games_played = games_played + 1, 
+            updated_at = CURRENT_TIMESTAMP 
+        WHERE user_id = ? AND balance >= ?
+    """, (net_change, bet_amount, user_id, bet_amount))
+
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({"success": False, "message": "رصيدك غير كافٍ للعب"}), 400
+
+    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
+    new_balance = cursor.fetchone()["balance"]
+
     # تسجيل العملية في السجلات
     cursor.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)",
                    (user_id, f"لعب {game_id} (مضاعف: {multiplier}x)", net_change))
@@ -317,11 +335,10 @@ def spin_wheel():
     cursor.execute("SELECT balance, free_spins FROM users WHERE user_id = ?", (user_id,))
     user = cursor.fetchone()
 
-    if not user or user["free_spins"] <= 0:
+    if not user or (user["free_spins"] or 0) <= 0:
         conn.close()
         return jsonify({"success": False, "message": "ليس لديك لفات مجانية متاحة!"}), 400
 
-    # قراءة نسب العجلة المحددة من البوت عبر جدول settings
     keys = [
         'wheel_prob_luck', 'wheel_prob_5', 'wheel_prob_10', 'wheel_prob_15',
         'wheel_prob_try_again', 'wheel_prob_25', 'wheel_prob_50', 'wheel_prob_100',
@@ -344,7 +361,6 @@ def spin_wheel():
 
     result = random.choices(outcomes, weights=weights, k=1)[0]
 
-    # تطبيق مكافأة العجلة
     reward_balance = 0.0
     spins_change = -1
 
@@ -353,10 +369,18 @@ def spin_wheel():
     elif result == "try_again":
         spins_change = 0
 
-    new_balance = round(user["balance"] + reward_balance, 2)
-    new_spins = max(0, user["free_spins"] + spins_change)
+    cursor.execute("""
+        UPDATE users 
+        SET balance = round(balance + ?, 2), 
+            free_spins = max(0, free_spins + ?) 
+        WHERE user_id = ? AND free_spins > 0
+    """, (reward_balance, spins_change, user_id))
 
-    cursor.execute("UPDATE users SET balance = ?, free_spins = ? WHERE user_id = ?", (new_balance, new_spins, user_id))
+    cursor.execute("SELECT balance, free_spins FROM users WHERE user_id = ?", (user_id,))
+    updated_user = cursor.fetchone()
+    new_balance = updated_user["balance"]
+    new_spins = updated_user["free_spins"]
+
     cursor.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)",
                    (user_id, f"دوران عجلة الحظ (النتيجة: {result})", reward_balance))
 
