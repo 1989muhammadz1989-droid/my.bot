@@ -608,7 +608,8 @@
                         card.className = 'game-card';
                         card.onclick = () => openGameModal(game);
 
-                        const isLive = (game.type === 'live' || game.entry_point);
+                        // افتراضياً جميع الألعاب المضافة في مجلدات تعتبر ألعاباً حية تفاعلية
+                        const isLive = (game.type !== 'static');
                         const badgeClass = isLive ? 'game-badge game-badge-live' : 'game-badge';
                         const badgeText = isLive ? '🎮 حركة حية' : 'متصل باللوحة';
 
@@ -641,7 +642,7 @@
             }
         }
 
-        // 3. فتح/إغلاق النوافذ (يدعم الواجهة الحية iframe أو الرهان المباشر)
+        // 3. فتح/إغلاق النوافذ (تعتمد تشغيل iframe الحي لجميع ملفات الألعاب في مجلدات الألعاب)
         function openGameModal(game) {
             currentGameId = game.id;
             document.getElementById('modal-game-title').innerText = game.title || game.name || game.id;
@@ -652,16 +653,17 @@
             const modalCard = document.getElementById('modal-card-element');
             const gameIframe = document.getElementById('game-iframe');
 
-            const isLive = (game.type === 'live' || game.entry_point);
+            // فتح اللعبة الحية تلقائياً لجميع الألعاب المضافة في المجلدات
+            const isLive = (game.type !== 'static');
 
             if (isLive) {
-                // ضبط النافذة لاستيعاب اللعبة الحية
+                // ضبط النافذة لاستيعاب اللعبة الحية مع الحركات والانيميشن
                 modalCard.style.maxWidth = '850px';
                 modalCard.style.height = '85vh';
                 staticPlayArea.style.display = 'none';
                 liveIframeContainer.style.display = 'block';
 
-                // تجهيز رابط اللعبة الحية وتمرير user_id و game_id
+                // تجهيز رابط اللعبة الحية وقراءة كود index.html من مجلد اللعبة
                 const entryUrl = game.entry_point || `/games/${game.id}/index.html`;
                 const finalUrl = `${entryUrl}${entryUrl.includes('?') ? '&' : '?'}user_id=${encodeURIComponent(userId)}&game_id=${encodeURIComponent(game.id)}`;
                 
