@@ -41,7 +41,6 @@
             flex-direction: column;
         }
 
-        /* Container الرئيسي ملء الشاشة */
         .app-container {
             width: 100%;
             height: 100vh;
@@ -49,7 +48,6 @@
             flex-direction: column;
         }
 
-        /* النصف الأعلى: شاشة العرض والصاروخ (55% من الارتفاع) */
         .game-display {
             position: relative;
             height: 55vh;
@@ -91,7 +89,6 @@
         .status-crashed { color: var(--primary-red) !important; text-shadow: 0 0 15px var(--primary-red); }
         .status-cashed { color: var(--green-cashout) !important; text-shadow: 0 0 15px var(--green-cashout); }
 
-        /* النصف الأسفل: مقسم إلى قسمين (45% من الارتفاع) */
         .bottom-section {
             height: 45vh;
             width: 100%;
@@ -101,7 +98,6 @@
             gap: 8px;
         }
 
-        /* القسم الأيمن: التحكم بالرهانات (60% من العرض) */
         .betting-panel {
             flex: 6;
             display: flex;
@@ -113,7 +109,6 @@
             padding: 8px;
         }
 
-        /* عرض الرصيد المدمج */
         .balance-strip {
             display: flex;
             justify-content: space-between;
@@ -163,7 +158,6 @@
         }
         .btn-preset:active { background: rgba(255, 0, 51, 0.3); color: #fff; }
 
-        /* زر الأكشن الرئيسي */
         .btn-action {
             width: 100%; padding: 12px; border: none; border-radius: 10px;
             font-size: 1rem; font-weight: 900; color: #fff; cursor: pointer;
@@ -189,7 +183,6 @@
 
         .btn-disabled { background: #222 !important; color: #666 !important; box-shadow: none !important; cursor: not-allowed; }
 
-        /* القسم الأيسر: قائمة اللاعبين المباشرة (40% من العرض) */
         .players-panel {
             flex: 4;
             background: var(--bg-card);
@@ -244,7 +237,6 @@
 <body>
 
     <div class="app-container">
-        <!-- النصف الأعلى: العرض الجرافيكي -->
         <div class="game-display" id="display-wrapper">
             <canvas id="gameCanvas"></canvas>
             <div class="canvas-overlay">
@@ -253,9 +245,7 @@
             </div>
         </div>
 
-        <!-- النصف الأسفل: لوحة التحكم المزدوجة -->
         <div class="bottom-section">
-            <!-- القسم الأيمن: الخيارات والرهان -->
             <div class="betting-panel">
                 <div class="balance-strip">
                     <span>رصيدك الحالي:</span>
@@ -285,7 +275,6 @@
                 </button>
             </div>
 
-            <!-- القسم الأيسر: أسماء اللاعبين المباشرة -->
             <div class="players-panel">
                 <div class="live-title"><i class="fa-solid fa-users"></i> المراهنون الان</div>
                 <div class="live-list" id="live-list"></div>
@@ -300,9 +289,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
 
+        // إعدادات الخوارزمية والشغف
+        const MAX_AUTO_CRASH_MULT = 5.0; // حد الانفجار التلقائي (يمكن التعديل عليه مستقبلاً)
+        const HYPE_MULTIPLIERS = [5.0, 10.0, 20.0, 50.0, 100.0]; // أرقام الإثارة عند انسحاب اللاعب
+
         let userBalance = 0.0;
         let gameState = 'COUNTDOWN'; // COUNTDOWN, RUNNING, CRASHED
-        let currentMult = 0.00;      // تبدأ من 0.00x
+        let currentMult = 0.00;
         let targetCrashMult = 1.00;
         let betAmount = 5.0;
         let animProgress = 0;
@@ -416,7 +409,7 @@
             ctx.save();
             ctx.translate(x, y);
 
-            if (gameState === 'RUNNING' && currentMult > 1.0) {
+            if (gameState === 'RUNNING' && currentMult > 0.1) {
                 const shake = Math.random() * 2 - 1;
                 ctx.translate(shake, shake);
             }
@@ -566,13 +559,13 @@
 
                 drawRealisticRocket(curX, curY, currentMult);
 
-                // النسبة تبدأ من 0.00x وتزداد تدريجياً
-                currentMult += 0.007 * Math.pow(currentMult + 1, 1.05);
+                // النسبة تتزايد بمعدل متناسق (0.1 -> 0.2 -> ... 1.0 -> 1.1)
+                currentMult += 0.008 * (1 + currentMult * 0.12);
                 document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
 
                 updateUIState();
 
-                // فحص الانفجار المباشر عند الوصول للهدف المحدد من السيرفر
+                // فحص الانفجار المباشر عند الوصول للهدف المحدد
                 if (currentMult >= targetCrashMult) {
                     triggerCrash(curX, curY);
                 }
@@ -604,7 +597,6 @@
             updateUIState();
             fetchUserData();
 
-            // الانتظار 5 ثواني بعد الانفجار لبدء جولة جديدة تلقائياً
             setTimeout(startCountdown, 2500);
         }
 
@@ -669,8 +661,8 @@
         }
 
         async function launchRocketRound() {
-            // توليد مضاعف حقيقي عشوائي للصاروخ للجولة الحالية
-            targetCrashMult = parseFloat((Math.random() * 4 + 0.1).toFixed(2));
+            // توليد مضاعف عشوائي لا يتجاوز الحد التلقائي MAX_AUTO_CRASH_MULT (5.0)
+            targetCrashMult = parseFloat((Math.random() * (MAX_AUTO_CRASH_MULT - 0.2) + 0.2).toFixed(2));
             
             gameState = 'RUNNING';
             animProgress = 0;
@@ -694,7 +686,7 @@
                 }
             } else if (gameState === 'RUNNING') {
                 if (hasBetInCurrentRound && !hasCashedOutCurrentRound) {
-                    // حساب المبلغ المسترد: الرهان + الرهان * المضاعف الحالي (عند 1.00x يصبح الضعف تماماً)
+                    // المبلغ المسترد: الرهان + (الرهان * المضاعف الحالي)
                     const currentReturn = (betAmount * (1 + currentMult)).toFixed(2);
                     btn.className = 'btn-action btn-withdraw';
                     btnText.innerText = `انسحاب الان (${currentReturn} NPS)`;
@@ -741,9 +733,8 @@
                 userBalance = data.new_balance;
                 document.getElementById('u-balance').innerText = userBalance.toFixed(2);
 
-                // ربط النتيجة ببيانات السيرفر
                 if (data.multiplier && data.multiplier > 0) {
-                    targetCrashMult = data.multiplier;
+                    targetCrashMult = Math.min(MAX_AUTO_CRASH_MULT, data.multiplier);
                 }
 
                 hasBetInCurrentRound = true;
@@ -766,6 +757,10 @@
             document.getElementById('status-display').innerText = `🎉 تم الانسحاب عند ${winMult}x (+${totalWin} NPS)!`;
             document.getElementById('status-display').className = 'status-text status-cashed';
             document.getElementById('mult-display').style.color = '#00e676';
+
+            // عند انسحاب اللاعب، يتم رفع هدف الصاروخ عشوائياً إلى أرقام حماسية عالية
+            const randomHype = HYPE_MULTIPLIERS[Math.floor(Math.random() * HYPE_MULTIPLIERS.length)];
+            targetCrashMult = Math.max(targetCrashMult, randomHype);
 
             updateUIState();
             fetchUserData();
