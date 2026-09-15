@@ -16,8 +16,6 @@
             --gold-dark: #b38f00;
             --red-card: #e53935;
             --black-card: #1e1e1e;
-            --btn-red: #d32f2f;
-            --btn-green: #2e7d32;
             --border-gold: rgba(255, 207, 51, 0.4);
         }
 
@@ -30,6 +28,7 @@
         }
 
         html, body {
+            width: 100vw;
             height: 100vh;
             max-height: 100vh;
             overflow: hidden;
@@ -39,74 +38,119 @@
             flex-direction: column;
         }
 
-        /* Header */
+        /* ------------------ Splash Screen ------------------ */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #0c3b1b 0%, #04190b 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .splash-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 4px 15px rgba(255, 207, 51, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .splash-subtitle {
+            font-size: 0.95rem;
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+
+        .btn-start-game {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 207, 51, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .btn-start-game:active {
+            transform: scale(0.95);
+        }
+
+        /* ------------------ Header ------------------ */
         .header {
             background: rgba(4, 20, 9, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--gold);
-            padding: 8px 14px;
+            padding: 0 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             z-index: 50;
-            height: 54px;
+            height: 50px;
             flex-shrink: 0;
         }
 
-        .user-info { display: flex; align-items: center; gap: 8px; }
-        .avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #000; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.1rem;
-            box-shadow: 0 0 10px rgba(255, 207, 51, 0.5);
+        .btn-exit {
+            background: rgba(229, 57, 53, 0.2);
+            border: 1px solid #e53935;
+            color: #ff5252;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .balance-box {
             background: rgba(0, 0, 0, 0.75);
             border: 1px solid var(--gold);
-            padding: 4px 12px; border-radius: 20px;
-            color: var(--gold); font-weight: 900; font-size: 1rem;
-            display: flex; align-items: center; gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             box-shadow: 0 0 10px rgba(255, 207, 51, 0.2);
         }
 
-        /* Felt Table Area */
+        /* ------------------ Top 50%: Table Area ------------------ */
         .poker-table {
-            flex: 1;
+            height: 50vh;
+            flex: 0 0 50vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px 14px;
+            padding: 10px 14px;
             position: relative;
             background: var(--table-felt);
-            border-inner: 2px solid rgba(255, 207, 51, 0.15);
             min-height: 0;
         }
 
         .table-border-ring {
             position: absolute;
-            inset: 8px;
+            inset: 6px;
             border: 2px dashed rgba(255, 207, 51, 0.15);
-            border-radius: 20px;
-            pointer-events: none;
-        }
-
-        .table-center-logo {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.08;
-            font-size: 7rem;
-            color: #fff;
+            border-radius: 16px;
             pointer-events: none;
         }
 
         .section-title {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 6px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 4px;
             text-align: center;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
@@ -115,21 +159,21 @@
         .score-badge {
             color: var(--gold);
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .cards-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            min-height: 105px;
+            gap: 8px;
+            min-height: 95px;
             align-items: center;
         }
 
-        /* Realistic Card Styles */
+        /* ------------------ Realistic Cards ------------------ */
         .card {
-            width: 72px;
-            height: 105px;
+            width: 65px;
+            height: 95px;
             perspective: 1000px;
         }
 
@@ -139,7 +183,7 @@
             transform-style: preserve-3d;
             transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
             border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
 
         .card.flipped .card-inner {
@@ -154,59 +198,55 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 5px 7px;
+            padding: 4px 6px;
         }
 
-        /* ظهر الورقة */
         .card-back {
-            background: linear-gradient(135deg, #a71d1d 0%, #5f0000 100%);
+            background: linear-gradient(135deg, #b71c1c 0%, #4a0000 100%);
             border: 2px solid #ffffff;
-            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 8px, transparent 0, transparent 16px);
+            background-image: repeating-linear-gradient(45deg, rgba(255,207,51,0.15) 0, rgba(255,207,51,0.15) 6px, transparent 0, transparent 12px);
             display: flex; align-items: center; justify-content: center;
         }
         .card-back::after {
-            content: '♠♥'; color: rgba(255,255,255,0.4); font-size: 1.4rem;
+            content: '👑'; font-size: 1.3rem; opacity: 0.8;
         }
 
-        /* وجه الورقة */
         .card-front {
             background: #ffffff;
             color: var(--black-card);
             transform: rotateY(180deg);
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
         }
         .card-front.red { color: var(--red-card); }
 
-        .card-corner { font-size: 0.8rem; font-weight: 900; line-height: 1; text-align: right; }
-        .card-center-suit { font-size: 2rem; align-self: center; line-height: 1; }
+        .card-corner { font-size: 0.75rem; font-weight: 900; line-height: 1; text-align: right; }
+        .card-center-suit { font-size: 1.8rem; align-self: center; line-height: 1; }
 
-        /* Game Outcome Banner */
         .game-status {
             text-align: center;
-            padding: 8px 12px;
-            font-size: 0.95rem;
+            padding: 6px 10px;
+            font-size: 0.85rem;
             font-weight: 900;
-            min-height: 44px;
+            min-height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.65);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.75);
             border: 1px solid var(--border-gold);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            margin: 6px 0;
             z-index: 10;
         }
 
-        /* Controls Panel */
+        /* ------------------ Bottom 50%: Controls Panel ------------------ */
         .controls-panel {
+            height: calc(50vh - 50px);
+            flex: 1;
             background: rgba(4, 18, 8, 0.98);
             border-top: 2px solid var(--gold);
-            padding: 10px 14px 14px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            flex-shrink: 0;
+            justify-content: space-around;
         }
 
         .bet-selector {
@@ -220,12 +260,11 @@
         }
 
         .btn-step {
-            width: 34px; height: 34px;
+            width: 36px; height: 36px;
             border-radius: 8px; border: none;
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
             color: #000; font-size: 1.2rem; font-weight: bold;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         .btn-step:active { transform: scale(0.92); }
 
@@ -235,26 +274,24 @@
             font-weight: 900; text-align: center; width: 90px; outline: none;
         }
 
-        /* Presets */
         .preset-row { display: flex; gap: 6px; }
         .btn-preset {
-            flex: 1; padding: 5px 0;
+            flex: 1; padding: 8px 0;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 207, 51, 0.2);
-            border-radius: 6px; color: var(--gold-bright);
-            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            border-radius: 8px; color: var(--gold-bright);
+            font-size: 0.8rem; font-weight: 700; cursor: pointer;
         }
         .btn-preset:active { background: var(--gold); color: #000; }
 
         .action-btns { display: flex; gap: 8px; }
 
         .btn-act {
-            flex: 1; padding: 12px;
+            flex: 1; padding: 14px;
             border: none; border-radius: 12px;
             font-size: 1.05rem; font-weight: 900;
             color: #fff; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.2s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
@@ -262,30 +299,34 @@
         .btn-change { background: linear-gradient(135deg, #c62828 0%, #8e0000 100%); border: 1px solid #ef5350; }
         .btn-confirm { background: linear-gradient(135deg, #f57f17 0%, #ff6f00 100%); border: 1px solid #ffb74d; }
         .btn-act:active { transform: scale(0.97); }
-        .btn-act:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
 <body>
 
+    <!-- صفحة البداية -->
+    <div class="splash-screen" id="splash">
+        <i class="fa-solid fa-crown" style="font-size: 4rem; color: var(--gold); margin-bottom: 15px;"></i>
+        <div class="splash-title">لعبة الشدة الملكية</div>
+        <div class="splash-subtitle">تحدى وتوقع الكروت لربح عملات NPS</div>
+        <button class="btn-start-game" onclick="launchGame()">ابدأ اللعبة الآن</button>
+    </div>
+
+    <!-- الشريط العلوي -->
     <header class="header">
-        <div class="user-info">
-            <div class="avatar"><i class="fa-solid fa-crown"></i></div>
-            <div>
-                <div id="u-name" style="font-weight: bold; font-size: 0.85rem;">لاعب الشدة</div>
-                <div style="font-size: 0.7rem; color: #aaa;">ID: <span id="u-id">--</span></div>
-            </div>
-        </div>
+        <button class="btn-exit" onclick="exitGame()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> خروج
+        </button>
         <div class="balance-box">
             <i class="fa-solid fa-coins"></i>
             <span id="u-balance">0.00</span> NPS
         </div>
     </header>
 
+    <!-- النصف الأعلى: طاولة الشدة (50vh) -->
     <div class="poker-table">
         <div class="table-border-ring"></div>
-        <i class="fa-solid fa-suit-spade table-center-logo"></i>
 
-        <!-- الخصم -->
+        <!-- أوراق الخصم -->
         <div>
             <div class="section-title">أوراق الخصم (المجموع: <span id="opp-score" class="score-badge">?</span>)</div>
             <div class="cards-container" id="opp-cards"></div>
@@ -294,19 +335,19 @@
         <!-- حالة الجولة -->
         <div class="game-status" id="status-text">اختر مبلغ الرهان واضغط توزيع الأوراق</div>
 
-        <!-- اللاعب -->
+        <!-- أوراق اللاعب -->
         <div>
             <div class="section-title">أوراقك (المجموع: <span id="player-score" class="score-badge">0</span>)</div>
             <div class="cards-container" id="player-cards"></div>
         </div>
     </div>
 
-    <!-- لوحة التحكم -->
+    <!-- النصف الأسفل: لوحة الرهان والخيارات (50vh) -->
     <div class="controls-panel">
-        <div class="bet-selector" id="bet-box">
-            <span style="font-size: 0.8rem; color: #ccc;">الرهان (5 - 1000 NPS):</span>
+        <div class="bet-selector">
+            <span style="font-size: 0.8rem; color: #ccc;">قيمة الرهان (NPS):</span>
             <button class="btn-step" onclick="adjustBet(-5)">-</button>
-            <input type="number" id="bet-amount" class="bet-num bet-input" value="5" min="5" max="1000" step="5">
+            <input type="number" id="bet-amount" class="bet-input" value="5" min="5" max="1000" step="5">
             <button class="btn-step" onclick="adjustBet(5)">+</button>
         </div>
 
@@ -318,7 +359,7 @@
         </div>
 
         <div class="action-btns" id="action-area">
-            <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
+            <button class="btn-act btn-deal" onclick="startRound()">
                 <i class="fa-solid fa-play"></i> توزيع الأوراق (<span id="btn-bet-lbl">5</span> NPS)
             </button>
         </div>
@@ -333,7 +374,7 @@
 
         let userBalance = 0.0;
         let betAmount = 5;
-        let gameState = 'IDLE'; // IDLE, REVEALED_1, FINISHED
+        let gameState = 'IDLE';
         let playerHand = [];
         let oppHand = [];
 
@@ -352,23 +393,56 @@
             { name: 'A', val: 11 }
         ];
 
+        function launchGame() {
+            if (tg) tg.expand();
+            document.getElementById('splash').style.display = 'none';
+        }
+
+        function exitGame() {
+            if (tg) {
+                tg.close();
+            } else {
+                document.getElementById('splash').style.display = 'flex';
+            }
+        }
+
         async function fetchUserData() {
             try {
                 const res = await fetch(`/api/user/get?telegram_id=${userId}`);
                 const data = await res.json();
                 if (data.success) {
                     userBalance = parseFloat(data.balance);
-                    document.getElementById('u-name').innerText = data.full_name || 'لاعب الشدة';
-                    document.getElementById('u-id').innerText = data.user_id;
                     document.getElementById('u-balance').innerText = userBalance.toFixed(2);
                 }
             } catch (e) {}
         }
 
-        function generateCard() {
+        function generateRandomCard() {
             const suit = suits[Math.floor(Math.random() * suits.length)];
             const rank = ranks[Math.floor(Math.random() * ranks.length)];
             return { ...rank, ...suit };
+        }
+
+        /* خوارزمية التحكم بنسبة الخسارة (90% خسارة - 10% فوز) */
+        function generateControlledHands() {
+            const playerShouldWin = Math.random() < 0.10; // 10% احتمال الفوز
+
+            let pHand, oHand, pSum, oSum;
+            let attempts = 0;
+
+            do {
+                pHand = [generateRandomCard(), generateRandomCard(), generateRandomCard()];
+                oHand = [generateRandomCard(), generateRandomCard(), generateRandomCard()];
+                
+                pSum = pHand.reduce((a, b) => a + b.val, 0);
+                oSum = oHand.reduce((a, b) => a + b.val, 0);
+
+                attempts++;
+                if (attempts > 200) break; // للحماية من الحلقات اللانهائية
+
+            } while (playerShouldWin ? (pSum <= oSum) : (pSum >= oSum));
+
+            return { pHand, oHand };
         }
 
         function createCardHTML(idPrefix, index) {
@@ -443,7 +517,6 @@
             updateBetDisplay();
         });
 
-        // بدء الجولة وتوزيع أول ورقة
         async function startRound() {
             if (userBalance < betAmount) {
                 alert("رصيدك غير كافٍ للرهان!");
@@ -452,8 +525,9 @@
 
             initTableUI();
 
-            playerHand = [generateCard(), generateCard(), generateCard()];
-            oppHand = [generateCard(), generateCard(), generateCard()];
+            const hands = generateControlledHands();
+            playerHand = hands.pHand;
+            oppHand = hands.oHand;
 
             for (let i = 0; i < 3; i++) {
                 setCardData('p', i, playerHand[i]);
@@ -467,7 +541,7 @@
                 document.getElementById('player-score').innerText = playerHand[0].val;
             }, 250);
 
-            document.getElementById('status-text').innerText = "تم فتح الورقة الأولى! اختر: متابعة الرهان أم تغيير الرهان؟";
+            document.getElementById('status-text').innerText = "فتح الورقة الأولى! اختر: متابعة الرهان أم تغيير الرهان؟";
             document.getElementById('status-text').style.color = "var(--gold)";
 
             renderDecisionButtons();
@@ -504,7 +578,7 @@
                 }
             } catch (e) {}
 
-            document.getElementById('status-text').innerText = "تم خصم 10 NPS. يمكنك تغيير الرهان الآن ثم اضغط تأكيد.";
+            document.getElementById('status-text').innerText = "تم خصم 10 NPS. اختر الرهان ثم اضغط تأكيد.";
             document.getElementById('status-text').style.color = "#ff5252";
 
             const actionArea = document.getElementById('action-area');
@@ -515,7 +589,6 @@
             `;
         }
 
-        // كشف بقية الورق وتحديد الربح المضاعف (x2)
         async function confirmAndPlay() {
             if (userBalance < betAmount) {
                 alert("رصيدك الحالي أقل من الرهان المحدد!");
@@ -553,7 +626,6 @@
                 flipCard('opp', 2);
                 document.getElementById('opp-score').innerText = oppScore;
 
-                // النتيجة النهائية + الأرباح الضعف (X2)
                 setTimeout(() => {
                     const statusEl = document.getElementById('status-text');
                     if (isWin) {
@@ -578,7 +650,7 @@
             gameState = 'IDLE';
             const actionArea = document.getElementById('action-area');
             actionArea.innerHTML = `
-                <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
+                <button class="btn-act btn-deal" onclick="startRound()">
                     <i class="fa-solid fa-play"></i> جولة جديدة (<span id="btn-bet-lbl">${betAmount}</span> NPS)
                 </button>
             `;
