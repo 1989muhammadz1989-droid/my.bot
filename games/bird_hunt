@@ -1,0 +1,6 @@
+project/
+├── app.py
+└── games/
+    └── bird_hunt/
+        ├── bird_hunt.json  (ملف إعدادات الخوارزمية)
+        └── index.html       (واجهة اللعبة الكاملة)
