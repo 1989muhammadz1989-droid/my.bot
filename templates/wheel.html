@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>عجلة الحظ الملكية 🎰</title>
+    <!-- خط Cairo ورسوم الأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #120104;
+            --crimson-dark: #3a0007;
+            --crimson-main: #6b000f;
+            --crimson-light: #9e0016;
+            --gold-primary: #ffd700;
+            --gold-light: #fff099;
+            --gold-dark: #b8860b;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #4a000a 0%, var(--bg-dark) 90%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-color);
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* شريط معلومات المستخدم العلوي */
+        .header-card {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(58, 0, 7, 0.7);
+            border: 2px solid var(--gold-dark);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stat-badge {
+            background: linear-gradient(135deg, #2b0005, #50000a);
+            border: 1px solid var(--gold-primary);
+            border-radius: 12px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .stat-badge .val {
+            color: var(--gold-primary);
+        }
+
+        /* حاوية العجلة والمؤشر */
+        .wheel-outer-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto 0;
+        }
+
+        /* الإطار الخارجي المضيء للعجلة */
+        .wheel-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            padding: 12px;
+            background: radial-gradient(circle, #800010 0%, #200004 100%);
+            border: 6px solid var(--gold-primary);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* مصابيح الزينة الدائرية (LEDs) */
+        .led-light {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            box-shadow: 0 0 8px var(--gold-primary);
+            animation: blink 1.2s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px var(--gold-primary); }
+        }
+
+        /* مؤشر السهم العلوي */
+        .pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 38px;
+            height: 48px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7));
+        }
+
+        .pointer path {
+            fill: url(#goldGradient);
+            stroke: #ffffff;
+            stroke-width: 1.5;
+        }
+
+        /* كائن العجلة */
+        canvas#wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 5s cubic-bezier(0.15, 0.99, 0.15, 0.99);
+        }
+
+        /* زر المنتصف للدوران */
+        .center-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--gold-light) 0%, var(--gold-dark) 100%);
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 15px var(--gold-primary);
+            z-index: 10;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #3a0007;
+            font-weight: 900;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .center-btn:active {
+            transform: translate(-50%, -50%) scale(0.92);
+        }
+
+        .center-btn.disabled {
+            filter: grayscale(0.8);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* النافذة المنبثقة للنتيجة */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: linear-gradient(135deg, #4a000a, #1a0003);
+            border: 3px solid var(--gold-primary);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            width: 85%;
+            max-width: 350px;
+            box-shadow: 0 0 30px var(--gold-dark);
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            color: var(--gold-primary);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            color: #200004;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .footer-note {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الترويسة العليا -->
+    <div class="header-card">
+        <div class="user-info">
+            <span class="user-name" id="userName">جاري التحميل...</span>
+            <span style="font-size: 0.75rem; color: #ccc;">عجلة الحظ التفاعلية</span>
+        </div>
+        <div class="stats-container">
+            <div class="stat-badge">
+                <span>🎁</span>
+                <span class="val" id="spinsCount">0</span>
+                <span>لفات</span>
+            </div>
+            <div class="stat-badge">
+                <span>💰</span>
+                <span class="val" id="userBalance">0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- العجلة -->
+    <div class="wheel-outer-wrapper">
+        <!-- السهم الذهبي العلوي -->
+        <svg class="pointer" viewBox="0 0 30 40">
+            <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fff099"/>
+                    <stop offset="50%" stop-color="#ffd700"/>
+                    <stop offset="100%" stop-color="#b8860b"/>
+                </linearGradient>
+            </defs>
+            <path d="M 0,0 L 30,0 L 15,35 Z" />
+        </svg>
+
+        <div class="wheel-frame" id="wheelFrame">
+            <!-- مصابيح حافة العجلة تُنشأ تلقائياً بواسطة JS -->
+            <canvas id="wheel" width="600" height="600"></canvas>
+            
+            <!-- زر التدوير المنتصف -->
+            <button class="center-btn" id="spinBtn" onclick="startSpin()">
+                <span>دوران</span>
+                <span style="font-size: 0.7rem; opacity: 0.8;">SPIN</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        اضغط على الزر في المنتصف لتجربة حظك اليوم!
+    </div>
+
+    <!-- نافذة عرض النتيجة -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-card">
+            <div class="modal-icon" id="modalIcon">🎉</div>
+            <div class="modal-title" id="modalTitle">مبروك!</div>
+            <div class="modal-body" id="modalBody">لقد فزت بـ 500 رصيد</div>
+            <button class="modal-btn" onclick="closeModal()">استمرار</button>
+        </div>
+    </div>
+
+    <script>
+        // تهيئة Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+
+        // استخراج user_id من التليجرام أو الرابط
+        function getUserId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let uid = urlParams.get('user_id') || urlParams.get('telegram_id');
+            if (!uid && window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+                uid = window.Telegram.WebApp.initDataUnsafe.user.id;
+            }
+            return uid || "12345678"; // افتراضي للتجربة إن لم يتوفر
+        }
+
+        const USER_ID = getUserId();
+
+        // قائمة القطاعات الـ 12 بالترتيب الدقيق المطلوب
+        const SLICES = [
+            { id: "luck", label: "حظ اوفر", emoji: "🍀", color: "#4a000a" },
+            { id: "5", label: "5", emoji: "💵", color: "#800010" },
+            { id: "10", label: "10", emoji: "💵", color: "#4a000a" },
+            { id: "15", label: "15", emoji: "💵", color: "#800010" },
+            { id: "try_again", label: "حاول مجددا", emoji: "🔄", color: "#4a000a" },
+            { id: "25", label: "25", emoji: "💎", color: "#800010" },
+            { id: "50", label: "50", emoji: "💎", color: "#4a000a" },
+            { id: "100", label: "100", emoji: "👑", color: "#800010" },
+            { id: "250", label: "250", emoji: "🎁", color: "#4a000a" },
+            { id: "dep_bonus_20", label: "بونص 20%", emoji: "⚡", color: "#800010" },
+            { id: "500", label: "500", emoji: "🏆", color: "#4a000a" },
+            { id: "1000", label: "1000", emoji: "🚀", color: "#800010" }
+        ];
+
+        let currentRotation = 0;
+        let isSpinning = false;
+        let userSpins = 0;
+
+        // رسم العجلة ومصابيح LED
+        function initWheel() {
+            createLEDs();
+            drawWheelCanvas();
+            loadUserData();
+        }
+
+        // إنشاء المصابيح على الإطار
+        function createLEDs() {
+            const frame = document.getElementById("wheelFrame");
+            const totalLEDs = 16;
+            for (let i = 0; i < totalLEDs; i++) {
+                const angle = (i * (360 / totalLEDs)) * (Math.PI / 180);
+                const led = document.createElement("div");
+                led.className = "led-light";
+                // تعيين مكان المصباح على الدائرة
+                const r = 48; // نسبة مئوية
+                const left = 50 + r * Math.cos(angle);
+                const top = 50 + r * Math.sin(angle);
+                led.style.left = `calc(${left}% - 5px)`;
+                led.style.top = `calc(${top}% - 5px)`;
+                led.style.animationDelay = `${(i % 2) * 0.6}s`;
+                frame.appendChild(led);
+            }
+        }
+
+        // رسم قطع العجلة والنصوص على Canvas
+        function drawWheelCanvas() {
+            const canvas = document.getElementById("wheel");
+            const ctx = canvas.getContext("2d");
+            const numSlices = SLICES.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+            const radius = canvas.width / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numSlices; i++) {
+                const startAngle = i * sliceAngle - Math.PI / 2;
+                const endAngle = startAngle + sliceAngle;
+
+                // رسم القطاع
+                ctx.beginPath();
+                ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius - 8, startAngle, endAngle);
+                ctx.fillStyle = SLICES[i].color;
+                ctx.fill();
+
+                // حدود القطاع الذهبية
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#ffd700";
+                ctx.stroke();
+
+                // كتابة النص والإيموجي
+                ctx.save();
+                ctx.translate(radius, radius);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                
+                // إضافة خط النص وحجمه
+                ctx.font = "bold 20px 'Cairo', sans-serif";
+                ctx.fillText(SLICES[i].label, radius - 35, 5);
+
+                ctx.font = "18px 'Cairo'";
+                ctx.fillText(SLICES[i].emoji, radius - 15, 5);
+                ctx.restore();
+            }
+
+            // إطار داخلي جميل
+            ctx.beginPath();
+            ctx.arc(radius, radius, radius - 8, 0, 2 * Math.PI);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = "#ffd700";
+            ctx.stroke();
+        }
+
+        // جلب بيانات المستخدم من سيرفر Flask
+        async function loadUserData() {
+            try {
+                const res = await fetch(`/api/user/get?user_id=${USER_ID}`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById("userName").innerText = data.full_name;
+                    document.getElementById("userBalance").innerText = data.balance.toFixed(2);
+                    document.getElementById("spinsCount").innerText = data.free_spins;
+                    userSpins = data.free_spins;
+
+                    if (userSpins <= 0) {
+                        document.getElementById("spinBtn").classList.add("disabled");
+                    } else {
+                        document.getElementById("spinBtn").classList.remove("disabled");
+                    }
+                }
+            } catch (err) {
+                console.error("خطأ في جلب بيانات المستخدم:", err);
+            }
+        }
+
+        // تشغيل عملية التدوير
+        async function startSpin() {
+            if (isSpinning) return;
+            if (userSpins <= 0) {
+                alert("ليس لديك لفات مجانية متاحة حالياً!");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById("spinBtn").classList.add("disabled");
+
+            try {
+                // الاتصال بـ API عجلة الحظ في سيرفر Flask
+                const res = await fetch("/api/wheel/spin", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: USER_ID })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "حدث خطأ أثناء التدوير");
+                    isSpinning = false;
+                    document.getElementById("spinBtn").classList.remove("disabled");
+                    return;
+                }
+
+                // حساب زاوية التوقف بناءً على القيمة المرجعة من السيرفر
+                const targetResult = data.result;
+                const targetIndex = SLICES.findIndex(s => s.id === targetResult);
+
+                if (targetIndex === -1) {
+                    console.error("النتيجة غير معروفة:", targetResult);
+                    isSpinning = false;
+                    return;
+                }
+
+                // حساب زاوية الوقوف الدقيقة
+                const numSlices = SLICES.length;
+                const sliceDegree = 360 / numSlices;
+                
+                // حساب منتصف القطاع المستهدف
+                const targetSliceCenter = (targetIndex * sliceDegree) + (sliceDegree / 2);
+                
+                // عدد الدورات الكاملة + زاوية القطاع العكسية لتقف تحت السهم العلوي
+                const extraRounds = 5 * 360; 
+                const stopAngle = 360 - targetSliceCenter;
+                
+                // إضافة القليل من العشوائية داخل نفس القطاع لواقعية حركة السهم
+                const randomOffset = (Math.random() - 0.5) * (sliceDegree * 0.6);
+                
+                const finalRotation = currentRotation + extraRounds + (stopAngle - (currentRotation % 360)) + randomOffset;
+                currentRotation = finalRotation;
+
+                const wheelCanvas = document.getElementById("wheel");
+                wheelCanvas.style.transform = `rotate(${finalRotation}deg)`;
+
+                // الانتظار حتى انتهاء انيميشن الدوران (5 ثوانٍ)
+                setTimeout(() => {
+                    isSpinning = false;
+                    showResultModal(data, SLICES[targetIndex]);
+                    
+                    // تحديث الرصيد واللفات الحية
+                    document.getElementById("userBalance").innerText = data.new_balance.toFixed(2);
+                    document.getElementById("spinsCount").innerText = data.new_free_spins;
+                    userSpins = data.new_free_spins;
+
+                    if (userSpins > 0) {
+                        document.getElementById("spinBtn").classList.remove("disabled");
+                    }
+                }, 5000);
+
+            } catch (err) {
+                console.error("خطأ أثناء الاتصال بالسيرفر:", err);
+                isSpinning = false;
+                document.getElementById("spinBtn").classList.remove("disabled");
+            }
+        }
+
+        // عرض نافذة الفوز / النتيجة
+        function showResultModal(data, sliceObj) {
+            const modal = document.getElementById("resultModal");
+            const icon = document.getElementById("modalIcon");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalBody");
+
+            icon.innerText = sliceObj.emoji;
+
+            if (data.reward_balance > 0) {
+                title.innerText = "مبروك! فوز رائع 🎉";
+                body.innerText = `لقد ربحت ${data.reward_balance} رصيد أضيف لحسابك مباشرة!`;
+                // إطلاق القصاصات الملونة (Confetti) عند الفوز
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } else if (sliceObj.id === "try_again") {
+                title.innerText = "حاول مجدداً 🔄";
+                body.innerText = "حصلت على فرصة إضافية! لم تخسر أي لفة.";
+            } else if (sliceObj.id === "dep_bonus_20") {
+                title.innerText = "بونص شحن 20% ⚡";
+                body.innerText = "تم تفعيل بونص 20% إضافي على إيداعك القادم!";
+            } else {
+                title.innerText = "حظ أوفر 🍀";
+                body.innerText = "خيرها بغيرها! نتمنى لك حظاً أفضل في اللفة القادمة.";
+            }
+
+            modal.classList.add("active");
+        }
+
+        function closeModal() {
+            document.getElementById("resultModal").classList.remove("active");
+        }
+
+        // تشغيل العجلة عند تحميل الصفحة
+        window.onload = initWheel;
+    </script>
+</body>
+</html>
