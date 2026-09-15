@@ -66,7 +66,7 @@ def is_maintenance_active() -> bool:
         return False
 
 def is_admin_user(user_id: int) -> bool:
-    if user_id == DEFAULT_ADMIN_ID:
+    if DEFAULT_ADMIN_ID and user_id == DEFAULT_ADMIN_ID:
         return True
     try:
         conn = get_db()
@@ -172,8 +172,9 @@ def init_db():
     for key, val in defaults:
         cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, val))
 
-    cursor.execute("INSERT OR IGNORE INTO deposit_methods (id, method_name, account_details) VALUES (1, 'شام كاش', '6a257b9a22a0e063c24b38201e93fcab')")
-    cursor.execute("INSERT OR IGNORE INTO deposit_methods (id, method_name, account_details) VALUES (2, 'سيريتل كاش', '18843131')")
+    # تعيين الحسابات الافتراضية إلى test
+    cursor.execute("INSERT OR IGNORE INTO deposit_methods (id, method_name, account_details) VALUES (1, 'شام كاش', 'test')")
+    cursor.execute("INSERT OR IGNORE INTO deposit_methods (id, method_name, account_details) VALUES (2, 'سيريتل كاش', 'test')")
 
     conn.commit()
     conn.close()
@@ -235,6 +236,51 @@ async def notify_admins(context: ContextTypes.DEFAULT_TYPE, text: str, reply_mar
         except Exception:
             pass
 
+async def process_welcome_and_referral_rewards(user_id: int, context: ContextTypes.DEFAULT_TYPE):
+    conn = get_db()
+    u = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    if not u:
+        conn.close()
+        return
+
+    # منح البونص الترحيبي لمرة واحدة فقط عند تجاوز الاشتراك بالقنوات
+    if u["welcome_bonus_claimed"] == 0:
+        welcome_enabled = conn.execute("SELECT value FROM settings WHERE key='welcome_bonus_enabled'").fetchone()["value"] == "1"
+        welcome_bonus = float(conn.execute("SELECT value FROM settings WHERE key='welcome_bonus'").fetchone()["value"]) if welcome_enabled else 0.0
+
+        conn.execute("UPDATE users SET welcome_bonus_claimed = 1 WHERE user_id = ?", (user_id,))
+        if welcome_bonus > 0:
+            conn.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (welcome_bonus, user_id))
+            conn.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)", (user_id, "بونص ترحيبي بعد التثبت من القنوات", welcome_bonus))
+            try:
+                await context.bot.send_message(
+                    chat_id=user_id,
+                    text=f"🎁 **مبارك! حصلت على البونص الترحيبي قدره `{welcome_bonus}` NSP لإتمام اشتراك القنوات!**",
+                    parse_mode="Markdown"
+                )
+            except Exception:
+                pass
+
+        # إشعارات المكافأة واللفة المجانية للمحيل عند نجاح الاحالة وتجاوز القنوات
+        if u["referred_by"]:
+            ref_id = u["referred_by"]
+            ref_spin_enabled = conn.execute("SELECT value FROM settings WHERE key='referral_spin_enabled'").fetchone()["value"] == "1"
+            
+            # منح لفة مجانية للمحيل إذا كان الخيار مفعلاً
+            if ref_spin_enabled:
+                conn.execute("UPDATE users SET free_spins = free_spins + 1, referrals_count = referrals_count + 1, active_referrals_count = active_referrals_count + 1 WHERE user_id = ?", (ref_id,))
+                try:
+                    await context.bot.send_message(
+                        chat_id=ref_id,
+                        text=f"🎉 **إحالة ناجحة جديدة!**\n👤 تجاوز العميل {u['full_name']} اشتراك القنوات وحصلت على **1 لفة مجانية** 🎡!",
+                        parse_mode="Markdown"
+                    )
+                except Exception:
+                    pass
+
+    conn.commit()
+    conn.close()
+
 # ----------------------------------------------------
 # 4. لوحات التحكم والقوائم
 # ----------------------------------------------------
@@ -242,16 +288,16 @@ def main_menu_keyboard(is_admin=False):
     games_url = f"{SERVER_URL}/games"
     wheel_url = f"{SERVER_URL}/wheel"
     keyboard = [
-        [InlineKeyboardButton("🎮 دخول صفحة الألعاب | Golden Games 🎰", web_app=WebAppInfo(url=games_url))],
-        [InlineKeyboardButton("🎡 عجلة الحظ 🎯", web_app=WebAppInfo(url=wheel_url)), InlineKeyboardButton("🎁 العروض الحالية", callback_data="btn_offers")],
-        [InlineKeyboardButton("💳 شحن رصيد", callback_data="btn_deposit"), InlineKeyboardButton("💸 سحب رصيدي", callback_data="btn_withdraw")],
-        [InlineKeyboardButton("👤 حسابي ورصيدي", callback_data="btn_account"), InlineKeyboardButton("🔗 رابط إحالاتي", callback_data="btn_referral")],
-        [InlineKeyboardButton("📸 إرسال إصابة / إثبات", callback_data="btn_send_proof"), InlineKeyboardButton("🎁 إدخال كود هدية", callback_data="btn_gift")],
-        [InlineKeyboardButton("🤖 شراء بوت", callback_data="btn_buy_bot"), InlineKeyboardButton("📜 سجلاتي", callback_data="btn_logs")],
-        [InlineKeyboardButton("💬 مراسلة الدعم", callback_data="btn_support"), InlineKeyboardButton("📢 قناة المبرمج الرسمية", url="https://t.me/lerafree")]
+        [InlineKeyboardButton("💎 دخول صفحة الألعاب | Golden Games 🎰", web_app=WebAppInfo(url=games_url))],
+        [InlineKeyboardButton("🎡 عجلة الحظ 🎯", web_app=WebAppInfo(url=wheel_url)), InlineKeyboardButton("🎁 العروض الحالية 🔥", callback_data="btn_offers")],
+        [InlineKeyboardButton("💳 شحن رصيد ⚡", callback_data="btn_deposit"), InlineKeyboardButton("💸 سحب رصيدي 🪙", callback_data="btn_withdraw")],
+        [InlineKeyboardButton("👤 حسابي ورصيدي 📊", callback_data="btn_account"), InlineKeyboardButton("🔗 رابط إحالاتي 🚀", callback_data="btn_referral")],
+        [InlineKeyboardButton("📸 إرسال إصابة / إثبات 🏆", callback_data="btn_send_proof"), InlineKeyboardButton("🎟️ إدخال كود هدية 🎁", callback_data="btn_gift")],
+        [InlineKeyboardButton("🤖 شراء بوت ⚙️", callback_data="btn_buy_bot"), InlineKeyboardButton("📜 سجلاتي 📑", callback_data="btn_logs")],
+        [InlineKeyboardButton("💬 مراسلة الدعم 👨‍💻", callback_data="btn_support"), InlineKeyboardButton("📢 قناة المبرمج الرسمية 🚀", url="https://t.me/lerafree")]
     ]
     if is_admin:
-        keyboard.insert(1, [InlineKeyboardButton("⚙️ لوحة الإدارة الشاملة 👮‍♂️", callback_data="open_admin_panel")])
+        keyboard.insert(0, [InlineKeyboardButton("⚙️ لوحة الإدارة الشاملة 👮‍♂️", callback_data="open_admin_panel")])
     return InlineKeyboardMarkup(keyboard)
 
 def admin_panel_keyboard():
@@ -263,27 +309,31 @@ def admin_panel_keyboard():
     
     ref_enabled = conn.execute("SELECT value FROM settings WHERE key='referral_reward_enabled'").fetchone()["value"] == "1"
     ref_status = "🟢 مفعل" if ref_enabled else "🔴 معطل"
+
+    ref_spin_enabled = conn.execute("SELECT value FROM settings WHERE key='referral_spin_enabled'").fetchone()["value"] == "1"
+    ref_spin_status = "🟢 مفعل" if ref_spin_enabled else "🔴 معطل"
     conn.close()
 
     keyboard = [
         [InlineKeyboardButton(f"🛠️ وضع الصيانة: {maint_status}", callback_data="adm_toggle_maint")],
-        [InlineKeyboardButton("🎡 خوارزمية عجلة الحظ", callback_data="adm_wheel_algo"), InlineKeyboardButton("🎯 حظ لاعب معين", callback_data="adm_user_boost")],
+        [InlineKeyboardButton("🎡 خوارزمية عجلة الحظ 🎯", callback_data="adm_wheel_algo"), InlineKeyboardButton("🎯 حظ لاعب معين ⚡", callback_data="adm_user_boost")],
         [InlineKeyboardButton(f"🎁 البونص الترحيبي: {welcome_status}", callback_data="adm_toggle_welcome"), InlineKeyboardButton(f"🔗 بونص الإحالة: {ref_status}", callback_data="adm_toggle_ref_bonus")],
-        [InlineKeyboardButton("🎰 منح لفات مجانية", callback_data="adm_grant_spins_menu"), InlineKeyboardButton("📢 قنوات الاشتراك", callback_data="adm_channels_menu")],
-        [InlineKeyboardButton("💳 إدارة حسابات الشحن", callback_data="adm_dep_methods"), InlineKeyboardButton("📥 طلبات الشحن", callback_data="adm_deposits")],
-        [InlineKeyboardButton("💸 طلبات السحب", callback_data="adm_withdraws"), InlineKeyboardButton("🎁 إدارة العروض الحالية", callback_data="adm_offers_menu")],
-        [InlineKeyboardButton("🔓 إلغاء تقييد الأكواد", callback_data="adm_code_restrictions"), InlineKeyboardButton("🎟️ الأكواد النشطة وإلغاء كود", callback_data="adm_active_codes")],
-        [InlineKeyboardButton("➕ بونص الشحن (%)", callback_data="adm_set_dep_bonus"), InlineKeyboardButton("➖ عمولة السحب (%)", callback_data="adm_set_w_commission")],
-        [InlineKeyboardButton("💰 حد الشحن الأدنى", callback_data="adm_set_min_dep"), InlineKeyboardButton("💸 حد السحب الأدنى", callback_data="adm_set_min_w")],
-        [InlineKeyboardButton("➕ إضافة رصيد", callback_data="adm_add_bal"), InlineKeyboardButton("➖ خصم رصيد", callback_data="adm_sub_bal")],
-        [InlineKeyboardButton("🎟️ توليد أكواد دفعة", callback_data="adm_batch_codes"), InlineKeyboardButton("🎫 إنشاء كود فردي", callback_data="adm_make_gift")],
-        [InlineKeyboardButton("🔍 تفاصيل عميل كاملة", callback_data="adm_user_info"), InlineKeyboardButton("📊 سجل ونقاط اللاعبين", callback_data="adm_players_log")],
-        [InlineKeyboardButton("👮 عرض قائمة الأدمنية", callback_data="adm_list_admins"), InlineKeyboardButton("📊 الإحصائيات الشاملة", callback_data="adm_stats")],
-        [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="adm_ban"), InlineKeyboardButton("✅ فك الحظر", callback_data="adm_unban")],
-        [InlineKeyboardButton("📢 إذاعة سريعة (نص)", callback_data="adm_bc_txt"), InlineKeyboardButton("📸 إذاعة سريعة (صورة)", callback_data="adm_bc_img")],
-        [InlineKeyboardButton("📩 رسالة خاصة", callback_data="adm_pm_txt"), InlineKeyboardButton("👮 إضافة أدمن", callback_data="adm_add_admin")],
-        [InlineKeyboardButton("❌ إزالة أدمن", callback_data="adm_del_admin")],
-        [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]
+        [InlineKeyboardButton(f"🎡 لفة الإحالة المجانية: {ref_spin_status}", callback_data="adm_toggle_ref_spin")],
+        [InlineKeyboardButton("🎰 منح لفات مجانية 🎁", callback_data="adm_grant_spins_menu"), InlineKeyboardButton("📢 قنوات الاشتراك الصارمة 🚀", callback_data="adm_channels_menu")],
+        [InlineKeyboardButton("💳 إدارة حسابات الشحن 📑", callback_data="adm_dep_methods"), InlineKeyboardButton("📥 طلبات الشحن المعلقة ⏳", callback_data="adm_deposits")],
+        [InlineKeyboardButton("💸 طلبات السحب المعلقة 💸", callback_data="adm_withdraws"), InlineKeyboardButton("🎁 إدارة العروض الحالية 🔥", callback_data="adm_offers_menu")],
+        [InlineKeyboardButton("🔓 إلغاء تقييد الأكواد 🎟️", callback_data="adm_code_restrictions"), InlineKeyboardButton("🎟️ الأكواد النشطة وإلغاء كود ❌", callback_data="adm_active_codes")],
+        [InlineKeyboardButton("➕ بونص الشحن (%) ⚡", callback_data="adm_set_dep_bonus"), InlineKeyboardButton("➖ عمولة السحب (%) 🪙", callback_data="adm_set_w_commission")],
+        [InlineKeyboardButton("💰 حد الشحن الأدنى 💵", callback_data="adm_set_min_dep"), InlineKeyboardButton("💸 حد السحب الأدنى 💶", callback_data="adm_set_min_w")],
+        [InlineKeyboardButton("➕ إضافة رصيد 💎", callback_data="adm_add_bal"), InlineKeyboardButton("➖ خصم رصيد 🔻", callback_data="adm_sub_bal")],
+        [InlineKeyboardButton("🎟️ توليد أكواد دفعة 🎁", callback_data="adm_batch_codes"), InlineKeyboardButton("🎫 إنشاء كود فردي ✨", callback_data="adm_make_gift")],
+        [InlineKeyboardButton("🔍 تفاصيل عميل كاملة 📊", callback_data="adm_user_info"), InlineKeyboardButton("📊 سجل ونقاط اللاعبين 🏆", callback_data="adm_players_log")],
+        [InlineKeyboardButton("👮 عرض قائمة الأدمنية 👑", callback_data="adm_list_admins"), InlineKeyboardButton("📊 الإحصائيات الشاملة 🚀", callback_data="adm_stats")],
+        [InlineKeyboardButton("🚫 حظر مستخدم ❌", callback_data="adm_ban"), InlineKeyboardButton("✅ فك الحظر 🔓", callback_data="adm_unban")],
+        [InlineKeyboardButton("📢 إذاعة سريعة (نص) 📣", callback_data="adm_bc_txt"), InlineKeyboardButton("📸 إذاعة سريعة (صورة) 🖼️", callback_data="adm_bc_img")],
+        [InlineKeyboardButton("📩 رسالة خاصة 💬", callback_data="adm_pm_txt"), InlineKeyboardButton("👮 إضافة أدمن ➕", callback_data="adm_add_admin")],
+        [InlineKeyboardButton("❌ إزالة أدمن ➖", callback_data="adm_del_admin")],
+        [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -352,6 +402,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     conn.close()
 
+    # معالجة مكافآت الاشتراك والقنوات
+    await process_welcome_and_referral_rewards(user.id, context)
+
     if not u["phone_verified"]:
         if u["step"] == "captcha":
             await update.message.reply_text("⚠️ يرجى الإجابة على سؤال الأمان أولاً (حمصية أم حموية؟).")
@@ -371,7 +424,7 @@ async def send_main_dashboard(chat_id, user_id, full_name, is_admin, context):
     bal = u["balance"] if u else 0.0
     spins = u["free_spins"] if u else 0
     text = (
-        f"👑 **مرحباً بك في منصة الألعاب Golden Games 2026** 🎮\n"
+        f"👑 **مرحباً بك في منصة الألعاب Golden Games 2026** 🎰\n"
         f"✨ ─────────────────── ✨\n"
         f"👤 **اللاعب:** {full_name}\n"
         f"🆔 **المعرف (ID):** `{user_id}`\n"
@@ -402,7 +455,6 @@ async def handle_photo_messages(update: Update, context: ContextTypes.DEFAULT_TY
     photo_file_id = update.message.photo[-1].file_id
     caption = update.message.caption or "بدون وصف"
 
-    # 1. إرسال صورة إثبات إصابة / فوز
     if step == "user_upload_proof":
         conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
         conn.commit()
@@ -423,10 +475,9 @@ async def handle_photo_messages(update: Update, context: ContextTypes.DEFAULT_TY
             except Exception:
                 pass
 
-        await update.message.reply_text("✅ **تم إرسال صورة الإثبات إلى الإدارة بنجاح!**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ **تم إرسال صورة الإثبات إلى الإدارة بنجاح!**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
-    # 2. إرسال صورة إيصال الشحن
     if step == "deposit_step_tx":
         amt = context.user_data.get("dep_amount", 0.0)
         method = context.user_data.get("dep_method", "غير محدد")
@@ -440,9 +491,9 @@ async def handle_photo_messages(update: Update, context: ContextTypes.DEFAULT_TY
         admins = conn.execute("SELECT user_id FROM admins").fetchall()
         conn.close()
 
-        await update.message.reply_text("✅ **تم تقديم طلب الشحن مع صورة الإيصال بنجاح وهو قيد المراجعة.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ **تم تقديم طلب الشحن مع صورة الإيصال بنجاح وهو قيد المراجعة.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         
-        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة", callback_data=f"app_dep_{dep_id}"), InlineKeyboardButton("❌ رفض", callback_data=f"rej_dep_{dep_id}")]])
+        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة ⚡", callback_data=f"app_dep_{dep_id}"), InlineKeyboardButton("❌ رفض 🗑️", callback_data=f"rej_dep_{dep_id}")]])
         dep_text = f"📥 **طلب شحن جديد بإيصال مصور (# {dep_id}):**\n👤 {user.full_name} (`{user.id}`)\n💳 الطريقة: {method}\n💰 المبلغ: `{amt}` NSP\n📝 الوصف: {caption}"
         
         for adm in admins:
@@ -452,7 +503,6 @@ async def handle_photo_messages(update: Update, context: ContextTypes.DEFAULT_TY
                 pass
         return
 
-    # 3. إذاعة صورة سريعة من الأدمن
     if is_admin_user(user.id) and step == "adm_input_bc_img":
         users_list = conn.execute("SELECT user_id FROM users WHERE is_banned = 0").fetchall()
         conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
@@ -470,7 +520,7 @@ async def handle_photo_messages(update: Update, context: ContextTypes.DEFAULT_TY
         tasks = [send_photo_fast(u_item["user_id"]) for u_item in users_list]
         await asyncio.gather(*tasks)
 
-        await update.message.reply_text(f"📸 تم إرسال الإذاعة المصورة لـ `{len(users_list)}` مستخدم بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+        await update.message.reply_text(f"📸 تم إرسال الإذاعة المصورة لـ `{len(users_list)}` مستخدم بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
         return
 
     conn.close()
@@ -501,46 +551,20 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ هذا الرقم موثق ومستعمل سابقاً في حساب آخر!", reply_markup=ReplyKeyboardRemove())
         return
 
-    welcome_enabled = conn.execute("SELECT value FROM settings WHERE key='welcome_bonus_enabled'").fetchone()["value"] == "1"
-    welcome_bonus = float(conn.execute("SELECT value FROM settings WHERE key='welcome_bonus'").fetchone()["value"]) if welcome_enabled else 0.0
-
-    new_bal = u["balance"] + welcome_bonus
     conn.execute(
-        "UPDATE users SET phone = ?, is_verified = 1, phone_verified = 1, welcome_bonus_claimed = 1, balance = ?, step = 'main' WHERE user_id = ?",
-        (contact.phone_number, new_bal, user.id)
+        "UPDATE users SET phone = ?, is_verified = 1, phone_verified = 1, step = 'main' WHERE user_id = ?",
+        (contact.phone_number, user.id)
     )
-    
-    if welcome_bonus > 0:
-        conn.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)", (user.id, "بونص ترحيبي عند التأكيد لأول مرة", welcome_bonus))
-
-    if u and u["referred_by"]:
-        ref = conn.execute("SELECT * FROM users WHERE user_id = ?", (u["referred_by"],)).fetchone()
-        if ref:
-            conn.execute("UPDATE users SET active_referrals_count = active_referrals_count + 1, referrals_count = referrals_count + 1 WHERE user_id = ?", (u["referred_by"],))
-            
-            ref_mode = ref["referral_mode"]
-            if ref_mode == "free_spin":
-                conn.execute("UPDATE users SET free_spins = free_spins + 1 WHERE user_id = ?", (u["referred_by"],))
-                try: await context.bot.send_message(u["referred_by"], f"🎉 انضم العميل {user.full_name} عبر إحالتك وقم بالتأكيد وحصلت على لفة مجانية!")
-                except: pass
-            else:
-                ref_reward_enabled = conn.execute("SELECT value FROM settings WHERE key='referral_reward_enabled'").fetchone()["value"] == "1"
-                ref_reward = float(conn.execute("SELECT value FROM settings WHERE key='referral_reward'").fetchone()["value"]) if ref_reward_enabled else 0.0
-                if ref_reward > 0:
-                    conn.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (ref_reward, u["referred_by"]))
-                    conn.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)", (u["referred_by"], f"مكافأة إحالة {user.id}", ref_reward))
-                    try: await context.bot.send_message(u["referred_by"], f"🎉 قام {user.full_name} بتأكيد حسابه وحصلت على `{ref_reward}` NSP!")
-                    except: pass
-
     conn.commit()
     conn.close()
 
     await update.message.reply_text(
-        f"✅ **تم تأكيد رقم هاتفك وحسابك بنجاح!**\n"
-        f"🎁 حصلت على البونص الترحيبي لأول مرة قدره `{welcome_bonus}` NSP.",
+        f"✅ **تم تأكيد رقم هاتفك وحسابك بنجاح!**",
         reply_markup=ReplyKeyboardRemove(),
         parse_mode="Markdown"
     )
+    
+    await process_welcome_and_referral_rewards(user.id, context)
     await send_main_dashboard(update.effective_chat.id, user.id, user.full_name, is_admin_user(user.id), context)
 
 # ----------------------------------------------------
@@ -580,7 +604,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         conn.commit()
         conn.close()
         await notify_admins(context, f"📸 **إثبات إصابة/فوز نصي من العميل:**\n👤 {user.full_name} (`{user.id}`)\n📝 التفاصيل: {text}")
-        await update.message.reply_text("✅ تم إرسال الإثبات النصي للإدارة بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ تم إرسال الإثبات النصي للإدارة بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
     if step == "deposit_step_amount":
@@ -624,9 +648,9 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         dep_id = cursor.lastrowid
         conn.close()
 
-        await update.message.reply_text("✅ تم تقديم طلب الشحن بنجاح وهو قيد المراجعة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ تم تقديم طلب الشحن بنجاح وهو قيد المراجعة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         
-        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة", callback_data=f"app_dep_{dep_id}"), InlineKeyboardButton("❌ رفض", callback_data=f"rej_dep_{dep_id}")]])
+        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة ⚡", callback_data=f"app_dep_{dep_id}"), InlineKeyboardButton("❌ رفض 🗑️", callback_data=f"rej_dep_{dep_id}")]])
         await notify_admins(context, f"📥 **طلب شحن جديد (# {dep_id}):**\n👤 {user.full_name} (`{user.id}`)\n💳 الطريقة: {method}\n🔢 الإشعار: `{text}`\n💰 المبلغ: `{amt}` NSP", reply_markup=kb)
         return
 
@@ -665,28 +689,25 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         w_id = cursor.lastrowid
         conn.close()
 
-        await update.message.reply_text("✅ تم تقديم طلب السحب بنجاح وهو قيد المراجعة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ تم تقديم طلب السحب بنجاح وهو قيد المراجعة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
 
-        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة ودفع", callback_data=f"app_w_{w_id}"), InlineKeyboardButton("❌ رفض وإعادة", callback_data=f"rej_w_{w_id}")]])
+        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة ودفع 💸", callback_data=f"app_w_{w_id}"), InlineKeyboardButton("❌ رفض وإعادة 🔄", callback_data=f"rej_w_{w_id}")]])
         await notify_admins(context, f"📥 **طلب سحب جديد (# {w_id}):**\n👤 {user.full_name} (`{user.id}`)\n💳 الطريقة: {method}\n🔢 الحساب: `{acc_code}`\n💰 المبلغ الصافي: `{net_amt:,.2f}` NSP", reply_markup=kb)
         return
 
-    # ----------------------------------------------------
-    # إدخال كود هدية مع تقييد الـ 6 ساعات
-    # ----------------------------------------------------
     if step == "input_gift_code":
         now_ts = int(time.time())
         restr = conn.execute("SELECT last_used FROM code_restrictions WHERE user_id = ?", (user.id,)).fetchone()
         if restr:
             elapsed = now_ts - restr["last_used"]
-            if elapsed < 21600: # 6 hours = 21600 seconds
+            if elapsed < 21600:
                 rem_sec = 21600 - elapsed
                 hrs = rem_sec // 3600
                 mins = (rem_sec % 3600) // 60
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"⚠️ **تقييد الأكواد:**\nيمكنك استخدام كود هدية واحد كل 6 ساعات فقط.\n⏱️ **المتبقي:** `{hrs}` ساعة و `{mins}` دقيقة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+                await update.message.reply_text(f"⚠️ **تقييد الأكواد:**\nيمكنك استخدام كود هدية واحد كل 6 ساعات فقط.\n⏱️ **المتبقي:** `{hrs}` ساعة و `{mins}` دقيقة.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
                 return
 
         g = conn.execute("SELECT * FROM gift_codes WHERE code = ?", (text,)).fetchone()
@@ -694,7 +715,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
             conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await update.message.reply_text("❌ الكود غير صحيح أو منتهي الاستخدام.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+            await update.message.reply_text("❌ الكود غير صحيح أو منتهي الاستخدام.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
             return
 
         amt = g["amount"]
@@ -710,7 +731,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         conn.commit()
         conn.close()
 
-        await update.message.reply_text(f"🎉 تم تفعيل الكود بنجاح وإضافة `{amt}` NSP لرصيدك!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text(f"🎉 تم تفعيل الكود بنجاح وإضافة `{amt}` NSP لرصيدك!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         await notify_admins(context, f"🎟️ **تفعيل كود هدية:**\n👤 **اللاعب:** {user.full_name} (`{user.id}`)\n🎫 **الكود:** `{text}`\n💰 **المبلغ:** `{amt}` NSP")
         return
 
@@ -718,7 +739,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
         conn.commit()
         conn.close()
-        await update.message.reply_text("✅ تم إرسال رسالتك للدعم الفني.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="back_to_main")]]))
+        await update.message.reply_text("✅ تم إرسال رسالتك للدعم الفني.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 القائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         
         kb = InlineKeyboardMarkup([[InlineKeyboardButton("↩️ الرد المباشر للعميل", callback_data=f"adm_rep_supp_{user.id}")]])
         await notify_admins(context, f"💬 **رسالة دعم جديدة من {user.full_name} (`{user.id}`):**\n\n{text}", reply_markup=kb)
@@ -728,6 +749,15 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
     # خطوات لوحة الإدارة الشاملة
     # ----------------------------------------------------
     if is_admin_user(user.id):
+        if step.startswith("adm_edit_dep_acc_"):
+            m_id = int(step.replace("adm_edit_dep_acc_", ""))
+            conn.execute("UPDATE deposit_methods SET account_details = ? WHERE id = ?", (text, m_id))
+            conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await update.message.reply_text(f"✅ تم تحديث حساب الشحن بنجاح إلى:\n`{text}`", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة إدارة الشحن 💳", callback_data="adm_dep_methods")]]))
+            return
+
         if step == "adm_input_del_code_manual":
             c_code = text.strip()
             g = conn.execute("SELECT * FROM gift_codes WHERE code = ?", (c_code,)).fetchone()
@@ -735,14 +765,14 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text("❌ الكود غير موجود أو ملغي سابقاً.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text("❌ الكود غير موجود أو ملغي سابقاً.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 return
 
             conn.execute("DELETE FROM gift_codes WHERE code = ?", (c_code,))
             conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await update.message.reply_text(f"✅ تم إلغاء الكود `{c_code}` وحذفه بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await update.message.reply_text(f"✅ تم إلغاء الكود `{c_code}` وحذفه بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
         if step == "adm_input_welcome_amt":
@@ -752,7 +782,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم تعديل قيمة البونص الترحيبي إلى `{amt}` NSP بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم تعديل قيمة البونص الترحيبي إلى `{amt}` NSP بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -765,7 +795,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم تعديل مكافأة الإحالة إلى `{amt}` NSP بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم تعديل مكافأة الإحالة إلى `{amt}` NSP بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -779,10 +809,10 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إضافة وسيلة الشحن: `{m_name}` بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إضافة وسيلة الشحن: `{m_name}` بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
-                await update.message.reply_text("❌ صيغة خاطئة. يجب الفصل بـ `|`. مثال: `شام كاش | 0987654321`", reply_markup=cancel_keyboard("adm_dep_methods"))
+                await update.message.reply_text("❌ صيغة خاطئة. يجب الفصل بـ `|`. مثال: `شام كاش | test`", reply_markup=cancel_keyboard("adm_dep_methods"))
             return
 
         if step == "adm_input_add_offer":
@@ -793,7 +823,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إضافة العرض: **{off_t}** بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إضافة العرض: **{off_t}** بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ صيغة خاطئة. الفصل بـ `|`. مثال: `عنوان العرض | وصف العرض | https://t.me/example`", reply_markup=cancel_keyboard("adm_offers_menu"))
@@ -807,7 +837,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إضافة قناة الاشتراك الصارم: **{ch_title}** بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إضافة قناة الاشتراك الصارم: **{ch_title}** بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ صيغة خاطئة. الفصل بـ `|`. مثال: `@MyChan | قناة الأخبار | https://t.me/MyChan`", reply_markup=cancel_keyboard("adm_channels_menu"))
@@ -820,7 +850,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إلغاء تقييد استخدام الكود عن اللاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إلغاء تقييد استخدام الكود عن اللاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_keyboard=cancel_keyboard("open_admin_panel"))
@@ -833,7 +863,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إلغاء الحظ الخاص عن اللاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إلغاء الحظ الخاص عن اللاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -847,7 +877,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم تخصيص نسبة حظ `{boost_val}%` للاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم تخصيص نسبة حظ `{boost_val}%` للاعب `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ مثال: `7255100997 50`", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -862,7 +892,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                     conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                     conn.commit()
                     conn.close()
-                    await update.message.reply_text(f"✅ تم تعديل احتمال `{target_key}` إلى `{prob_val}%` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 خوارزمية العجلة", callback_data="adm_wheel_algo")]]))
+                    await update.message.reply_text(f"✅ تم تعديل احتمال `{target_key}` إلى `{prob_val}%` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 خوارزمية العجلة 🎡", callback_data="adm_wheel_algo")]]))
                     return
                 except Exception:
                     pass
@@ -878,7 +908,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم منح `{num_spins}` لفة مجانية للاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم منح `{num_spins}` لفة مجانية للاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 try: await context.bot.send_message(tid, f"🎁 تم منحك `{num_spins}` لفة مجانية في عجلة الحظ من الإدارة!")
                 except: pass
             except Exception:
@@ -912,7 +942,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                     f"✨ ─────────────────── ✨\n\n"
                     f"📋 **قائمة الأكواد:**\n{codes_fmt}"
                 )
-                await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text(f"❌ خطأ بالبيانات. مثال: `GOLDEN 50 1 10`", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -926,7 +956,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"🎁 **تم إنشاء الكود الفردي بنجاح!**\n\n🎫 **الكود:** `{code_str}`\n💰 **المبلغ:** `{amt}` NSP\n👥 **الاستخدامات:** `{uses}`", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"🎁 **تم إنشاء الكود الفردي بنجاح!**\n\n🎫 **الكود:** `{code_str}`\n💰 **المبلغ:** `{amt}` NSP\n👥 **الاستخدامات:** `{uses}`", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ مثال: `VIP100 500 10`", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -939,7 +969,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم ضبط بونص الشحن إلى `{val}%`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم ضبط بونص الشحن إلى `{val}%`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -952,7 +982,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم ضبط عمولة السحب إلى `{val}%`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم ضبط عمولة السحب إلى `{val}%`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -965,7 +995,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم تعديل حد الشحن الأدنى إلى `{val}` NSP.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم تعديل حد الشحن الأدنى إلى `{val}` NSP.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -978,7 +1008,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم تعديل حد السحب الأدنى إلى `{val}` NSP.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم تعديل حد السحب الأدنى إلى `{val}` NSP.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل رقم صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -993,7 +1023,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إضافة `{amt}` NSP للاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إضافة `{amt}` NSP للاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 try: await context.bot.send_message(tid, f"🎁 تم إضافة `{amt}` NSP لرصيدك من الإدارة!")
                 except: pass
             except Exception:
@@ -1010,7 +1040,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم خصم `{amt}` NSP من اللاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم خصم `{amt}` NSP من اللاعب `{tid}`.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ مثال: `7255100997 100`", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1023,7 +1053,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"🚫 تم حظر المستخدم `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"🚫 تم حظر المستخدم `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1036,7 +1066,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم فك حظر المستخدم `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم فك حظر المستخدم `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1049,7 +1079,9 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"👮 تم إضافة الأدمن الجديد `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"👮 تم إضافة الأدمن الجديد `{tid}` بنجاح ومنحه كامل الصلاحيات.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
+                try: await context.bot.send_message(tid, "👑 **تهانينا! تم منحك صلاحيات أدمن كاملة في البوت.**")
+                except: pass
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1058,7 +1090,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
         if step == "adm_input_del_admin":
             try:
                 tid = int(text)
-                if tid == DEFAULT_ADMIN_ID:
+                if DEFAULT_ADMIN_ID and tid == DEFAULT_ADMIN_ID:
                     conn.close()
                     await update.message.reply_text("❌ لا يمكن إزالة الأدمن الرئيسي المنشئ.", reply_markup=cancel_keyboard("open_admin_panel"))
                     return
@@ -1066,7 +1098,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إزالة الأدمن `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إزالة الأدمن `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception:
                 conn.close()
                 await update.message.reply_text("❌ أدخل ID صحيح.", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1080,7 +1112,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                 conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
                 conn.commit()
                 conn.close()
-                await update.message.reply_text(f"✅ تم إرسال الرسالة الخاصة إلى `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await update.message.reply_text(f"✅ تم إرسال الرسالة الخاصة إلى `{tid}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception as e:
                 conn.close()
                 await update.message.reply_text(f"❌ فشل الإرسال. الصيغة: `ID الرسالة` | الخطأ: {e}", reply_markup=cancel_keyboard("open_admin_panel"))
@@ -1090,16 +1122,16 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
             target_id = context.user_data.get("support_target_id")
             if target_id:
                 try:
-                    kb = InlineKeyboardMarkup([[InlineKeyboardButton("💬 مراسلة الدعم مباشرة", callback_data="btn_support")]])
+                    kb = InlineKeyboardMarkup([[InlineKeyboardButton("💬 مراسلة الدعم مباشرة 👨‍💻", callback_data="btn_support")]])
                     await context.bot.send_message(
                         chat_id=int(target_id),
                         text=f"👨‍💻 **رد من الدعم الفني للإدارة:**\n\n{text}",
                         parse_mode="Markdown",
                         reply_markup=kb
                     )
-                    await update.message.reply_text(f"✅ تم إرسال الرد للعميل `{target_id}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                    await update.message.reply_text(f"✅ تم إرسال الرد للعميل `{target_id}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 except Exception as e:
-                    await update.message.reply_text(f"❌ فشل الإرسال: {e}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                    await update.message.reply_text(f"❌ فشل الإرسال: {e}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
@@ -1134,7 +1166,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
                         f"🎰 **إجمالي الرصيد المصروف باللعب:** `{u_info['total_spent']:,.2f}` NSP\n"
                         f"🚫 **الحالة:** {'محظور' if u_info['is_banned'] else 'نشط'}"
                     )
-                    await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                    await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             except Exception as e:
                 await update.message.reply_text(f"❌ أدخل ID صحيح. الخطأ: {e}", reply_markup=cancel_keyboard("open_admin_panel"))
             conn.execute("UPDATE users SET step = 'main' WHERE user_id = ?", (user.id,))
@@ -1155,7 +1187,7 @@ async def handle_text_messages(update: Update, context: ContextTypes.DEFAULT_TYP
             tasks = [send_msg_fast(u_item["user_id"]) for u_item in users_list]
             await asyncio.gather(*tasks)
             
-            await update.message.reply_text(f"📢 تم إرسال الإذاعة السريعة لـ `{len(users_list)}` مستخدم بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await update.message.reply_text(f"📢 تم إرسال الإذاعة السريعة لـ `{len(users_list)}` مستخدم بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
     conn.close()
@@ -1185,6 +1217,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         is_subscribed, unsubscribed = await check_user_channels_subscription(context.bot, user.id)
         if is_subscribed:
             await query.message.edit_text("✅ **تم التأكد من اشتراكك بنجاح! أهلاً بك.**")
+            await process_welcome_and_referral_rewards(user.id, context)
             await send_main_dashboard(query.message.chat_id, user.id, user.full_name, is_admin, context)
         else:
             await query.message.edit_text("❌ **لم تشترك في جميع القنوات بعد. يرجى الاشتراك أولاً:**", reply_markup=build_sub_keyboard(unsubscribed), parse_mode="Markdown")
@@ -1207,7 +1240,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 txt += f"• **{off['title']}**: {off['description']}\n"
                 if off['link']:
                     txt += f"🔗 [رابط العرض]({off['link']})\n"
-        await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]]))
+        await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
     if data == "btn_send_proof":
@@ -1235,7 +1268,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"💸 **مجموع السحب الناجح:** `{w_stats[1]:,.2f}` NSP ({w_stats[0]} مرة)\n"
             f"✨ ─────────────────── ✨"
         )
-        await query.message.edit_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]]))
+        await query.message.edit_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
     if data == "btn_referral":
@@ -1246,7 +1279,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             kb = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔥 نظام الحرق (10% أرباح عند توفر 3 إحالات نشطة)", callback_data="set_ref_mode_burn")],
                 [InlineKeyboardButton("🎰 نظام اللفات المجانية (لفة مجانية لكل إحالة)", callback_data="set_ref_mode_free_spin")],
-                [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]
+                [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]
             ])
             await query.message.edit_text(
                 "🔗 **اختر نظام الإحالة الخاص بك (تنبيه: لا يمكن تغيير النظام بعد الاختيار):**\n\n"
@@ -1270,7 +1303,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"🔗 **رابطك الخاص للنشر:**\n`{ref_link}`\n"
             f"✨ ─────────────────── ✨"
         )
-        await query.message.edit_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]]))
+        await query.message.edit_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         conn.close()
         return
 
@@ -1279,7 +1312,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.execute("UPDATE users SET referral_mode = ? WHERE user_id = ?", (selected_mode, user.id))
         conn.commit()
         conn.close()
-        await query.message.edit_text("✅ تم اعتماد نظام الإحالة بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔗 عرض لوحة الإحالة", callback_data="btn_referral")]]))
+        await query.message.edit_text("✅ تم اعتماد نظام الإحالة بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔗 عرض لوحة الإحالة 🚀", callback_data="btn_referral")]]))
         return
 
     if data == "btn_deposit":
@@ -1291,7 +1324,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         kb = []
         for m in methods:
             kb.append([InlineKeyboardButton(f"💳 {m['method_name']}", callback_data=f"dep_meth_id_{m['id']}")])
-        kb.append([InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")])
+        kb.append([InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")])
 
         await query.message.edit_text(
             f"💳 **قسم شحن الرصيد:**\n\n"
@@ -1329,7 +1362,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📱 سيريتل كاش", callback_data="w_meth_Syriatel Cash")],
             [InlineKeyboardButton("📱 إم تي إن كاش", callback_data="w_meth_MTN Cash")],
             [InlineKeyboardButton("💳 شام كاش", callback_data="w_meth_Bank Cham Cash")],
-            [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]
+            [InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]
         ])
         await query.message.edit_text(
             f"💸 **قسم سحب الأرباح:**\n\n"
@@ -1369,16 +1402,16 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logs = conn.execute("SELECT action, amount, timestamp FROM logs WHERE user_id = ? ORDER BY id DESC LIMIT 10", (user.id,)).fetchall()
         conn.close()
         txt = "📜 **آخر 10 عمليات بحسابك:**\n\n" + ("\n".join([f"• `{lg['timestamp']}` | {lg['action']} | `{lg['amount']}` NSP" for lg in logs]) if logs else "لا توجد سجلات.")
-        await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]]))
+        await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
     if data == "btn_buy_bot":
         conn.close()
-        await query.message.edit_text("🤖 **لشراء بوتك وتطوير سيرفرك تواصل مع المبرمج:**\n\n📢 @lerafree", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="back_to_main")]]))
+        await query.message.edit_text("🤖 **لشراء بوتك وتطوير سيرفرك تواصل مع المبرمج:**\n\n📢 @lerafree", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 العودة للقائمة الرئيسية 🏠", callback_data="back_to_main")]]))
         return
 
     # ----------------------------------------------------
-    # أزرار الإدارة الشاملة والإصلاحات Modern Callbacks
+    # أزرار الإدارة الشاملة والإصلاحات
     # ----------------------------------------------------
     if is_admin:
         if data == "open_admin_panel":
@@ -1395,7 +1428,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.edit_text("⚙️ **تم تغيير حالة وضع الصيانة بنجاح.**", reply_markup=admin_panel_keyboard())
             return
 
-        # 1. إصلاح زر البونص الترحيبي
+        # البونص الترحيبي
         if data == "adm_toggle_welcome":
             welcome_enabled = conn.execute("SELECT value FROM settings WHERE key='welcome_bonus_enabled'").fetchone()["value"] == "1"
             welcome_amt = conn.execute("SELECT value FROM settings WHERE key='welcome_bonus'").fetchone()["value"]
@@ -1405,7 +1438,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             kb = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔄 تغيير حالة التفعيل / التعطيل", callback_data="adm_switch_welcome")],
                 [InlineKeyboardButton("✏️ تعديل مبلغ البونص الترحيبي", callback_data="adm_set_welcome_amt")],
-                [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
+                [InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]
             ])
             await query.message.edit_text(
                 f"🎁 **إدارة البونص الترحيبي:**\n\n"
@@ -1421,8 +1454,14 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             new_val = "0" if curr == "1" else "1"
             conn.execute("UPDATE settings SET value = ? WHERE key='welcome_bonus_enabled'", (new_val,))
             conn.commit()
+            
+            # إشعار فقط عند تفعيل البونص وليس عند تعطيله
+            if new_val == "1":
+                welcome_amt = conn.execute("SELECT value FROM settings WHERE key='welcome_bonus'").fetchone()["value"]
+                asyncio.create_task(notify_admins(context, f"🎁 **تم تفعيل البونص الترحيبي بقيمة `{welcome_amt}` NSP.**"))
+
             conn.close()
-            await query.message.edit_text("✅ تم تغيير حالة البونص الترحيبي بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await query.message.edit_text("✅ تم تغيير حالة البونص الترحيبي بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
         if data == "adm_set_welcome_amt":
@@ -1432,7 +1471,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.edit_text("✍️ **أدخل المبلغ الجديد للبونص الترحيبي (NSP):**", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
-        # 2. إصلاح زر بونص الإحالة
+        # بونص الإحالة
         if data == "adm_toggle_ref_bonus":
             ref_enabled = conn.execute("SELECT value FROM settings WHERE key='referral_reward_enabled'").fetchone()["value"] == "1"
             ref_amt = conn.execute("SELECT value FROM settings WHERE key='referral_reward'").fetchone()["value"]
@@ -1442,7 +1481,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             kb = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔄 تغيير حالة التفعيل / التعطيل", callback_data="adm_switch_ref")],
                 [InlineKeyboardButton("✏️ تعديل مكافأة الإحالة", callback_data="adm_set_ref_amt")],
-                [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
+                [InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]
             ])
             await query.message.edit_text(
                 f"🔗 **إدارة بونص الإحالة:**\n\n"
@@ -1459,7 +1498,17 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE settings SET value = ? WHERE key='referral_reward_enabled'", (new_val,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✅ تم تغيير حالة بونص الإحالة بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await query.message.edit_text("✅ تم تغيير حالة بونص الإحالة بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
+            return
+
+        if data == "adm_toggle_ref_spin":
+            curr = conn.execute("SELECT value FROM settings WHERE key='referral_spin_enabled'").fetchone()["value"]
+            new_val = "0" if curr == "1" else "1"
+            conn.execute("UPDATE settings SET value = ? WHERE key='referral_spin_enabled'", (new_val,))
+            conn.commit()
+            conn.close()
+            status_text = "🟢 تم تفعيل منح اللفات المجانية للإحالة!" if new_val == "1" else "🔴 تم تعطيل اللفات المجانية للإحالة!"
+            await query.message.edit_text(f"✅ **{status_text}**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
         if data == "adm_set_ref_amt":
@@ -1469,7 +1518,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.edit_text("✍️ **أدخل قيمة مكافأة الإحالة الجديدة (NSP):**", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
-        # 3. إصلاح زر إدارة حسابات الشحن
+        # إدارة حسابات الشحن التفاعلية مع خيار التعديل المباشر
         if data == "adm_dep_methods":
             methods = conn.execute("SELECT * FROM deposit_methods").fetchall()
             conn.close()
@@ -1477,19 +1526,28 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             kb = [[InlineKeyboardButton("➕ إضافة وسيلة/حساب شحن جديد", callback_data="adm_add_dep_meth")]]
             for m in methods:
                 kb.append([
-                    InlineKeyboardButton(f"💳 {m['method_name']}", callback_data="none"),
+                    InlineKeyboardButton(f"💳 {m['method_name']}: {m['account_details']}", callback_data="none"),
+                    InlineKeyboardButton("✏️ تعديل الحساب", callback_data=f"edit_dep_meth_{m['id']}"),
                     InlineKeyboardButton("❌ حذف", callback_data=f"del_dep_meth_{m['id']}")
                 ])
-            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")])
+            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")])
 
-            await query.message.edit_text("💳 **لوحة إدارة حسابات ووسائل الشحن:**", reply_markup=InlineKeyboardMarkup(kb))
+            await query.message.edit_text("💳 **لوحة إدارة وتعديل حسابات وسائل الشحن:**", reply_markup=InlineKeyboardMarkup(kb))
+            return
+
+        if data.startswith("edit_dep_meth_"):
+            m_id = int(data.replace("edit_dep_meth_", ""))
+            conn.execute("UPDATE users SET step = ? WHERE user_id = ?", (f"adm_edit_dep_acc_{m_id}", user.id))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل رقم أو بيانات الحساب الجديدة فورا:**", reply_markup=cancel_keyboard("adm_dep_methods"))
             return
 
         if data == "adm_add_dep_meth":
             conn.execute("UPDATE users SET step = 'adm_input_add_dep_meth' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل تفاصيل الحساب الجديد بالشكل التالي:**\n`اسم الوسيلة | الرقم أو بيانات الحساب`\n\nمثال:\n`شام كاش | 0912345678`", parse_mode="Markdown", reply_markup=cancel_keyboard("adm_dep_methods"))
+            await query.message.edit_text("✍️ **أدخل تفاصيل الحساب الجديد بالشكل التالي:**\n`اسم الوسيلة | الرقم أو بيانات الحساب`\n\nمثال:\n`شام كاش | test`", parse_mode="Markdown", reply_markup=cancel_keyboard("adm_dep_methods"))
             return
 
         if data.startswith("del_dep_meth_"):
@@ -1497,10 +1555,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("DELETE FROM deposit_methods WHERE id = ?", (m_id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✅ تم حذف وسيلة الشحن بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة إدارة الشحن", callback_data="adm_dep_methods")]]))
+            await query.message.edit_text("✅ تم حذف وسيلة الشحن بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة إدارة الشحن 💳", callback_data="adm_dep_methods")]]))
             return
 
-        # 4. إصلاح خوارزمية العجلة إلى أزرار + الغاء حظ لاعب
+        # خوارزمية العجلة
         if data == "adm_wheel_algo":
             probs = dict(conn.execute("SELECT key, value FROM settings WHERE key LIKE 'wheel_prob_%'").fetchall())
             conn.close()
@@ -1525,7 +1583,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 curr_p = probs.get(key_name, "0")
                 kb.append([InlineKeyboardButton(f"{label} ({curr_p}%)", callback_data=f"set_wprob_{key_name}")])
             
-            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")])
+            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")])
 
             await query.message.edit_text("🎡 **خوارزمية العجلة التفاعلية (اضغط على أي زر لتغيير نسبته):**", reply_markup=InlineKeyboardMarkup(kb))
             return
@@ -1536,16 +1594,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE users SET step = 'adm_input_wheel_prob_val' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text(f"✍️ **أدخل النسبة المئوية الجديدة لـ `{target_key}` (مثال: `20` أو `0.5`):**", parse_mode="Markdown", reply_markup=cancel_keyboard("adm_wheel_algo"))
+            await query.message.edit_text(f"✍️ **أدخل النسبة المئوية الجديدة لـ `{target_key}`:**", parse_mode="Markdown", reply_markup=cancel_keyboard("adm_wheel_algo"))
             return
 
-        # 5. إدارة حظ لاعب وإلغائه
         if data == "adm_user_boost":
             kb = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🎯 تحديد حظ خاص للاعب", callback_data="adm_set_boost_user")],
                 [InlineKeyboardButton("❌ إلغاء حظ لاعب معين", callback_data="adm_clear_boost_user")],
                 [InlineKeyboardButton("🌐 إلغاء الحظ الخاص للجميع", callback_data="adm_clear_boost_all")],
-                [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
+                [InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]
             ])
             await query.message.edit_text("🎯 **لوحة التحكم بحظ اللاعبين المخصص:**", reply_markup=kb)
             conn.close()
@@ -1569,10 +1626,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE users SET custom_boost = 0.0")
             conn.commit()
             conn.close()
-            await query.message.edit_text("✅ تم إلغاء الحظ الخاص عن جميع اللاعبين بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await query.message.edit_text("✅ تم إلغاء الحظ الخاص عن جميع اللاعبين بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
-        # 6. إصلاح زر قنوات الاشتراك بنظام صارم
         if data == "adm_channels_menu":
             chans = conn.execute("SELECT * FROM channels").fetchall()
             conn.close()
@@ -1583,7 +1639,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     InlineKeyboardButton(f"📢 {c['channel_title']}", url=c['channel_link']),
                     InlineKeyboardButton("❌ حذف", callback_data=f"del_chan_{c['channel_id']}")
                 ])
-            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")])
+            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")])
 
             await query.message.edit_text("📢 **إدارة قنوات الاشتراك الإجباري والصارم:**", reply_markup=InlineKeyboardMarkup(kb))
             return
@@ -1600,21 +1656,21 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("DELETE FROM channels WHERE channel_id = ?", (c_id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✅ تم حذف القناة بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة القنوات", callback_data="adm_channels_menu")]]))
+            await query.message.edit_text("✅ تم حذف القناة بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة القنوات 📢", callback_data="adm_channels_menu")]]))
             return
 
-        # 7. طلبات الشحن والسحب والموافقة/الرفض مع إضافة البونص تلقائياً مع الإشعار للعميل
+        # قبول الشحن تلقائياً مع البونص والإشعار
         if data == "adm_deposits":
             deps = conn.execute("SELECT d.*, u.full_name FROM deposits d JOIN users u ON d.user_id = u.user_id WHERE d.status = 'pending' ORDER BY d.id DESC LIMIT 10").fetchall()
             conn.close()
 
             if not deps:
-                await query.message.edit_text("📥 **لا توجد طلبات شحن معلقة حالياً.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await query.message.edit_text("📥 **لا توجد طلبات شحن معلقة حالياً.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 return
 
             await query.message.edit_text("📥 **قائمة طلبات الشحن المعلقة:**", parse_mode="Markdown")
             for d in deps:
-                kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة", callback_data=f"app_dep_{d['id']}"), InlineKeyboardButton("❌ رفض", callback_data=f"rej_dep_{d['id']}")]])
+                kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة وتعبئة ⚡", callback_data=f"app_dep_{d['id']}"), InlineKeyboardButton("❌ رفض 🗑️", callback_data=f"rej_dep_{d['id']}")]])
                 txt = f"💳 **طلب شحن (# {d['id']}):**\n👤 {d['full_name']} (`{d['user_id']}`)\n💰 المبلغ: `{d['amount']}` NSP\n📌 الطريقة: {d['method']}\n🔢 الإشعار: `{d['tx_id']}`"
                 await context.bot.send_message(chat_id=query.message.chat_id, text=txt, parse_mode="Markdown", reply_markup=kb)
             return
@@ -1632,7 +1688,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 conn.execute("INSERT INTO logs (user_id, action, amount) VALUES (?, ?, ?)", (dep["user_id"], f"شحن رصيد ناجح #{dep_id}", total_credit))
                 conn.commit()
 
-                await query.edit_message_text(f"✅ **تمت الموافقة على الشحن #{dep_id} وإضافة `{total_credit:,.2f}` NSP للعميل.**")
+                await query.edit_message_text(f"✅ **تمت الموافقة على الشحن #{dep_id} وإضافة `{total_credit:,.2f}` NSP للعميل تلقائياً مع البونص.**")
                 try:
                     if bonus_amount > 0:
                         notify_msg = (
@@ -1669,12 +1725,12 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.close()
 
             if not ws:
-                await query.message.edit_text("💸 **لا توجد طلبات سحب معلقة حالياً.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+                await query.message.edit_text("💸 **لا توجد طلبات سحب معلقة حالياً.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
                 return
 
             await query.message.edit_text("💸 **قائمة طلبات السحب المعلقة:**", parse_mode="Markdown")
             for w in ws:
-                kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة ودفع", callback_data=f"app_w_{w['id']}"), InlineKeyboardButton("❌ رفض وإعادة الرصيد", callback_data=f"rej_w_{w['id']}")]])
+                kb = InlineKeyboardMarkup([[InlineKeyboardButton("✅ موافقة ودفع 💸", callback_data=f"app_w_{w['id']}"), InlineKeyboardButton("❌ رفض وإعادة الرصيد 🔄", callback_data=f"rej_w_{w['id']}")]])
                 txt = f"💸 **طلب سحب (# {w['id']}):**\n👤 {w['full_name']} (`{w['user_id']}`)\n💳 الطريقة: {w['method']}\n🔢 الحساب: `{w['account_code']}`\n💰 الصافي للدفع: `{w['net_amount']:,.2f}` NSP"
                 await context.bot.send_message(chat_id=query.message.chat_id, text=txt, parse_mode="Markdown", reply_markup=kb)
             return
@@ -1705,7 +1761,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.close()
             return
 
-        # 8. إدارة الأكواد النشطة وإلغائها
         if data == "adm_active_codes":
             codes = conn.execute("SELECT code, amount, uses_left FROM gift_codes WHERE uses_left > 0").fetchall()
             conn.close()
@@ -1714,7 +1769,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 kb = InlineKeyboardMarkup([
                     [InlineKeyboardButton("🎫 إنشاء كود فردي", callback_data="adm_make_gift")],
                     [InlineKeyboardButton("🎟️ توليد دفعة أكواد", callback_data="adm_batch_codes")],
-                    [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
+                    [InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]
                 ])
                 await query.message.edit_text("🎟️ **لا توجد أكواد هدايا نشطة حالياً.**", reply_markup=kb)
                 return
@@ -1729,95 +1784,72 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ])
             
             kb.append([InlineKeyboardButton("🗑️ إلغاء كود يدوي (كتابة)", callback_data="adm_del_code_manual")])
-            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")])
-
+            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")])
             await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(kb))
             return
 
         if data.startswith("del_code_"):
-            c_code = data.replace("del_code_", "")
-            conn.execute("DELETE FROM gift_codes WHERE code = ?", (c_code,))
+            code_str = data.replace("del_code_", "")
+            conn.execute("DELETE FROM gift_codes WHERE code = ?", (code_str,))
             conn.commit()
             conn.close()
-            await query.message.edit_text(f"✅ **تم إلغاء وحذف الكود `{c_code}` بنجاح.**", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 قائمة الأكواد النشطة", callback_data="adm_active_codes")]]))
+            await query.message.edit_text(f"✅ تم إلغاء وحذف الكود `{code_str}` بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الأكواد 🎟️", callback_data="adm_active_codes")]]))
             return
 
         if data == "adm_del_code_manual":
             conn.execute("UPDATE users SET step = 'adm_input_del_code_manual' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل رمز الكود المراد إلغاؤه وحذفه تماماً:**", reply_markup=cancel_keyboard("adm_active_codes"))
+            await query.message.edit_text("✍️ **أدخل الكود المراد إلغاؤه وحذفه:**", reply_markup=cancel_keyboard("adm_active_codes"))
             return
 
-        # 9. زر إلغاء تقييد الكود شخص أو للكل
-        if data == "adm_code_restrictions":
-            kb = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔓 إلغاء تقييد كود شخص معين", callback_data="adm_unrestrict_user")],
-                [InlineKeyboardButton("🔓 إلغاء تقييد الكود عن الجميع", callback_data="adm_unrestrict_all")],
-                [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
-            ])
-            await query.message.edit_text("🔓 **لوحة إلغاء تقييد الأكواد (الـ 6 ساعات):**", reply_markup=kb)
+        if data == "adm_list_admins":
+            adms = conn.execute("SELECT user_id FROM admins").fetchall()
             conn.close()
+            txt = "👮 **قائمة مدراء النظام (الأدمنية):**\n\n"
+            for a in adms:
+                txt += f"• ID: `{a['user_id']}`\n"
+            await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
             return
 
-        if data == "adm_unrestrict_user":
-            conn.execute("UPDATE users SET step = 'adm_input_unrestrict_user' WHERE user_id = ?", (user.id,))
+        if data == "adm_stats":
+            u_count = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+            tot_dep = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM deposits WHERE status = 'approved'").fetchone()[0]
+            tot_w = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM withdrawals WHERE status = 'approved'").fetchone()[0]
+            tot_spent = conn.execute("SELECT COALESCE(SUM(total_spent), 0) FROM users").fetchone()[0]
+            conn.close()
+
+            txt = (
+                f"📊 **إحصائيات المنصة الشاملة:**\n"
+                f"✨ ─────────────────── ✨\n"
+                f"👥 **إجمالي المستخدمين:** `{u_count}` لاعب\n"
+                f"💳 **إجمالي الشحن الناجح:** `{tot_dep:,.2f}` NSP\n"
+                f"💸 **إجمالي السحب الناجح:** `{tot_w:,.2f}` NSP\n"
+                f"🎰 **إجمالي الرصيد المصروف في الألعاب:** `{tot_spent:,.2f}` NSP\n"
+                f"✨ ─────────────────── ✨"
+            )
+            await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة ⚙️", callback_data="open_admin_panel")]]))
+            return
+
+        if data == "adm_grant_spins_menu":
+            conn.execute("UPDATE users SET step = 'adm_input_grant_spin_user' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل ID العميل لإلغاء تقييد الكود عنه:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم مسافة ثم عدد اللفات المراد منحها:**\nمثال: `7255100997 5`", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
-        if data == "adm_unrestrict_all":
-            conn.execute("DELETE FROM code_restrictions")
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✅ تم إلغاء تقييد استخدام الأكواد عن جميع اللاعبين بنجاح!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
-            return
-
-        # 10. زر إضافة عروض أو حذف عروض
-        if data == "adm_offers_menu":
-            offers = conn.execute("SELECT * FROM offers").fetchall()
-            conn.close()
-
-            kb = [[InlineKeyboardButton("➕ إضافة عرض جديد", callback_data="adm_add_offer")]]
-            for off in offers:
-                kb.append([
-                    InlineKeyboardButton(f"🎁 {off['title']}", callback_data="none"),
-                    InlineKeyboardButton("❌ حذف", callback_data=f"del_off_{off['id']}")
-                ])
-            kb.append([InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")])
-
-            await query.message.edit_text("🎁 **إدارة العروض المتاحة:**", reply_markup=InlineKeyboardMarkup(kb))
-            return
-
-        if data == "adm_add_offer":
-            conn.execute("UPDATE users SET step = 'adm_input_add_offer' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل بيانات العرض بالشكل التالي:**\n`عنوان العرض | وصف العرض | رابط العرض`\n\nمثال:\n`عرض الشحن الممتاز | احصل على 20% بونص عند الشحن بقيمة 500 | https://t.me/example`", parse_mode="Markdown", reply_markup=cancel_keyboard("adm_offers_menu"))
-            return
-
-        if data.startswith("del_off_"):
-            off_id = int(data.replace("del_off_", ""))
-            conn.execute("DELETE FROM offers WHERE id = ?", (off_id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✅ تم حذف العرض بنجاح.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة العروض", callback_data="adm_offers_menu")]]))
-            return
-
-        # 11. إعدادات القيود والحدود
         if data == "adm_set_dep_bonus":
             conn.execute("UPDATE users SET step = 'adm_input_dep_bonus' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل نسبة بونص الشحن (%) الجديدة (مثال: `10` أو `20`):**", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل نسبة بونص الشحن المباشر (%):**", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
         if data == "adm_set_w_commission":
             conn.execute("UPDATE users SET step = 'adm_input_w_commission' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل نسبة عمولة السحب (%) الجديدة (مثال: `5`):**", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل نسبة عمولة السحب (%):**", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
         if data == "adm_set_min_dep":
@@ -1838,188 +1870,110 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE users SET step = 'adm_input_add_bal' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم مسافة ثم المبلغ (مثال: `7255100997 500`):**", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم مسافة ثم المبلغ المراد إضافته:**\nمثال: `7255100997 500`", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
         if data == "adm_sub_bal":
             conn.execute("UPDATE users SET step = 'adm_input_sub_bal' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم مسافة ثم المبلغ الخصم (مثال: `7255100997 100`):**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_user_info":
-            conn.execute("UPDATE users SET step = 'adm_input_user_info' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID العميل لعرض تقريره الكامل:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_players_log":
-            logs = conn.execute("SELECT l.*, u.full_name FROM logs l LEFT JOIN users u ON l.user_id = u.user_id ORDER BY l.id DESC LIMIT 15").fetchall()
-            conn.close()
-
-            if not logs:
-                txt = "📊 **لا توجد سجلات عمليات حالياً.**"
-            else:
-                txt = "📊 **آخر 15 عملية للاعبين:**\n\n"
-                for lg in logs:
-                    name = lg['full_name'] or str(lg['user_id'])
-                    txt += f"• `{lg['timestamp']}` | {name} (`{lg['user_id']}`) | {lg['action']} | `{lg['amount']}` NSP\n"
-
-            await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
-            return
-
-        if data == "adm_list_admins":
-            admins = conn.execute("SELECT a.user_id, u.full_name FROM admins a LEFT JOIN users u ON a.user_id = u.user_id").fetchall()
-            conn.close()
-
-            txt = "👮 **قائمة المسؤولين (الأدمنية):**\n\n"
-            for adm in admins:
-                name = adm['full_name'] or "غير معروف"
-                txt += f"• {name} (`{adm['user_id']}`)\n"
-
-            await query.message.edit_text(txt, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
-            return
-
-        if data == "adm_stats":
-            total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-            banned_users = conn.execute("SELECT COUNT(*) FROM users WHERE is_banned = 1").fetchone()[0]
-            verified_users = conn.execute("SELECT COUNT(*) FROM users WHERE phone_verified = 1").fetchone()[0]
-            total_bal = conn.execute("SELECT COALESCE(SUM(balance), 0) FROM users").fetchone()[0]
-            total_dep = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM deposits WHERE status = 'approved'").fetchone()[0]
-            total_w = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM withdrawals WHERE status = 'approved'").fetchone()[0]
-            active_codes_cnt = conn.execute("SELECT COUNT(*) FROM gift_codes WHERE uses_left > 0").fetchone()[0]
-            conn.close()
-
-            msg = (
-                f"📊 **الإحصائيات الشاملة للبوت:**\n"
-                f"✨ ─────────────────── ✨\n"
-                f"👥 **إجمالي المستعملين:** `{total_users}`\n"
-                f"✅ **الحسابات الموثقة:** `{verified_users}`\n"
-                f"🚫 **الحسابات المحظورة:** `{banned_users}`\n"
-                f"✨ ─────────────────── ✨\n"
-                f"💰 **إجمالي أرصدة اللاعبين:** `{total_bal:,.2f}` NSP\n"
-                f"💳 **إجمالي عمليات الشحن الناجحة:** `{total_dep:,.2f}` NSP\n"
-                f"💸 **إجمالي عمليات السحب الناجحة:** `{total_w:,.2f}` NSP\n"
-                f"🎟️ **الأكواد النشطة المتاحة:** `{active_codes_cnt}` كود\n"
-                f"✨ ─────────────────── ✨"
-            )
-            await query.message.edit_text(msg, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
-            return
-
-        if data == "adm_ban":
-            conn.execute("UPDATE users SET step = 'adm_input_ban' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID المستخدم لحظره:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_unban":
-            conn.execute("UPDATE users SET step = 'adm_input_unban' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID المستخدم لفك الحظر عنه:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_add_admin":
-            conn.execute("UPDATE users SET step = 'adm_input_add_admin' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID الأدمن الجديد للترقية:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_del_admin":
-            conn.execute("UPDATE users SET step = 'adm_input_del_admin' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID الأدمن المراد تنزيله:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_bc_txt":
-            conn.execute("UPDATE users SET step = 'adm_input_bc_txt' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل النص المراد إرساله لجميع المستخدمين (إذاعة نصية):**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_bc_img":
-            conn.execute("UPDATE users SET step = 'adm_input_bc_img' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("📸 **أرسل الآن الصورة مع شرحها (الكابشن) لإذاعتها فوراً للجميع:**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data == "adm_pm_txt":
-            conn.execute("UPDATE users SET step = 'adm_input_pm_txt' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل ID المستخدم ثم مسافة ثم نص الرسالة الخاصة (مثال: `7255100997 أهلاً بك`):**", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        if data.startswith("adm_rep_supp_"):
-            target_id = data.replace("adm_rep_supp_", "")
-            context.user_data["support_target_id"] = target_id
-            conn.execute("UPDATE users SET step = 'adm_input_support_reply' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text(f"✍️ **أكتب ردك المباشر للعميل صاحب المعرف `{target_id}`:**", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
-            return
-
-        # 12. منح اللفات وإدارة العجلة والأكواد
-        if data == "adm_make_gift":
-            conn.execute("UPDATE users SET step = 'adm_input_make_gift' WHERE user_id = ?", (user.id,))
-            conn.commit()
-            conn.close()
-            await query.message.edit_text("✍️ **أدخل بيانات الكود الفردي بالشكل التالي:**\n`رمز_الكود المبلغ عدد_الاستخدامات`\n\nمثال:\n`GOLDEN2026 100 1`", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم مسافة ثم المبلغ المراد خصمه:**\nمثال: `7255100997 100`", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
         if data == "adm_batch_codes":
             conn.execute("UPDATE users SET step = 'adm_input_batch_codes' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل بيانات توليد الأكواد بالشكل التالي:**\n`بادئة_الكود قيمة_الكود عدد_استخدامات_الكود عدد_الأكواد`\n\nمثال:\n`GOLDEN 50 1 10`", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل تفاصيل دفعة الأكواد بالشكل:**\n`بادئة_الكود المبلغ الاستخدامات_لكل_كود عدد_الأكواد`\n\nمثال:\n`GOLDEN 50 1 10`", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
-        if data == "adm_grant_spins_menu":
-            kb = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🌍 منح لفة مجانية لجميع اللاعبين", callback_data="adm_grant_spins_all")],
-                [InlineKeyboardButton("👤 منح لفات للاعب معين", callback_data="adm_grant_spins_user")],
-                [InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]
-            ])
-            await query.message.edit_text("🎰 **قسم إسناد اللفات المجانية:**", reply_markup=kb)
-            conn.close()
-            return
-
-        if data == "adm_grant_spins_all":
-            conn.execute("UPDATE users SET free_spins = free_spins + 1 WHERE is_banned = 0")
+        if data == "adm_make_gift":
+            conn.execute("UPDATE users SET step = 'adm_input_make_gift' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✅ **تم منح لفة مجانية واحدة لجميع اللاعبين غير المحظورين!**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لوحة الإدارة", callback_data="open_admin_panel")]]))
+            await query.message.edit_text("✍️ **أدخل تفاصيل الكود الفردي بالشكل:**\n`اسم_الكود المبلغ الاستخدامات`\n\nمثال:\n`VIP100 500 10`", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
-        if data == "adm_grant_spins_user":
-            conn.execute("UPDATE users SET step = 'adm_input_grant_spin_user' WHERE user_id = ?", (user.id,))
+        if data == "adm_user_info":
+            conn.execute("UPDATE users SET step = 'adm_input_user_info' WHERE user_id = ?", (user.id,))
             conn.commit()
             conn.close()
-            await query.message.edit_text("✍️ **أدخل ID اللاعب ثم عدد اللفات (مثال: `7255100997 5`):**", parse_mode="Markdown", reply_markup=cancel_keyboard("open_admin_panel"))
+            await query.message.edit_text("✍️ **أدخل ID اللاعب لعرض كافة تفاصيله وسجلاته:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_bc_txt":
+            conn.execute("UPDATE users SET step = 'adm_input_bc_txt' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل النص المراد إرساله كإذاعة عامة لجميع المستخدمين:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_bc_img":
+            conn.execute("UPDATE users SET step = 'adm_input_bc_img' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("📸 **أرسل الآن الصورة المراد إرسالها كإذاعة عامة لجميع المستخدمين:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_pm_txt":
+            conn.execute("UPDATE users SET step = 'adm_input_pm_txt' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل ID المستلم مسافة ثم محتوى الرسالة:**\nمثال: `7255100997 مرحباً بك في منصتنا`", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data.startswith("adm_rep_supp_"):
+            tid = data.replace("adm_rep_supp_", "")
+            context.user_data["support_target_id"] = tid
+            conn.execute("UPDATE users SET step = 'adm_input_support_reply' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text(f"✍️ **اكتب ردك المباشر للعميل (`{tid}`):**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_add_admin":
+            conn.execute("UPDATE users SET step = 'adm_input_add_admin' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل ID المستخدم لمنحه صلاحيات أدمن كاملة:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_del_admin":
+            conn.execute("UPDATE users SET step = 'adm_input_del_admin' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل ID الأدمن المراد سحب الصلاحيات منه:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_ban":
+            conn.execute("UPDATE users SET step = 'adm_input_ban' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل ID المستخدم المراد حظره:**", reply_markup=cancel_keyboard("open_admin_panel"))
+            return
+
+        if data == "adm_unban":
+            conn.execute("UPDATE users SET step = 'adm_input_unban' WHERE user_id = ?", (user.id,))
+            conn.commit()
+            conn.close()
+            await query.message.edit_text("✍️ **أدخل ID المستخدم المراد فك الحظر عنه:**", reply_markup=cancel_keyboard("open_admin_panel"))
             return
 
     conn.close()
 
 # ----------------------------------------------------
-# 10. تشغيل البوت وإدارة الأحداث
+# 10. التشغيل والربط
 # ----------------------------------------------------
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start_command))
-    app.add_handler(CallbackQueryHandler(handle_callback))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo_messages))
     app.add_handler(MessageHandler(filters.CONTACT, handle_contact))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo_messages))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_messages))
+    app.add_handler(CallbackQueryHandler(handle_callback))
 
-    logger.info("Bot starting...")
+    logger.info("Bot started successfully...")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
