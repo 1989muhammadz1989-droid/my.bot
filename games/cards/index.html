@@ -10,13 +10,15 @@
 
     <style>
         :root {
-            --table-felt: radial-gradient(circle at center, #1b6632 0%, #0d3b1b 70%, #051d0c 100%);
+            --table-felt: radial-gradient(circle at center, #1b6632 0%, #0c3b1b 65%, #04190b 100%);
             --gold: #ffcf33;
+            --gold-bright: #ffe875;
             --gold-dark: #b38f00;
-            --red-card: #d32f2f;
-            --black-card: #212121;
-            --btn-red: #c62828;
+            --red-card: #e53935;
+            --black-card: #1e1e1e;
+            --btn-red: #d32f2f;
             --btn-green: #2e7d32;
+            --border-gold: rgba(255, 207, 51, 0.4);
         }
 
         * {
@@ -27,41 +29,47 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
-            background: var(--table-felt);
+        html, body {
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            background: #04190b;
             color: #ffffff;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
 
-        /* Top Bar */
+        /* Header */
         .header {
-            background: rgba(4, 20, 9, 0.9);
+            background: rgba(4, 20, 9, 0.95);
+            backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--gold);
-            padding: 10px 16px;
+            padding: 8px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            z-index: 50;
+            height: 54px;
+            flex-shrink: 0;
         }
 
-        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 8px; }
         .avatar {
-            width: 40px; height: 40px; border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
             color: #000; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.2rem;
+            font-weight: bold; font-size: 1.1rem;
+            box-shadow: 0 0 10px rgba(255, 207, 51, 0.5);
         }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.75);
             border: 1px solid var(--gold);
-            padding: 6px 14px; border-radius: 20px;
-            color: var(--gold); font-weight: 900; font-size: 1.1rem;
+            padding: 4px 12px; border-radius: 20px;
+            color: var(--gold); font-weight: 900; font-size: 1rem;
             display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 0 10px rgba(255, 207, 51, 0.2);
         }
 
         /* Felt Table Area */
@@ -70,39 +78,58 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 15px;
+            padding: 12px 14px;
             position: relative;
+            background: var(--table-felt);
+            border-inner: 2px solid rgba(255, 207, 51, 0.15);
+            min-height: 0;
+        }
+
+        .table-border-ring {
+            position: absolute;
+            inset: 8px;
+            border: 2px dashed rgba(255, 207, 51, 0.15);
+            border-radius: 20px;
+            pointer-events: none;
         }
 
         .table-center-logo {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.12;
-            font-size: 8rem;
+            opacity: 0.08;
+            font-size: 7rem;
             color: #fff;
             pointer-events: none;
         }
 
         .section-title {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 6px;
             text-align: center;
             font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .score-badge {
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 0.95rem;
         }
 
         .cards-container {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            min-height: 130px;
+            gap: 10px;
+            min-height: 105px;
+            align-items: center;
         }
 
-        /* Card Styles */
+        /* Realistic Card Styles */
         .card {
-            width: 80px;
-            height: 118px;
+            width: 72px;
+            height: 105px;
             perspective: 1000px;
         }
 
@@ -110,9 +137,9 @@
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
             border-radius: 8px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
         }
 
         .card.flipped .card-inner {
@@ -127,18 +154,18 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 6px;
+            padding: 5px 7px;
         }
 
         /* ظهر الورقة */
         .card-back {
-            background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%);
-            border: 2px solid #fff;
-            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 10px, transparent 0, transparent 20px);
+            background: linear-gradient(135deg, #a71d1d 0%, #5f0000 100%);
+            border: 2px solid #ffffff;
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 8px, transparent 0, transparent 16px);
             display: flex; align-items: center; justify-content: center;
         }
         .card-back::after {
-            content: '♠♥'; color: rgba(255,255,255,0.4); font-size: 1.5rem;
+            content: '♠♥'; color: rgba(255,255,255,0.4); font-size: 1.4rem;
         }
 
         /* وجه الورقة */
@@ -146,37 +173,40 @@
             background: #ffffff;
             color: var(--black-card);
             transform: rotateY(180deg);
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
         }
         .card-front.red { color: var(--red-card); }
 
-        .card-corner { font-size: 0.85rem; font-weight: 900; line-height: 1; text-align: right; }
-        .card-center-suit { font-size: 2.2rem; align-self: center; }
+        .card-corner { font-size: 0.8rem; font-weight: 900; line-height: 1; text-align: right; }
+        .card-center-suit { font-size: 2rem; align-self: center; line-height: 1; }
 
         /* Game Outcome Banner */
         .game-status {
             text-align: center;
-            padding: 10px;
-            font-size: 1.2rem;
+            padding: 8px 12px;
+            font-size: 0.95rem;
             font-weight: 900;
-            min-height: 48px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin: 10px 0;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin: 6px 0;
+            z-index: 10;
         }
 
         /* Controls Panel */
         .controls-panel {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(4, 18, 8, 0.98);
             border-top: 2px solid var(--gold);
-            padding: 14px;
+            padding: 10px 14px 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .bet-selector {
@@ -184,39 +214,54 @@
             align-items: center;
             justify-content: space-between;
             background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 12px;
-            border: 1px solid rgba(255,207,51,0.3);
+            border: 1px solid var(--border-gold);
         }
 
         .btn-step {
-            width: 38px; height: 38px;
+            width: 34px; height: 34px;
             border-radius: 8px; border: none;
-            background: var(--gold); color: #000;
-            font-size: 1.3rem; font-weight: bold;
-            cursor: pointer;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
+        .btn-step:active { transform: scale(0.92); }
 
         .bet-input {
             background: transparent; border: none;
-            color: var(--gold); font-size: 1.4rem;
-            font-weight: 900; text-align: center; width: 100px; outline: none;
+            color: var(--gold); font-size: 1.3rem;
+            font-weight: 900; text-align: center; width: 90px; outline: none;
         }
 
-        .action-btns { display: flex; gap: 10px; }
+        /* Presets */
+        .preset-row { display: flex; gap: 6px; }
+        .btn-preset {
+            flex: 1; padding: 5px 0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 207, 51, 0.2);
+            border-radius: 6px; color: var(--gold-bright);
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+        }
+        .btn-preset:active { background: var(--gold); color: #000; }
+
+        .action-btns { display: flex; gap: 8px; }
 
         .btn-act {
-            flex: 1; padding: 14px;
+            flex: 1; padding: 12px;
             border: none; border-radius: 12px;
-            font-size: 1.1rem; font-weight: 900;
+            font-size: 1.05rem; font-weight: 900;
             color: #fff; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
-        .btn-deal { background: linear-gradient(135deg, #2e7d32, #1b5e20); box-shadow: 0 4px 15px rgba(46,125,50,0.4); }
-        .btn-change { background: linear-gradient(135deg, #c62828, #8e0000); box-shadow: 0 4px 15px rgba(198,40,40,0.4); }
-        .btn-confirm { background: linear-gradient(135deg, #f57f17, #ff6f00); box-shadow: 0 4px 15px rgba(245,127,23,0.4); }
+        .btn-deal { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); border: 1px solid #4caf50; }
+        .btn-change { background: linear-gradient(135deg, #c62828 0%, #8e0000 100%); border: 1px solid #ef5350; }
+        .btn-confirm { background: linear-gradient(135deg, #f57f17 0%, #ff6f00 100%); border: 1px solid #ffb74d; }
+        .btn-act:active { transform: scale(0.97); }
         .btn-act:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
@@ -226,51 +271,55 @@
         <div class="user-info">
             <div class="avatar"><i class="fa-solid fa-crown"></i></div>
             <div>
-                <div id="u-name" style="font-weight: bold;">لاعب الشدة</div>
-                <div style="font-size: 0.75rem; color: #aaa;">ID: <span id="u-id">--</span></div>
+                <div id="u-name" style="font-weight: bold; font-size: 0.85rem;">لاعب الشدة</div>
+                <div style="font-size: 0.7rem; color: #aaa;">ID: <span id="u-id">--</span></div>
             </div>
         </div>
         <div class="balance-box">
             <i class="fa-solid fa-coins"></i>
-            <span id="u-balance">0.00</span> $
+            <span id="u-balance">0.00</span> NPS
         </div>
     </header>
 
     <div class="poker-table">
+        <div class="table-border-ring"></div>
         <i class="fa-solid fa-suit-spade table-center-logo"></i>
 
-        <!-- Opponent Area -->
+        <!-- الخصم -->
         <div>
-            <div class="section-title">أوراق الخصم (المجموع: <span id="opp-score">?</span>)</div>
-            <div class="cards-container" id="opp-cards">
-                <!-- 3 Cards -->
-            </div>
+            <div class="section-title">أوراق الخصم (المجموع: <span id="opp-score" class="score-badge">?</span>)</div>
+            <div class="cards-container" id="opp-cards"></div>
         </div>
 
-        <!-- Status Banner -->
+        <!-- حالة الجولة -->
         <div class="game-status" id="status-text">اختر مبلغ الرهان واضغط توزيع الأوراق</div>
 
-        <!-- Player Area -->
+        <!-- اللاعب -->
         <div>
-            <div class="section-title">أوراقك (المجموع المعلن: <span id="player-score">0</span>)</div>
-            <div class="cards-container" id="player-cards">
-                <!-- 3 Cards -->
-            </div>
+            <div class="section-title">أوراقك (المجموع: <span id="player-score" class="score-badge">0</span>)</div>
+            <div class="cards-container" id="player-cards"></div>
         </div>
     </div>
 
-    <!-- Controls -->
+    <!-- لوحة التحكم -->
     <div class="controls-panel">
         <div class="bet-selector" id="bet-box">
-            <span style="font-size: 0.85rem; color: #ccc;">الرهان ($5 - $1000):</span>
+            <span style="font-size: 0.8rem; color: #ccc;">الرهان (5 - 1000 NPS):</span>
             <button class="btn-step" onclick="adjustBet(-5)">-</button>
-            <input type="number" id="bet-amount" class="bet-input" value="5" min="5" max="1000" step="5">
+            <input type="number" id="bet-amount" class="bet-num bet-input" value="5" min="5" max="1000" step="5">
             <button class="btn-step" onclick="adjustBet(5)">+</button>
+        </div>
+
+        <div class="preset-row">
+            <button class="btn-preset" onclick="setBet(5)">5 NPS</button>
+            <button class="btn-preset" onclick="adjustBet(10)">+10</button>
+            <button class="btn-preset" onclick="adjustBet(25)">+25</button>
+            <button class="btn-preset" onclick="multiplyBet(2)">X2</button>
         </div>
 
         <div class="action-btns" id="action-area">
             <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
-                <i class="fa-solid fa-play"></i> توزيع الأوراق ($<span id="btn-bet-lbl">5</span>)
+                <i class="fa-solid fa-play"></i> توزيع الأوراق (<span id="btn-bet-lbl">5</span> NPS)
             </button>
         </div>
     </div>
@@ -367,18 +416,34 @@
         function adjustBet(delta) {
             if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
             betAmount = Math.min(1000, Math.max(5, betAmount + delta));
+            updateBetDisplay();
+        }
+
+        function setBet(val) {
+            if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
+            betAmount = Math.max(5, val);
+            updateBetDisplay();
+        }
+
+        function multiplyBet(factor) {
+            if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
+            betAmount = Math.min(1000, Math.max(5, Math.round(betAmount * factor)));
+            updateBetDisplay();
+        }
+
+        function updateBetDisplay() {
             document.getElementById('bet-amount').value = betAmount;
-            document.getElementById('btn-bet-lbl').innerText = betAmount;
+            const btnBet = document.getElementById('btn-bet-lbl');
+            if (btnBet) btnBet.innerText = betAmount;
         }
 
         document.getElementById('bet-amount').addEventListener('change', (e) => {
             let val = parseInt(e.target.value) || 5;
             betAmount = Math.min(1000, Math.max(5, val));
-            e.target.value = betAmount;
-            document.getElementById('btn-bet-lbl').innerText = betAmount;
+            updateBetDisplay();
         });
 
-        // المرحلة الأولى: بدء الجولة وتوزيع الأوراق + فتح أول ورقة
+        // بدء الجولة وتوزيع أول ورقة
         async function startRound() {
             if (userBalance < betAmount) {
                 alert("رصيدك غير كافٍ للرهان!");
@@ -387,7 +452,6 @@
 
             initTableUI();
 
-            // توليد أوراق اللاعب والخصم
             playerHand = [generateCard(), generateCard(), generateCard()];
             oppHand = [generateCard(), generateCard(), generateCard()];
 
@@ -398,16 +462,14 @@
 
             gameState = 'REVEALED_1';
             
-            // كشف أول ورقة للاعب فقط
             setTimeout(() => {
                 flipCard('p', 0);
                 document.getElementById('player-score').innerText = playerHand[0].val;
-            }, 300);
+            }, 250);
 
             document.getElementById('status-text').innerText = "تم فتح الورقة الأولى! اختر: متابعة الرهان أم تغيير الرهان؟";
-            document.getElementById('status-text').style.color = "#ffcf33";
+            document.getElementById('status-text').style.color = "var(--gold)";
 
-            // إظهار أزرار القرار
             renderDecisionButtons();
         }
 
@@ -415,22 +477,20 @@
             const actionArea = document.getElementById('action-area');
             actionArea.innerHTML = `
                 <button class="btn-act btn-change" onclick="changeBetOption()">
-                    <i class="fa-solid fa-rotate-left"></i> غير الرهان (-$10)
+                    <i class="fa-solid fa-rotate-left"></i> غير الرهان (-10 NPS)
                 </button>
                 <button class="btn-act btn-confirm" onclick="confirmAndPlay()">
-                    <i class="fa-solid fa-check"></i> راهن ومتابعة ($${betAmount})
+                    <i class="fa-solid fa-check"></i> راهن ومتابعة (${betAmount} NPS)
                 </button>
             `;
         }
 
-        // خيار "غير الرهان" خصم 10 دولار وإتاحة التعديل
         async function changeBetOption() {
             if (userBalance < 10) {
-                alert("رصيدك لا يكفي لدفع غرامة تغيير الرهان ($10)!");
+                alert("رصيدك لا يكفي لدفع غرامة تغيير الرهان (10 NPS)!");
                 return;
             }
 
-            // خصم 10$ رسوم تغيير الرهان عبر backend
             try {
                 const res = await fetch('/api/play', {
                     method: 'POST',
@@ -444,18 +504,18 @@
                 }
             } catch (e) {}
 
-            document.getElementById('status-text').innerText = "تم خصم 10$. يمكنك تغيير مبلغ الرهان الآن ثم اضغط تأكيد.";
+            document.getElementById('status-text').innerText = "تم خصم 10 NPS. يمكنك تغيير الرهان الآن ثم اضغط تأكيد.";
             document.getElementById('status-text').style.color = "#ff5252";
 
             const actionArea = document.getElementById('action-area');
             actionArea.innerHTML = `
                 <button class="btn-act btn-confirm" style="width:100%" onclick="confirmAndPlay()">
-                    <i class="fa-solid fa-circle-check"></i> تأكيد الرهان الجديد ومتابعة ($<span id="btn-bet-lbl">${betAmount}</span>)
+                    <i class="fa-solid fa-circle-check"></i> تأكيد الرهان الجديد (<span id="btn-bet-lbl">${betAmount}</span> NPS)
                 </button>
             `;
         }
 
-        // المرحلة النهائية: كشف بقية الأوراق وتحديد الفائز
+        // كشف بقية الورق وتحديد الربح المضاعف (x2)
         async function confirmAndPlay() {
             if (userBalance < betAmount) {
                 alert("رصيدك الحالي أقل من الرهان المحدد!");
@@ -466,8 +526,8 @@
             const oppScore = oppHand[0].val + oppHand[1].val + oppHand[2].val;
 
             let isWin = pScore > oppScore;
+            let isTie = pScore === oppScore;
 
-            // إرسال الرهان للسيرفر
             try {
                 const res = await fetch('/api/play', {
                     method: 'POST',
@@ -483,7 +543,6 @@
                 document.getElementById('u-balance').innerText = userBalance.toFixed(2);
             } catch(e) {}
 
-            // كشف باقي أوراق اللاعب ثم الخصم
             flipCard('p', 1);
             flipCard('p', 2);
             document.getElementById('player-score').innerText = pScore;
@@ -494,23 +553,25 @@
                 flipCard('opp', 2);
                 document.getElementById('opp-score').innerText = oppScore;
 
-                // النتيجة النهائية
+                // النتيجة النهائية + الأرباح الضعف (X2)
                 setTimeout(() => {
+                    const statusEl = document.getElementById('status-text');
                     if (isWin) {
-                        document.getElementById('status-text').innerText = `🎉 مبروك! مجموعك (${pScore}) أعلى من الخصم (${oppScore}). ربحت الجولة!`;
-                        document.getElementById('status-text').style.color = "#00e676";
-                    } else if (pScore === oppScore) {
-                        document.getElementById('status-text').innerText = `🤝 تعادل! مجموعكما متساوي (${pScore}).`;
-                        document.getElementById('status-text').style.color = "#ffcf33";
+                        const winAmount = (betAmount * 2).toFixed(2);
+                        statusEl.innerText = `🎉 مبروك! ربحت ${winAmount} NPS! (${pScore} ضد ${oppScore})`;
+                        statusEl.style.color = "#00e676";
+                    } else if (isTie) {
+                        statusEl.innerText = `🤝 تعادل! (${pScore} يساوي ${oppScore})`;
+                        statusEl.style.color = "var(--gold)";
                     } else {
-                        document.getElementById('status-text').innerText = `💥 خسرت الجولة! أوراق الخصم (${oppScore}) أعلى من أوراقك (${pScore}).`;
-                        document.getElementById('status-text').style.color = "#ff3d00";
+                        statusEl.innerText = `💥 خسرت ${betAmount.toFixed(2)} NPS! (${pScore} ضد الخصم ${oppScore})`;
+                        statusEl.style.color = "#ff3d00";
                     }
 
                     resetControls();
                     fetchUserData();
-                }, 600);
-            }, 500);
+                }, 500);
+            }, 450);
         }
 
         function resetControls() {
@@ -518,7 +579,7 @@
             const actionArea = document.getElementById('action-area');
             actionArea.innerHTML = `
                 <button class="btn-act btn-deal" id="btn-main" onclick="startRound()">
-                    <i class="fa-solid fa-play"></i> جولة جديدة ($<span id="btn-bet-lbl">${betAmount}</span>)
+                    <i class="fa-solid fa-play"></i> جولة جديدة (<span id="btn-bet-lbl">${betAmount}</span> NPS)
                 </button>
             `;
         }
