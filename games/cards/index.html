@@ -42,41 +42,60 @@
         .splash-screen {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle at center, #0c3b1b 0%, #04190b 100%);
+            background: radial-gradient(circle at center, #124d25 0%, #04190b 100%);
             z-index: 1000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
             text-align: center;
         }
 
+        .crown-icon {
+            font-size: 4.5rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 0.6));
+            animation: pulseCrown 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseCrown {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
         .splash-title {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 900;
             color: var(--gold);
             text-shadow: 0 4px 15px rgba(255, 207, 51, 0.4);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .splash-subtitle {
-            font-size: 0.95rem;
-            color: #ccc;
-            margin-bottom: 30px;
+        .splash-motto {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffe875;
+            margin-bottom: 35px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
         }
 
         .btn-start-game {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
             color: #000;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 900;
-            padding: 14px 40px;
+            padding: 16px 48px;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(255, 207, 51, 0.4);
-            transition: transform 0.2s;
+            box-shadow: 0 6px 25px rgba(255, 207, 51, 0.5);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .btn-start-game:active {
@@ -94,7 +113,7 @@
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             z-index: 50;
-            height: 50px;
+            height: 52px;
             flex-shrink: 0;
         }
 
@@ -104,7 +123,7 @@
             color: #ff5252;
             padding: 6px 12px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
             cursor: pointer;
             display: flex;
@@ -113,9 +132,9 @@
         }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--gold);
-            padding: 4px 14px;
+            padding: 5px 14px;
             border-radius: 20px;
             color: var(--gold);
             font-weight: 900;
@@ -149,9 +168,9 @@
         }
 
         .section-title {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: rgba(255,255,255,0.9);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             text-align: center;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
@@ -160,7 +179,7 @@
         .score-badge {
             color: var(--gold);
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .cards-container {
@@ -170,10 +189,10 @@
             align-items: center;
         }
 
-        /* ------------------ Realistic Cards & Royal Solid Red Back ------------------ */
+        /* ------------------ Realistic Cards ------------------ */
         .card {
-            width: 60px;
-            height: 88px;
+            width: 62px;
+            height: 90px;
             perspective: 1000px;
         }
 
@@ -201,17 +220,14 @@
             padding: 4px 6px;
         }
 
-        /* خلفية ملكية حمراء كاملة غير شفافة */
         .card-back {
             background-color: #800000;
             background-image: 
                 radial-gradient(circle at center, #990000 0%, #4a0000 100%),
                 repeating-linear-gradient(45deg, rgba(255, 207, 51, 0.25) 0, rgba(255, 207, 51, 0.25) 2px, transparent 2px, transparent 8px),
                 repeating-linear-gradient(-45deg, rgba(255, 207, 51, 0.25) 0, rgba(255, 207, 51, 0.25) 2px, transparent 2px, transparent 8px);
-            background-blend-mode: normal;
             border: 2px solid var(--gold);
             box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
-            opacity: 1 !important;
             display: flex; 
             align-items: center; 
             justify-content: center;
@@ -236,22 +252,22 @@
 
         .game-status {
             text-align: center;
-            padding: 6px 12px;
-            font-size: 0.85rem;
+            padding: 8px 12px;
+            font-size: 0.88rem;
             font-weight: 900;
-            min-height: 38px;
+            min-height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             border: 1px solid var(--border-gold);
             z-index: 10;
-            width: 90%;
+            width: 92%;
             max-width: 360px;
         }
 
-        /* ------------------ Controls Panel (Bottom Screen Fixed) ------------------ */
+        /* ------------------ Controls Panel ------------------ */
         .controls-panel {
             flex-shrink: 0;
             background: rgba(4, 18, 8, 0.98);
@@ -317,18 +333,20 @@
 </head>
 <body>
 
-    <!-- صفحة البداية -->
+    <!-- 🌟 صفحة البداية الفاخرة -->
     <div class="splash-screen" id="splash">
-        <i class="fa-solid fa-crown" style="font-size: 4rem; color: var(--gold); margin-bottom: 15px;"></i>
+        <i class="fa-solid fa-crown crown-icon"></i>
         <div class="splash-title">لعبة الشدة الملكية</div>
-        <div class="splash-subtitle">تحدى وتوقع الكروت لربح عملات NPS</div>
-        <button class="btn-start-game" onclick="launchGame()">ابدأ اللعبة الآن</button>
+        <div class="splash-motto">"لا تنتظر الحظ، بل اصنعه بنفسك!"</div>
+        <button class="btn-start-game" onclick="launchGame()">
+            <i class="fa-solid fa-play"></i> ابدأ اللعب
+        </button>
     </div>
 
-    <!-- الشريط العلوي -->
+    <!-- 🏆 الشريط العلوي (الرصيد وزر الخروج) -->
     <header class="header">
         <button class="btn-exit" onclick="exitGame()">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i> خروج
+            <i class="fa-solid fa-xmark"></i> خروج
         </button>
         <div class="balance-box">
             <i class="fa-solid fa-coins"></i>
@@ -336,13 +354,13 @@
         </div>
     </header>
 
-    <!-- النصف الأعلى: طاولة الشدة -->
+    <!-- 🃏 طاولة الشدة -->
     <div class="poker-table">
         <div class="table-border-ring"></div>
 
         <!-- أوراق الخصم -->
         <div>
-            <div class="section-title">أوراق الخصم (المجموع: <span id="opp-score" class="score-badge">?</span>)</div>
+            <div class="section-title">أوراق الخصم (المجموع المعروض: <span id="opp-score" class="score-badge">?</span>)</div>
             <div class="cards-container" id="opp-cards"></div>
         </div>
 
@@ -351,12 +369,12 @@
 
         <!-- أوراق اللاعب -->
         <div>
-            <div class="section-title">أوراقك (المجموع: <span id="player-score" class="score-badge">0</span>)</div>
+            <div class="section-title">أوراقك (المجموع المعروض: <span id="player-score" class="score-badge">0</span>)</div>
             <div class="cards-container" id="player-cards"></div>
         </div>
     </div>
 
-    <!-- النصف الأسفل: لوحة الرهان والخيارات -->
+    <!-- 🎮 لوحة الرهان والتحكم -->
     <div class="controls-panel">
         <div class="bet-selector">
             <span style="font-size: 0.8rem; color: #ccc;">قيمة الرهان (NPS):</span>
@@ -380,6 +398,76 @@
     </div>
 
     <script>
+        // ------------------ Web Audio API Synthesizer (أصوات اللعبة) ------------------
+        const SoundFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playFlip() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            },
+            playClick() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            },
+            playWin() {
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.3, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.3);
+                });
+            },
+            playLoss() {
+                this.init();
+                const now = this.ctx.currentTime;
+                [320, 270, 220, 160].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.25, now + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.12 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.12);
+                    osc.stop(now + idx * 0.12 + 0.25);
+                });
+            }
+        };
+
+        // ------------------ Telegram WebApp Integrations ------------------
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.ready(); }
 
@@ -408,11 +496,13 @@
         ];
 
         function launchGame() {
+            SoundFX.playClick();
             if (tg) tg.expand();
             document.getElementById('splash').style.display = 'none';
         }
 
         function exitGame() {
+            SoundFX.playClick();
             if (tg) {
                 tg.close();
             } else {
@@ -437,7 +527,7 @@
             return { ...rank, ...suit };
         }
 
-        /* خوارزمية التحكم بنسبة الخسارة (90% خسارة - 10% فوز) */
+        /* ------------------ خوارزمية التحكم بالخسارة/الربح (90% خسارة - 10% ربح) ------------------ */
         function generateControlledHands() {
             const playerShouldWin = Math.random() < 0.10; // 10% احتمال الفوز
 
@@ -452,7 +542,7 @@
                 oSum = oHand.reduce((a, b) => a + b.val, 0);
 
                 attempts++;
-                if (attempts > 200) break; // للحماية من الحلقات اللانهائية
+                if (attempts > 300) break; // حماية لضمان عدم حدوث Loop
 
             } while (playerShouldWin ? (pSum <= oSum) : (pSum >= oSum));
 
@@ -499,21 +589,25 @@
 
         function flipCard(idPrefix, index) {
             document.getElementById(`${idPrefix}-${index}`).classList.add('flipped');
+            SoundFX.playFlip();
         }
 
         function adjustBet(delta) {
+            SoundFX.playClick();
             if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
             betAmount = Math.min(1000, Math.max(5, betAmount + delta));
             updateBetDisplay();
         }
 
         function setBet(val) {
+            SoundFX.playClick();
             if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
             betAmount = Math.max(5, val);
             updateBetDisplay();
         }
 
         function multiplyBet(factor) {
+            SoundFX.playClick();
             if (gameState !== 'IDLE' && gameState !== 'REVEALED_1') return;
             betAmount = Math.min(1000, Math.max(5, Math.round(betAmount * factor)));
             updateBetDisplay();
@@ -531,9 +625,11 @@
             updateBetDisplay();
         });
 
+        /* ------------------ بدء الجولة (كشف الكرت الأول لك وللخصم) ------------------ */
         async function startRound() {
+            SoundFX.playClick();
             if (userBalance < betAmount) {
-                alert("رصيدك غير كافٍ للرهان!");
+                alert("⚠️ رصيدك غير كافٍ للرهان! قم بشحن رصيدك للمتابعة.");
                 return;
             }
 
@@ -550,12 +646,18 @@
 
             gameState = 'REVEALED_1';
             
+            // فتح الكرت الأول للاعب وأول كرت للخصم فوراً
             setTimeout(() => {
                 flipCard('p', 0);
                 document.getElementById('player-score').innerText = playerHand[0].val;
-            }, 250);
 
-            document.getElementById('status-text').innerText = "فتح الورقة الأولى! اختر: متابعة الرهان أم تغيير الرهان؟";
+                setTimeout(() => {
+                    flipCard('opp', 0);
+                    document.getElementById('opp-score').innerText = oppHand[0].val + " + ?";
+                }, 200);
+            }, 200);
+
+            document.getElementById('status-text').innerText = "تم فتح الكرت الأول لك وللخصم! اختر: متابعة الرهان أم تغيير الرهان؟";
             document.getElementById('status-text').style.color = "var(--gold)";
 
             renderDecisionButtons();
@@ -574,8 +676,9 @@
         }
 
         async function changeBetOption() {
+            SoundFX.playClick();
             if (userBalance < 10) {
-                alert("رصيدك لا يكفي لدفع غرامة تغيير الرهان (10 NPS)!");
+                alert("رصيدك لا يكفي لدفع رسوم تغيير الرهان (10 NPS)!");
                 return;
             }
 
@@ -595,7 +698,7 @@
                 }
             } catch (e) {}
 
-            document.getElementById('status-text').innerText = "تم خصم 10 NPS. اختر الرهان ثم اضغط تأكيد.";
+            document.getElementById('status-text').innerText = "تم خصم 10 NPS رسوم تغيير. اضبط الرهان ثم اضغط تأكيد.";
             document.getElementById('status-text').style.color = "#ff5252";
 
             const actionArea = document.getElementById('action-area');
@@ -606,9 +709,11 @@
             `;
         }
 
+        /* ------------------ كشف كامل الأوراق وحساب النتيجة ------------------ */
         async function confirmAndPlay() {
+            SoundFX.playClick();
             if (userBalance < betAmount) {
-                alert("رصيدك الحالي أقل من الرهان المحدد!");
+                alert("رصيدك الحالي أقل من مبلغ الرهان المحدد!");
                 return;
             }
 
@@ -617,13 +722,14 @@
 
             let isWin = pScore > oppScore;
             let isTie = pScore === oppScore;
+            
+            // الربح يكون ضعف سعر الرهان (مثال: لعب بـ 50 يربح 100)
             let winAmount = isWin ? (betAmount * 2) : (isTie ? betAmount : 0);
 
-            // تصليح منطق الرصيد: خصم الرهان في حالة الخسارة، وإضافة ضعف الرهان عند الربح
             if (isWin) {
-                userBalance += betAmount; // صافي الربح = الرهان (مجموع الراجع = ضعف الرهان)
+                userBalance += betAmount; // صافي إضافة ضعف الرهان إلى الرصيد
             } else if (!isTie) {
-                userBalance -= betAmount; // خصم سعر الرهان فقط عند الخسارة
+                userBalance -= betAmount; // خصم سعر الرهان عند الخسارة
             }
             document.getElementById('u-balance').innerText = userBalance.toFixed(2);
 
@@ -647,12 +753,13 @@
                 }
             } catch(e) {}
 
+            // كشف أوراق اللاعب المتبقية
             flipCard('p', 1);
             flipCard('p', 2);
             document.getElementById('player-score').innerText = pScore;
 
+            // كشف أوراق الخصم المتبقية
             setTimeout(() => {
-                flipCard('opp', 0);
                 flipCard('opp', 1);
                 flipCard('opp', 2);
                 document.getElementById('opp-score').innerText = oppScore;
@@ -660,12 +767,14 @@
                 setTimeout(() => {
                     const statusEl = document.getElementById('status-text');
                     if (isWin) {
+                        SoundFX.playWin();
                         statusEl.innerText = `🎉 مبروك! ربحت ${winAmount.toFixed(2)} NPS! (${pScore} ضد ${oppScore})`;
                         statusEl.style.color = "#00e676";
                     } else if (isTie) {
                         statusEl.innerText = `🤝 تعادل! (${pScore} يساوي ${oppScore})`;
                         statusEl.style.color = "var(--gold)";
                     } else {
+                        SoundFX.playLoss();
                         statusEl.innerText = `💥 خسرت ${betAmount.toFixed(2)} NPS! (${pScore} ضد الخصم ${oppScore})`;
                         statusEl.style.color = "#ff3d00";
                     }
