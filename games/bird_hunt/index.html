@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة صيد الطيور - NPS</title>
+    <title>لعبة صيد الطيور الاحترافية</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -12,20 +12,22 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         }
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000;
+            background-color: #050b14;
         }
         #gameCanvas {
             width: 100vw;
             height: 100vh;
             display: block;
+            touch-action: none;
         }
-        .ui-header {
+        /* HUD UI Elements */
+        .top-bar {
             position: absolute;
             top: 15px;
             left: 15px;
@@ -33,102 +35,143 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 10;
+            z-index: 20;
+            pointer-events: none;
         }
-        .user-card, .balance-card {
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(8px);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: #fff;
+        .exit-btn {
+            pointer-events: auto;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 20px;
             font-weight: bold;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease;
         }
-        .balance-card {
+        .exit-btn:active { transform: scale(0.9); }
+        
+        .balance-badge {
+            pointer-events: auto;
+            background: rgba(10, 25, 47, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 8px 18px;
+            border-radius: 25px;
             color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            font-weight: 800;
             font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            letter-spacing: 0.5px;
         }
-        .ui-controls {
+
+        .controls-bar {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 10;
+            gap: 15px;
+            background: rgba(10, 20, 30, 0.82);
+            backdrop-filter: blur(16px);
+            padding: 10px 22px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            z-index: 20;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         }
+        
         .bet-btn {
-            background: #e74c3c;
+            background: rgba(231, 76, 60, 0.85);
             color: white;
-            border: none;
-            width: 38px;
-            height: 38px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
         }
-        .bet-btn:active { transform: scale(0.9); }
+        .bet-btn:active { transform: scale(0.88); background: #e74c3c; }
+
         .bet-display {
             color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            min-width: 90px;
+            font-size: 15px;
+            font-weight: 700;
+            min-width: 100px;
             text-align: center;
         }
+        .bet-value {
+            color: #f1c40f;
+            font-size: 17px;
+        }
+
         .shoot-btn {
-            background: linear-gradient(135deg, #f1c40f, #e67e22);
-            color: #000;
+            background: linear-gradient(135deg, #f39c12, #d35400);
+            color: #ffffff;
             border: none;
-            padding: 10px 24px;
-            border-radius: 20px;
+            padding: 12px 28px;
+            border-radius: 25px;
             font-size: 18px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
+            box-shadow: 0 4px 20px rgba(230, 126, 34, 0.5);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease, filter 0.2s;
         }
-        .shoot-btn:active { transform: scale(0.95); }
+        .shoot-btn:active { transform: scale(0.93); filter: brightness(1.2); }
+        .shoot-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        /* Toast Notifications */
         .toast-message {
             position: absolute;
-            top: 35%;
+            top: 40%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            padding: 15px 30px;
-            border-radius: 15px;
+            transform: translate(-50%, -50%) scale(0.7);
+            padding: 16px 36px;
+            border-radius: 20px;
             color: white;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 900;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
-            z-index: 20;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
             text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .toast-message.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
-        .toast-win { background: rgba(46, 204, 113, 0.95); border: 2px solid #fff; }
-        .toast-loss { background: rgba(231, 76, 60, 0.95); border: 2px solid #fff; }
+        .toast-win { background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95)); border: 2px solid #fff; }
+        .toast-loss { background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95)); border: 2px solid #fff; }
     </style>
 </head>
 <body>
 
-    <div class="ui-header">
-        <div class="user-card" id="userName">المستخدم...</div>
-        <div class="balance-card">الرصيد: <span id="userBalance">0</span> NPS</div>
+    <!-- HUD Overlay -->
+    <div class="top-bar">
+        <button class="exit-btn" onclick="exitGame()" title="خروج">✕</button>
+        <div class="balance-badge">الرصيد: <span id="userBalance">0</span> NPS</div>
     </div>
 
-    <div class="ui-controls">
+    <!-- Bet & Action Controls -->
+    <div class="controls-bar">
         <button class="bet-btn" onclick="adjustBet(-5)">-</button>
-        <div class="bet-display">الرهان: <span id="betAmount">5</span> NPS</div>
+        <div class="bet-display">الرهان: <span class="bet-value" id="betAmount">5</span> NPS</div>
         <button class="bet-btn" onclick="adjustBet(5)">+</button>
         <button class="shoot-btn" id="shootBtn" onclick="shoot()">إطلاق 🔥</button>
     </div>
@@ -137,8 +180,20 @@
     <canvas id="gameCanvas"></canvas>
 
     <script>
+        // Telegram WebApp Integration
         const tg = window.Telegram?.WebApp;
-        if (tg) tg.expand();
+        if (tg) {
+            tg.expand();
+            tg.enableClosingConfirmation();
+        }
+
+        function exitGame() {
+            if (tg) {
+                tg.close();
+            } else {
+                alert("تم الخروج من اللعبة");
+            }
+        }
 
         const urlParams = new URLSearchParams(window.location.search);
         let userId = urlParams.get('user_id') || urlParams.get('telegram_id');
@@ -150,6 +205,8 @@
         let balance = 0;
         let betAmount = 5;
         let isPlaying = false;
+        let screenShake = 0;
+        let waterOffset = 0;
 
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -161,27 +218,123 @@
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
+        // Audio Synthesizer Engine (Self-contained Web Audio API)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                startNatureAmbience();
+            }
+        }
+
+        function playGunshotSound() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            // Muzzle explosion sound
+            const bufferSize = audioCtx.sampleRate * 0.3;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, now);
+            filter.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start(now);
+
+            // Sub bass impact
+            const osc = audioCtx.createOscillator();
+            const oscGain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
+            oscGain.gain.setValueAtTime(0.8, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+            osc.connect(oscGain);
+            oscGain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+
+        function playHitSound() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
+
+        function startNatureAmbience() {
+            if (!audioCtx) return;
+            // Ambient soft background wind/water simulation
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 400;
+            filter.Q.value = 3.0;
+
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.04;
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        // Entities & Game Objects
         const bird = {
             x: 100,
             y: canvas.height * 0.3,
-            vx: 3,
-            vy: 1,
-            size: 25,
+            vx: 3.5,
+            vy: 1.2,
+            size: 28,
             state: 'flying',
-            wingAngle: 0
+            wingAngle: 0,
+            wingSpeed: 0.2
         };
 
         const crosshair = { x: canvas.width / 2, y: canvas.height / 3 };
+        const particles = [];
+        let muzzleFlashTime = 0;
 
-        window.addEventListener('mousemove', (e) => {
+        // Mouse/Touch Tracking
+        window.addEventListener('pointermove', (e) => {
             crosshair.x = e.clientX;
             crosshair.y = e.clientY;
-        });
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) {
-                crosshair.x = e.touches[0].clientX;
-                crosshair.y = e.touches[0].clientY;
-            }
         });
 
         async function fetchUserData() {
@@ -191,7 +344,6 @@
                 if (data.success) {
                     balance = data.balance;
                     document.getElementById("userBalance").innerText = balance;
-                    document.getElementById("userName").innerText = data.full_name;
                 }
             } catch (e) {
                 console.error(e);
@@ -207,104 +359,326 @@
             document.getElementById("betAmount").innerText = betAmount;
         }
 
-        function drawBackground() {
-            let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGradient.addColorStop(0, "#87CEEB");
-            skyGradient.addColorStop(0.6, "#E0F6FF");
-            skyGradient.addColorStop(1, "#2E8B57");
+        // Render Realistic Background
+        function drawRealisticBackground() {
+            // Sky gradient
+            let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.75);
+            skyGradient.addColorStop(0, "#0b1d3a");
+            skyGradient.addColorStop(0.4, "#204968");
+            skyGradient.addColorStop(0.7, "#4b7998");
+            skyGradient.addColorStop(1, "#c8d6e5");
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#6c7a89";
+            // Sun / Horizon Glow
+            let sunGlow = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.5, 10, canvas.width * 0.5, canvas.height * 0.5, 250);
+            sunGlow.addColorStop(0, "rgba(255, 235, 180, 0.6)");
+            sunGlow.addColorStop(1, "rgba(255, 235, 180, 0)");
+            ctx.fillStyle = sunGlow;
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.25, canvas.height * 0.35);
-            ctx.lineTo(canvas.width * 0.5, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.75, canvas.height * 0.38);
-            ctx.lineTo(canvas.width, canvas.height * 0.6);
+            ctx.arc(canvas.width * 0.5, canvas.height * 0.5, 250, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Distant Mountains
+            ctx.fillStyle = "#1e3740";
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.58);
+            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.42);
+            ctx.lineTo(canvas.width * 0.45, canvas.height * 0.58);
+            ctx.lineTo(canvas.width * 0.7, canvas.height * 0.39);
+            ctx.lineTo(canvas.width, canvas.height * 0.58);
             ctx.lineTo(canvas.width, canvas.height);
             ctx.lineTo(0, canvas.height);
             ctx.fill();
 
-            ctx.fillStyle = "#3498db";
+            // Near Mountains
+            ctx.fillStyle = "#13272d";
             ctx.beginPath();
-            ctx.moveTo(canvas.width * 0.45, canvas.height * 0.6);
-            ctx.quadraticCurveTo(canvas.width * 0.5, canvas.height * 0.75, canvas.width * 0.2, canvas.height);
-            ctx.lineTo(canvas.width * 0.6, canvas.height);
-            ctx.quadraticCurveTo(canvas.width * 0.65, canvas.height * 0.75, canvas.width * 0.55, canvas.height * 0.6);
+            ctx.moveTo(0, canvas.height * 0.64);
+            ctx.lineTo(canvas.width * 0.35, canvas.height * 0.48);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.65);
+            ctx.lineTo(canvas.width * 0.85, canvas.height * 0.50);
+            ctx.lineTo(canvas.width, canvas.height * 0.64);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
             ctx.fill();
 
-            ctx.fillStyle = "#27ae60";
-            ctx.fillRect(0, canvas.height * 0.75, canvas.width, canvas.height * 0.25);
+            // River with Shimmer Effect
+            waterOffset += 0.03;
+            let riverGradient = ctx.createLinearGradient(0, canvas.height * 0.62, 0, canvas.height);
+            riverGradient.addColorStop(0, "#1a4a5e");
+            riverGradient.addColorStop(0.5, "#0f3042");
+            riverGradient.addColorStop(1, "#081d28");
+            
+            ctx.fillStyle = riverGradient;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.38, canvas.height * 0.62);
+            ctx.quadraticCurveTo(canvas.width * 0.45, canvas.height * 0.78, canvas.width * 0.1, canvas.height);
+            ctx.lineTo(canvas.width * 0.75, canvas.height);
+            ctx.quadraticCurveTo(canvas.width * 0.58, canvas.height * 0.78, canvas.width * 0.52, canvas.height * 0.62);
+            ctx.fill();
+
+            // Animated River Waves / Reflection
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                let y = canvas.height * (0.68 + i * 0.06);
+                ctx.beginPath();
+                ctx.moveTo(canvas.width * 0.3, y);
+                ctx.quadraticCurveTo(
+                    canvas.width * 0.45 + Math.sin(waterOffset + i) * 15,
+                    y + Math.cos(waterOffset + i) * 5,
+                    canvas.width * 0.6,
+                    y
+                );
+                ctx.stroke();
+            }
+
+            // Foreground Trees & Land Banks
+            ctx.fillStyle = "#0a190f";
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.7);
+            ctx.lineTo(canvas.width * 0.38, canvas.height * 0.72);
+            ctx.lineTo(0, canvas.height * 0.95);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(canvas.width, canvas.height * 0.72);
+            ctx.lineTo(canvas.width * 0.52, canvas.height * 0.74);
+            ctx.lineTo(canvas.width, canvas.height * 0.98);
+            ctx.fill();
         }
 
+        // Update Bird Mechanics
         function updateBird() {
             if (bird.state === 'flying') {
                 bird.x += bird.vx;
-                bird.y += Math.sin(bird.x * 0.02) * bird.vy;
-                bird.wingAngle += 0.15;
-                if (bird.x > canvas.width - 50 || bird.x < 50) bird.vx *= -1;
+                bird.y += Math.sin(bird.x * 0.015) * bird.vy;
+                bird.wingAngle += bird.wingSpeed;
+
+                if (bird.x > canvas.width + 60) {
+                    bird.x = -60;
+                    bird.y = canvas.height * (0.15 + Math.random() * 0.3);
+                } else if (bird.x < -60) {
+                    bird.x = canvas.width + 60;
+                    bird.y = canvas.height * (0.15 + Math.random() * 0.3);
+                }
             } else if (bird.state === 'falling') {
-                bird.y += 8;
-                if (bird.y >= canvas.height * 0.78) {
+                bird.y += 9.8;
+                bird.x += bird.vx * 0.3;
+                bird.wingAngle += 0.4;
+                if (bird.y >= canvas.height * 0.75) {
                     bird.state = 'dead';
+                    createFeatherExplosion(bird.x, bird.y, 15);
                     setTimeout(respawnBird, 1200);
                 }
             }
         }
 
-        function drawBird() {
+        // Draw Detailed Bird
+        function drawRealisticBird() {
             ctx.save();
             ctx.translate(bird.x, bird.y);
-            if (bird.vx < 0 && bird.state === 'flying') ctx.scale(-1, 1);
-            if (bird.state === 'falling') ctx.rotate(Math.PI / 2);
 
-            ctx.fillStyle = "#d35400";
+            if (bird.vx < 0 && bird.state === 'flying') ctx.scale(-1, 1);
+            if (bird.state === 'falling') ctx.rotate(Math.PI / 2.5);
+
+            const s = bird.size;
+            const wingY = Math.sin(bird.wingAngle) * (s * 0.8);
+
+            // Tail feathers
+            ctx.fillStyle = "#5c2c10";
             ctx.beginPath();
-            ctx.ellipse(0, 0, bird.size, bird.size / 1.8, 0, 0, Math.PI * 2);
+            ctx.moveTo(-s * 0.8, 0);
+            ctx.lineTo(-s * 1.5, -s * 0.3);
+            ctx.lineTo(-s * 1.4, 0);
+            ctx.lineTo(-s * 1.5, s * 0.3);
             ctx.fill();
 
-            ctx.fillStyle = "#f1c40f";
+            // Body
+            let bodyGrad = ctx.createLinearGradient(-s, -s, s, s);
+            bodyGrad.addColorStop(0, "#8b4513");
+            bodyGrad.addColorStop(0.6, "#d2691e");
+            bodyGrad.addColorStop(1, "#f4a460");
+            ctx.fillStyle = bodyGrad;
             ctx.beginPath();
-            ctx.moveTo(bird.size * 0.7, -5);
-            ctx.lineTo(bird.size * 0.7 + 12, 0);
-            ctx.lineTo(bird.size * 0.7, 5);
+            ctx.ellipse(0, 0, s, s * 0.55, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Head
+            ctx.fillStyle = "#1e5330"; // Mallard duck / Wild bird green tint head
+            ctx.beginPath();
+            ctx.arc(s * 0.75, -s * 0.2, s * 0.38, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eye
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(s * 0.85, -s * 0.28, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#000000";
+            ctx.beginPath();
+            ctx.arc(s * 0.86, -s * 0.28, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Beak
+            ctx.fillStyle = "#f39c12";
+            ctx.beginPath();
+            ctx.moveTo(s * 1.05, -s * 0.3);
+            ctx.lineTo(s * 1.5, -s * 0.15);
+            ctx.lineTo(s * 1.05, 0);
+            ctx.fill();
+
+            // Animated Wing (Back)
+            ctx.fillStyle = "#6e330a";
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.2, -s * 0.1);
+            ctx.quadraticCurveTo(0, -s * 1.3 - wingY, s * 0.4, -s * 0.2);
+            ctx.fill();
+
+            // Animated Wing (Front)
+            ctx.fillStyle = "#a0522d";
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.3, 0);
+            ctx.quadraticCurveTo(0, -s * 1.5 - wingY, s * 0.5, -s * 0.1);
             ctx.fill();
 
             ctx.restore();
         }
 
         function respawnBird() {
-            bird.x = Math.random() * (canvas.width - 200) + 100;
-            bird.y = canvas.height * (0.2 + Math.random() * 0.25);
+            bird.x = Math.random() > 0.5 ? -40 : canvas.width + 40;
+            bird.vx = bird.x < 0 ? (3 + Math.random() * 2) : -(3 + Math.random() * 2);
+            bird.y = canvas.height * (0.15 + Math.random() * 0.3);
             bird.state = 'flying';
-            bird.vx = Math.random() > 0.5 ? 3 : -3;
         }
 
+        // Particle System (Feathers & Explosions)
+        function createFeatherExplosion(x, y, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.7) * 8,
+                    size: Math.random() * 6 + 3,
+                    color: Math.random() > 0.4 ? "#d2691e" : "#ffffff",
+                    rotation: Math.random() * Math.PI,
+                    rotSpeed: (Math.random() - 0.5) * 0.2,
+                    life: 1.0
+                });
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.15; // Gravity
+                p.rotation += p.rotSpeed;
+                p.life -= 0.02;
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, p.size, p.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Crosshair HUD
         function drawCrosshair() {
+            ctx.save();
             ctx.strokeStyle = "#e74c3c";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 4;
+
             ctx.beginPath();
-            ctx.arc(crosshair.x, crosshair.y, 16, 0, Math.PI * 2);
-            ctx.moveTo(crosshair.x - 22, crosshair.y);
-            ctx.lineTo(crosshair.x + 22, crosshair.y);
-            ctx.moveTo(crosshair.x, crosshair.y - 22);
-            ctx.lineTo(crosshair.x, crosshair.y + 22);
+            ctx.arc(crosshair.x, crosshair.y, 18, 0, Math.PI * 2);
             ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(crosshair.x, crosshair.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#e74c3c";
+            ctx.fill();
+
+            // Cross lines
+            ctx.beginPath();
+            ctx.moveTo(crosshair.x - 26, crosshair.y);
+            ctx.lineTo(crosshair.x - 10, crosshair.y);
+            ctx.moveTo(crosshair.x + 10, crosshair.y);
+            ctx.lineTo(crosshair.x + 26, crosshair.y);
+
+            ctx.moveTo(crosshair.x, crosshair.y - 26);
+            ctx.lineTo(crosshair.x, crosshair.y - 10);
+            ctx.moveTo(crosshair.x, crosshair.y + 10);
+            ctx.lineTo(crosshair.x, crosshair.y + 26);
+            ctx.stroke();
+
+            ctx.restore();
         }
 
+        // Muzzle Flash Effect
+        function drawMuzzleFlash() {
+            if (muzzleFlashTime > 0) {
+                muzzleFlashTime--;
+                ctx.save();
+                let flashGrad = ctx.createRadialGradient(crosshair.x, crosshair.y, 5, crosshair.x, crosshair.y, 80);
+                flashGrad.addColorStop(0, "rgba(255, 255, 200, 0.9)");
+                flashGrad.addColorStop(0.3, "rgba(255, 140, 0, 0.6)");
+                flashGrad.addColorStop(1, "rgba(255, 0, 0, 0)");
+
+                ctx.fillStyle = flashGrad;
+                ctx.beginPath();
+                ctx.arc(crosshair.x, crosshair.y, 80, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Game Loop
         function gameLoop() {
+            ctx.save();
+
+            // Screen Shake Effect
+            if (screenShake > 0) {
+                let dx = (Math.random() - 0.5) * screenShake;
+                let dy = (Math.random() - 0.5) * screenShake;
+                ctx.translate(dx, dy);
+                screenShake *= 0.85;
+                if (screenShake < 0.5) screenShake = 0;
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBackground();
+
+            drawRealisticBackground();
             updateBird();
-            drawBird();
+            drawRealisticBird();
+            updateAndDrawParticles();
+            drawMuzzleFlash();
             drawCrosshair();
+
+            ctx.restore();
             requestAnimationFrame(gameLoop);
         }
         gameLoop();
 
+        // Shoot Function & Backend API Integration
         async function shoot() {
+            initAudio();
             if (isPlaying) return;
+
             if (balance < betAmount) {
                 showToast("رصيدك غير كافٍ للرهان!", "loss");
                 return;
@@ -312,6 +686,11 @@
 
             isPlaying = true;
             document.getElementById("shootBtn").disabled = true;
+
+            // Visual & Audio Shoot FX
+            playGunshotSound();
+            screenShake = 12;
+            muzzleFlashTime = 4;
 
             try {
                 const res = await fetch("/api/play", {
@@ -326,7 +705,7 @@
 
                 const data = await res.json();
                 if (!data.success) {
-                    showToast(data.message || "حدث خطأ!", "loss");
+                    showToast(data.message || "حدث خطأ في العملية!", "loss");
                     isPlaying = false;
                     document.getElementById("shootBtn").disabled = false;
                     return;
@@ -335,11 +714,15 @@
                 balance = data.new_balance;
                 document.getElementById("userBalance").innerText = balance;
 
+                // 10% Win Rate / Backend Multiplier Check (2x Payout on Win)
                 if (data.multiplier > 0) {
                     bird.state = 'falling';
-                    showToast(`اصابة! ربحت ${data.win_amount} NPS`, "win");
+                    playHitSound();
+                    createFeatherExplosion(crosshair.x, crosshair.y, 25);
+                    let winAmount = data.win_amount || (betAmount * 2);
+                    showToast(`اصابة دقيقة! ربحت ${winAmount} NPS 🎯`, "win");
                 } else {
-                    showToast(`خسارة! فقدت ${betAmount} NPS`, "loss");
+                    showToast(`خسارة! فقدت ${betAmount} NPS 💥`, "loss");
                 }
             } catch (e) {
                 showToast("خطأ في الاتصال بالسيرفر!", "loss");
@@ -348,14 +731,14 @@
             setTimeout(() => {
                 isPlaying = false;
                 document.getElementById("shootBtn").disabled = false;
-            }, 1000);
+            }, 900);
         }
 
         function showToast(msg, type) {
             const toast = document.getElementById("toast");
             toast.innerText = msg;
             toast.className = `toast-message show toast-${type}`;
-            setTimeout(() => { toast.className = "toast-message"; }, 2000);
+            setTimeout(() => { toast.className = "toast-message"; }, 2200);
         }
     </script>
 </body>
