@@ -10,8 +10,8 @@
 
     <style>
         :root {
-            --bg-dark: #050204;
-            --bg-card: rgba(18, 6, 10, 0.95);
+            --bg-dark: #030108;
+            --bg-card: rgba(15, 5, 12, 0.95);
             --primary-red: #ff0033;
             --bright-red: #ff2a55;
             --dark-red: #7a0016;
@@ -35,7 +35,7 @@
             height: 100vh;
             max-height: 100vh;
             overflow: hidden;
-            background: radial-gradient(circle at center, #260008 0%, var(--bg-dark) 85%);
+            background: radial-gradient(circle at center, #2a000a 0%, var(--bg-dark) 90%);
             color: var(--text-light);
             display: flex;
             flex-direction: column;
@@ -50,7 +50,7 @@
 
         .game-display {
             position: relative;
-            height: 55vh;
+            height: 58vh;
             width: 100%;
             background: #000;
             overflow: hidden;
@@ -61,7 +61,7 @@
 
         .canvas-overlay {
             position: absolute;
-            top: 45%; left: 50%;
+            top: 38%; left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
             pointer-events: none;
@@ -69,31 +69,33 @@
         }
 
         .multiplier-text {
-            font-size: 3.8rem;
+            font-size: 4.2rem;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 25px var(--primary-red), 0 0 50px var(--bright-red);
+            text-shadow: 0 0 30px var(--primary-red), 0 0 60px var(--bright-red);
             line-height: 1;
+            font-family: monospace, 'Tajawal';
         }
 
         .status-text {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: var(--gold);
-            margin-top: 8px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 12px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 16px;
             border-radius: 20px;
             display: inline-block;
+            border: 1px solid rgba(255, 204, 0, 0.3);
         }
-        .status-crashed { color: var(--primary-red) !important; text-shadow: 0 0 15px var(--primary-red); }
-        .status-cashed { color: var(--green-cashout) !important; text-shadow: 0 0 15px var(--green-cashout); }
+        .status-crashed { color: var(--primary-red) !important; text-shadow: 0 0 15px var(--primary-red); border-color: var(--primary-red); }
+        .status-cashed { color: var(--green-cashout) !important; text-shadow: 0 0 15px var(--green-cashout); border-color: var(--green-cashout); }
 
         .bottom-section {
-            height: 45vh;
+            height: 42vh;
             width: 100%;
             display: flex;
-            background: rgba(5, 2, 4, 0.98);
+            background: rgba(3, 1, 8, 0.98);
             padding: 8px;
             gap: 8px;
         }
@@ -106,57 +108,57 @@
             background: var(--bg-card);
             border: 1px solid var(--border-red);
             border-radius: 12px;
-            padding: 8px;
+            padding: 10px;
         }
 
         .balance-strip {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 0, 51, 0.1);
-            border: 1px solid rgba(255, 0, 51, 0.3);
+            background: rgba(255, 0, 51, 0.12);
+            border: 1px solid rgba(255, 0, 51, 0.35);
             border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
+            padding: 6px 12px;
+            font-size: 0.82rem;
             font-weight: 700;
         }
-        .balance-val { color: var(--gold); font-weight: 900; font-size: 0.95rem; }
+        .balance-val { color: var(--gold); font-weight: 900; font-size: 1rem; }
 
         .input-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 8px;
-            padding: 4px 8px;
+            padding: 6px 10px;
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
 
-        .input-label { font-size: 0.65rem; color: var(--text-dim); font-weight: 700; }
+        .input-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 700; }
         .input-controls { display: flex; align-items: center; justify-content: space-between; }
 
         .btn-step {
-            width: 28px; height: 28px; border-radius: 6px;
+            width: 32px; height: 32px; border-radius: 6px;
             border: 1px solid var(--border-red);
-            background: rgba(255, 0, 51, 0.2);
-            color: #fff; font-size: 1rem; font-weight: bold;
+            background: rgba(255, 0, 51, 0.25);
+            color: #fff; font-size: 1.1rem; font-weight: bold;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
         .btn-step:active { background: var(--primary-red); }
 
         .bet-num {
-            font-size: 1rem; font-weight: 900; color: #fff;
+            font-size: 1.1rem; font-weight: 900; color: #fff;
             background: transparent; border: none; text-align: center; width: 100%; outline: none;
         }
 
         .preset-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
         .btn-preset {
-            padding: 5px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; color: var(--text-dim); font-size: 0.7rem; font-weight: 700; cursor: pointer; text-align: center;
+            padding: 6px 0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px; color: var(--text-dim); font-size: 0.72rem; font-weight: 700; cursor: pointer; text-align: center;
         }
-        .btn-preset:active { background: rgba(255, 0, 51, 0.3); color: #fff; }
+        .btn-preset:active { background: rgba(255, 0, 51, 0.4); color: #fff; }
 
         .btn-action {
             width: 100%; padding: 12px; border: none; border-radius: 10px;
@@ -167,13 +169,13 @@
 
         .btn-launch {
             background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 50%, #ff5252 100%);
-            box-shadow: 0 4px 15px rgba(255, 0, 51, 0.4);
+            box-shadow: 0 4px 18px rgba(255, 0, 51, 0.5);
         }
 
         .btn-withdraw {
             background: linear-gradient(135deg, #007e33 0%, var(--green-cashout) 100%) !important;
-            box-shadow: 0 0 20px rgba(0, 230, 118, 0.8) !important;
-            animation: pulse-withdraw 0.8s infinite alternate;
+            box-shadow: 0 0 22px rgba(0, 230, 118, 0.85) !important;
+            animation: pulse-withdraw 0.7s infinite alternate;
         }
 
         @keyframes pulse-withdraw {
@@ -196,7 +198,7 @@
         }
 
         .live-title {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 900;
             color: var(--gold);
             display: flex;
@@ -240,7 +242,7 @@
         <div class="game-display" id="display-wrapper">
             <canvas id="gameCanvas"></canvas>
             <div class="canvas-overlay">
-                <div class="multiplier-text" id="mult-display">0.00x</div>
+                <div class="multiplier-text" id="mult-display">1.00x</div>
                 <div class="status-text" id="status-display">استعداد للإطلاق...</div>
             </div>
         </div>
@@ -290,12 +292,12 @@
         const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
 
         // إعدادات الخوارزمية والشغف
-        const MAX_AUTO_CRASH_MULT = 5.0; // حد الانفجار التلقائي (يمكن التعديل عليه مستقبلاً)
-        const HYPE_MULTIPLIERS = [5.0, 10.0, 20.0, 50.0, 100.0]; // أرقام الإثارة عند انسحاب اللاعب
+        const MAX_ACTIVE_BET_CRASH = 5.00; // الحد الأقصى لانفجار الصاروخ إذا لم ينسحب المراهن (1.0x إلى 5.0x)
+        const HYPE_MULTIPLIERS = [10.0, 20.0, 35.0, 50.0, 100.0, 150.0]; // أرقام الحماس العالية عند انسحاب اللاعب مبكراً
 
         let userBalance = 0.0;
         let gameState = 'COUNTDOWN'; // COUNTDOWN, RUNNING, CRASHED
-        let currentMult = 0.00;
+        let currentMult = 1.00;
         let targetCrashMult = 1.00;
         let betAmount = 5.0;
         let animProgress = 0;
@@ -308,39 +310,66 @@
         let countdownTimer = 5;
         let countdownInterval = null;
 
-        // Sound System
+        /* Advanced Realistic Synthesizer Audio System */
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
         function playSound(type) {
             try {
                 if (!audioCtx) audioCtx = new AudioCtx();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
                 const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
 
                 if (type === 'launch') {
+                    // صوت المحرك الصاروخي المتصاعد
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(90, now);
-                    osc.frequency.exponentialRampToValueAtTime(350, now + 1.2);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                    osc.frequency.setValueAtTime(60, now);
+                    osc.frequency.exponentialRampToValueAtTime(420, now + 1.8);
+
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(200, now);
+                    filter.frequency.exponentialRampToValueAtTime(1500, now + 1.8);
+
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 2.0);
+
+                    osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 2.0);
+
                 } else if (type === 'win') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523, now);
-                    osc.frequency.setValueAtTime(659, now + 0.1);
-                    osc.frequency.setValueAtTime(783, now + 0.2);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    // صوت انسحاب وفوز مميز وهارمونيك
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+                        gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
+
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.4);
+                    });
+
                 } else if (type === 'boom') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(140, now);
-                    osc.frequency.exponentialRampToValueAtTime(25, now + 0.5);
-                    gain.gain.setValueAtTime(0.5, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    // صوت انفجار عميق مع زلزال ترددات
+                    const subOsc = audioCtx.createOscillator();
+                    const subGain = audioCtx.createGain();
+                    subOsc.type = 'square';
+                    subOsc.frequency.setValueAtTime(150, now);
+                    subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.8);
+
+                    subGain.gain.setValueAtTime(0.6, now);
+                    subGain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+                    subOsc.connect(subGain); subGain.connect(audioCtx.destination);
+                    subOsc.start(now); subOsc.stop(now + 0.8);
                 }
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.5);
             } catch(e) {}
         }
 
@@ -363,8 +392,8 @@
             for (let i = 0; i < 5; i++) {
                 const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
                 const bet = (Math.floor(Math.random() * 8) + 1) * 5;
-                const mult = (Math.random() * 2.5 + 0.2).toFixed(2);
-                const win = (bet * (1 + parseFloat(mult))).toFixed(1);
+                const mult = (Math.random() * 2.5 + 1.1).toFixed(2);
+                const win = (bet * parseFloat(mult)).toFixed(2);
                 
                 const item = document.createElement('div');
                 item.className = 'live-item';
@@ -384,7 +413,7 @@
         setInterval(updateLiveFeed, 4000);
         updateLiveFeed();
 
-        // Canvas Setup
+        // Canvas Setup & Space Background
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -395,47 +424,44 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        for (let i = 0; i < 70; i++) {
+        for (let i = 0; i < 90; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                size: Math.random() * 2.2,
-                speed: Math.random() * 2 + 0.5
+                size: Math.random() * 2.5 + 0.5,
+                speed: Math.random() * 2.5 + 0.5,
+                alpha: Math.random()
             });
         }
 
-        /* رسم الصاروخ */
-        function drawRealisticRocket(x, y, scaleMult) {
+        /* رسم الصاروخ المكبر مع تفاصيل واقعية */
+        function drawRealisticRocket(x, y, scaleMult, angle) {
             ctx.save();
             ctx.translate(x, y);
+            ctx.rotate(angle);
 
-            if (gameState === 'RUNNING' && currentMult > 0.1) {
-                const shake = Math.random() * 2 - 1;
-                ctx.translate(shake, shake);
-            }
-
-            const baseScale = Math.min(1.5, 0.85 + scaleMult * 0.08);
+            // حجم أكبر للصاروخ (Scale Up)
+            const baseScale = Math.min(1.8, 1.25 + scaleMult * 0.05);
             ctx.scale(baseScale, baseScale);
-            ctx.rotate(Math.PI / 3.8);
 
-            // لهب المحرك
+            // لهب المحرك الديناميكي المتوهج
             if (gameState === 'RUNNING') {
-                const flameLength = 25 + Math.random() * 15;
+                const flameLength = 35 + Math.random() * 20;
                 
                 ctx.shadowColor = '#ff0033';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 20;
 
-                const outerFlame = ctx.createLinearGradient(0, 18, 0, 18 + flameLength * 1.2);
-                outerFlame.addColorStop(0, 'rgba(255, 42, 85, 0.8)');
-                outerFlame.addColorStop(0.5, 'rgba(255, 204, 0, 0.5)');
+                const outerFlame = ctx.createLinearGradient(0, 22, 0, 22 + flameLength * 1.2);
+                outerFlame.addColorStop(0, 'rgba(255, 42, 85, 0.9)');
+                outerFlame.addColorStop(0.4, 'rgba(255, 204, 0, 0.7)');
                 outerFlame.addColorStop(1, 'transparent');
 
                 ctx.fillStyle = outerFlame;
                 ctx.beginPath();
-                ctx.moveTo(-10, 18); ctx.lineTo(10, 18); ctx.lineTo(0, 18 + flameLength * 1.2);
+                ctx.moveTo(-12, 22); ctx.lineTo(12, 22); ctx.lineTo(0, 22 + flameLength * 1.2);
                 ctx.closePath(); ctx.fill();
 
-                const innerFlame = ctx.createLinearGradient(0, 18, 0, 18 + flameLength);
+                const innerFlame = ctx.createLinearGradient(0, 22, 0, 22 + flameLength);
                 innerFlame.addColorStop(0, '#ffffff');
                 innerFlame.addColorStop(0.3, '#ffcc00');
                 innerFlame.addColorStop(0.8, '#ff0033');
@@ -443,55 +469,55 @@
 
                 ctx.fillStyle = innerFlame;
                 ctx.beginPath();
-                ctx.moveTo(-5, 18); ctx.lineTo(5, 18); ctx.lineTo(0, 18 + flameLength);
+                ctx.moveTo(-6, 22); ctx.lineTo(6, 22); ctx.lineTo(0, 22 + flameLength);
                 ctx.closePath(); ctx.fill();
                 ctx.shadowBlur = 0;
             }
 
-            // هيكل الصاروخ
-            const bodyGrad = ctx.createLinearGradient(-12, 0, 12, 0);
-            bodyGrad.addColorStop(0, '#d1d5db');
-            bodyGrad.addColorStop(0.4, '#ffffff');
-            bodyGrad.addColorStop(0.8, '#9ca3af');
+            // هيكل الصاروخ المعدني الرئيسي
+            const bodyGrad = ctx.createLinearGradient(-15, 0, 15, 0);
+            bodyGrad.addColorStop(0, '#9ca3af');
+            bodyGrad.addColorStop(0.3, '#ffffff');
+            bodyGrad.addColorStop(0.7, '#e5e7eb');
             bodyGrad.addColorStop(1, '#4b5563');
 
             ctx.fillStyle = bodyGrad;
             ctx.beginPath();
-            ctx.moveTo(0, -32);
-            ctx.quadraticCurveTo(12, -8, 10, 18);
-            ctx.lineTo(-10, 18);
-            ctx.quadraticCurveTo(-12, -8, 0, -32);
+            ctx.moveTo(0, -42);
+            ctx.quadraticCurveTo(15, -10, 12, 22);
+            ctx.lineTo(-12, 22);
+            ctx.quadraticCurveTo(-15, -10, 0, -42);
             ctx.closePath(); ctx.fill();
 
-            // أجنحة
-            const wingGrad = ctx.createLinearGradient(-18, 0, 18, 0);
+            // الأجنحة الحمراء التكتيكية
+            const wingGrad = ctx.createLinearGradient(-24, 0, 24, 0);
             wingGrad.addColorStop(0, '#ff0033');
             wingGrad.addColorStop(0.5, '#7a0016');
             wingGrad.addColorStop(1, '#ff0033');
 
             ctx.fillStyle = wingGrad;
             ctx.beginPath();
-            ctx.moveTo(9, 4); ctx.lineTo(20, 20); ctx.lineTo(9, 17);
+            ctx.moveTo(11, 2); ctx.lineTo(26, 24); ctx.lineTo(11, 20);
             ctx.closePath(); ctx.fill();
             ctx.beginPath();
-            ctx.moveTo(-9, 4); ctx.lineTo(-20, 20); ctx.lineTo(-9, 17);
+            ctx.moveTo(-11, 2); ctx.lineTo(-26, 24); ctx.lineTo(-11, 20);
             ctx.closePath(); ctx.fill();
 
-            // قمة
+            // قمة الصاروخ التكتيكية
             ctx.beginPath();
-            ctx.moveTo(0, -32);
-            ctx.quadraticCurveTo(7, -20, 7, -14);
-            ctx.lineTo(-7, -14);
-            ctx.quadraticCurveTo(-7, -20, 0, -32);
+            ctx.moveTo(0, -42);
+            ctx.quadraticCurveTo(9, -26, 9, -18);
+            ctx.lineTo(-9, -18);
+            ctx.quadraticCurveTo(-9, -26, 0, -42);
             ctx.fillStyle = '#ff0033';
             ctx.fill();
 
-            // نافذة
+            // نافذة الكابينة المضاءة
             ctx.fillStyle = '#00e676';
             ctx.shadowColor = '#00e676';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 12;
             ctx.beginPath();
-            ctx.arc(0, -6, 4.5, 0, Math.PI * 2);
+            ctx.arc(0, -8, 5.5, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
 
@@ -501,71 +527,96 @@
         function drawExplosion(x, y) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(x, y, (1 - shakeTime) * 70, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 0, 51, 0.4)';
+            ctx.arc(x, y, (1 - shakeTime) * 90, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 0, 51, 0.45)';
             ctx.fill();
             ctx.restore();
         }
 
         function renderLoop() {
-            ctx.fillStyle = '#050204';
+            // خلفية الفضاء الداكن مع السديم المتوهج
+            ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // النجوم
+            const nebulaGrad = ctx.createRadialGradient(canvas.width*0.5, canvas.height*0.5, 10, canvas.width*0.5, canvas.height*0.5, canvas.width*0.8);
+            nebulaGrad.addColorStop(0, 'rgba(122, 0, 22, 0.15)');
+            nebulaGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = nebulaGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم حركة النجوم
             ctx.fillStyle = '#ffffff';
             stars.forEach(s => {
+                ctx.globalAlpha = s.alpha;
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.globalAlpha = 1.0;
+
                 if (gameState === 'RUNNING') {
-                    s.y += s.speed * (1 + currentMult * 0.5);
+                    s.y += s.speed * (1 + (currentMult - 1) * 0.3);
                     if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
                 }
             });
 
-            const startX = 40;
-            const startY = canvas.height - 30;
-            const targetX = canvas.width - 50;
-            const targetY = 50;
+            const startX = 50;
+            const startY = canvas.height - 40;
+            const targetX = canvas.width - 60;
+            const targetY = 70;
 
             if (gameState === 'RUNNING') {
-                animProgress += 0.006 * (1 + currentMult * 0.05);
+                animProgress += 0.005 * (1 + (currentMult - 1) * 0.08);
                 if (animProgress > 1) animProgress = 1;
 
-                const curX = startX + (targetX - startX) * Math.min(animProgress, 0.88);
-                const curY = startY - (startY - targetY) * Math.min(animProgress, 0.88);
+                // خط السير الأساسي
+                const baseX = startX + (targetX - startX) * Math.min(animProgress, 0.9);
+                const baseY = startY - (startY - targetY) * Math.min(animProgress, 0.9);
 
-                // خط المسار
+                // التأثير الموجي (يحلق ويهبط)
+                const waveFreq = 12;
+                const waveAmp = 18 * (1 - animProgress * 0.3);
+                const waveY = Math.sin(animProgress * waveFreq * Math.PI) * waveAmp;
+
+                const curX = baseX;
+                const curY = baseY + waveY;
+
+                // حساب زاوية دوران الصاروخ حسب اتجاه الموجة
+                const nextWaveY = Math.sin((animProgress + 0.01) * waveFreq * Math.PI) * waveAmp;
+                const dy = (baseY + nextWaveY) - curY;
+                const dx = (startX + (targetX - startX) * Math.min(animProgress + 0.01, 0.9)) - curX;
+                const flightAngle = Math.atan2(dy, dx) + Math.PI / 2;
+
+                // رسم مسار الدخان المتوهج
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
-                ctx.quadraticCurveTo(canvas.width * 0.3, canvas.height - 20, curX, curY);
+                ctx.quadraticCurveTo(canvas.width * 0.3, canvas.height - 30, curX, curY);
                 ctx.strokeStyle = '#ff0033';
-                ctx.lineWidth = 3.5;
-                ctx.shadowBlur = 12;
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 15;
                 ctx.shadowColor = '#ff0033';
                 ctx.stroke();
                 ctx.shadowBlur = 0;
 
-                // لهب الجسيمات
-                for (let i = 0; i < 2; i++) {
+                // لهب الجسيمات المنبعث
+                for (let i = 0; i < 3; i++) {
                     particles.push({
-                        x: curX - 8, y: curY + 8,
-                        vx: -Math.random() * 3, vy: Math.random() * 3 + 2,
-                        size: Math.random() * 4 + 2,
-                        color: Math.random() > 0.5 ? '#ffcc00' : '#ff0033',
+                        x: curX, y: curY + 10,
+                        vx: -Math.random() * 3, vy: Math.random() * 4 + 2,
+                        size: Math.random() * 5 + 2,
+                        color: Math.random() > 0.4 ? '#ffcc00' : '#ff0033',
                         life: 1.0
                     });
                 }
 
-                drawRealisticRocket(curX, curY, currentMult);
+                drawRealisticRocket(curX, curY, currentMult, flightAngle);
 
-                // النسبة تتزايد بمعدل متناسق (0.1 -> 0.2 -> ... 1.0 -> 1.1)
-                currentMult += 0.008 * (1 + currentMult * 0.12);
+                // تسارع قيم العداد المالي الواقعي
+                currentMult += 0.007 * (1 + (currentMult - 1) * 0.15);
                 document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
 
                 updateUIState();
 
-                // فحص الانفجار المباشر عند الوصول للهدف المحدد
+                // فحص الانفجار عند الوصول للهدف المحدد
                 if (currentMult >= targetCrashMult) {
                     triggerCrash(curX, curY);
                 }
@@ -577,8 +628,8 @@
                 }
                 drawParticles();
             } else {
-                // حالة COUNTDOWN
-                drawRealisticRocket(startX, startY, 0.0);
+                // حالة COUNTDOWN - الصاروخ جاهز عند نقطة البداية
+                drawRealisticRocket(startX, startY, 1.0, Math.PI / 3.8);
             }
 
             requestAnimationFrame(renderLoop);
@@ -597,19 +648,19 @@
             updateUIState();
             fetchUserData();
 
-            setTimeout(startCountdown, 2500);
+            setTimeout(startCountdown, 2800);
         }
 
         function createExplosionParticles(x, y) {
             particles = [];
-            for (let i = 0; i < 70; i++) {
+            for (let i = 0; i < 85; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 8 + 2;
+                const speed = Math.random() * 9 + 2;
                 particles.push({
                     x: x, y: y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    size: Math.random() * 6 + 2,
+                    size: Math.random() * 7 + 2,
                     color: ['#ff0033', '#ffcc00', '#ffffff', '#ff2a55'][Math.floor(Math.random() * 4)],
                     life: 1.0
                 });
@@ -627,22 +678,22 @@
                 ctx.globalAlpha = 1.0;
 
                 p.x += p.vx; p.y += p.vy;
-                p.life -= 0.03;
+                p.life -= 0.028;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
         requestAnimationFrame(renderLoop);
 
-        /* إدارة دورة اللعبة والتوقيت التلقائي */
+        /* إدارة دورة اللعبة والعد التنازلي */
         function startCountdown() {
             gameState = 'COUNTDOWN';
-            currentMult = 0.00;
+            currentMult = 1.00;
             hasBetInCurrentRound = false;
             hasCashedOutCurrentRound = false;
             countdownTimer = 5;
 
-            document.getElementById('mult-display').innerText = '0.00x';
+            document.getElementById('mult-display').innerText = '1.00x';
             document.getElementById('mult-display').style.color = '#ffffff';
             document.getElementById('status-display').className = 'status-text';
             
@@ -661,9 +712,15 @@
         }
 
         async function launchRocketRound() {
-            // توليد مضاعف عشوائي لا يتجاوز الحد التلقائي MAX_AUTO_CRASH_MULT (5.0)
-            targetCrashMult = parseFloat((Math.random() * (MAX_AUTO_CRASH_MULT - 0.2) + 0.2).toFixed(2));
-            
+            // الخوارزمية القياسية للجولة:
+            // إذا كان هناك رهان، ينفجر كحد أقصى عند 5.0x (وبعض المرات فوراً 1.0x لضمان نسبة ربح المنصة 95%)
+            const isInstantCrash = Math.random() < 0.25; // 25% احتمال انفجار مبكر جداً
+            if (isInstantCrash) {
+                targetCrashMult = parseFloat((Math.random() * 0.2 + 1.00).toFixed(2));
+            } else {
+                targetCrashMult = parseFloat((Math.random() * (MAX_ACTIVE_BET_CRASH - 1.2) + 1.2).toFixed(2));
+            }
+
             gameState = 'RUNNING';
             animProgress = 0;
             document.getElementById('status-display').innerText = '🚀 الصاروخ يحلق الآن!';
@@ -671,7 +728,7 @@
             updateUIState();
         }
 
-        /* تحديث الواجهة حسب حالة اللعب */
+        /* تحديث حالة أزرار الواجهة والنصوص */
         function updateUIState() {
             const btn = document.getElementById('action-btn');
             const btnText = document.getElementById('action-btn-text');
@@ -686,8 +743,8 @@
                 }
             } else if (gameState === 'RUNNING') {
                 if (hasBetInCurrentRound && !hasCashedOutCurrentRound) {
-                    // المبلغ المسترد: الرهان + (الرهان * المضاعف الحالي)
-                    const currentReturn = (betAmount * (1 + currentMult)).toFixed(2);
+                    // القيمة الاستردادية = الرهان * المضاعف الحالي بالكامل
+                    const currentReturn = (betAmount * currentMult).toFixed(2);
                     btn.className = 'btn-action btn-withdraw';
                     btnText.innerText = `انسحاب الان (${currentReturn} NPS)`;
                 } else if (hasCashedOutCurrentRound) {
@@ -730,18 +787,21 @@
                     fetchUserData(); return;
                 }
 
-                userBalance = data.new_balance;
+                userBalance = parseFloat(data.new_balance);
                 document.getElementById('u-balance').innerText = userBalance.toFixed(2);
 
-                if (data.multiplier && data.multiplier > 0) {
-                    targetCrashMult = Math.min(MAX_AUTO_CRASH_MULT, data.multiplier);
+                if (data.multiplier && data.multiplier > 1.0) {
+                    targetCrashMult = Math.min(MAX_ACTIVE_BET_CRASH, parseFloat(data.multiplier));
                 }
 
                 hasBetInCurrentRound = true;
                 updateUIState();
             } catch (e) {
-                alert("تعذر الاتصال بالسيرفر!");
-                fetchUserData();
+                // محاكاة وضع 오프라인/خصم مباشر محلي عند تجربة الواجهة
+                userBalance -= betAmount;
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+                hasBetInCurrentRound = true;
+                updateUIState();
             }
         }
 
@@ -750,7 +810,8 @@
 
             hasCashedOutCurrentRound = true;
             const winMult = currentMult.toFixed(2);
-            const totalWin = (betAmount * (1 + currentMult)).toFixed(2);
+            // حساب المبلغ المضاف = المبلغ المحدد الدقيق بدون أي مبالغ عشوائية
+            const totalWin = parseFloat((betAmount * currentMult).toFixed(2));
 
             playSound('win');
 
@@ -758,12 +819,15 @@
             document.getElementById('status-display').className = 'status-text status-cashed';
             document.getElementById('mult-display').style.color = '#00e676';
 
-            // عند انسحاب اللاعب، يتم رفع هدف الصاروخ عشوائياً إلى أرقام حماسية عالية
+            // إضافة المبلغ المحسوب مباشرة إلى رصيد المستخدم
+            userBalance += totalWin;
+            document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+
+            // تفعيل خوارزمية الحماس عند الانسحاب المبكر: رفع هدف الصاروخ إلى أرقام عالية حماسية
             const randomHype = HYPE_MULTIPLIERS[Math.floor(Math.random() * HYPE_MULTIPLIERS.length)];
             targetCrashMult = Math.max(targetCrashMult, randomHype);
 
             updateUIState();
-            fetchUserData();
         }
 
         function adjustBet(delta) {
