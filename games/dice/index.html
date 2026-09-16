@@ -2,54 +2,285 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة النرد 🎲</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة النرد الفاخرة 🎲 NPS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #141e30, #243b55); color: #fff; text-align: center; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; }
-        .header { width: 100%; max-width: 450px; display: flex; justify-content: space-between; background: rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 15px; backdrop-filter: blur(10px); }
-        .balance-box { font-size: 1.1rem; font-weight: bold; color: #4eef90; }
-        
+        :root {
+            --bg-gradient: radial-gradient(circle at center, #1b2838 0%, #0b101d 100%);
+            --card-bg: rgba(20, 30, 48, 0.75);
+            --gold: #ffcc00;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --border-glow: rgba(243, 156, 18, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 18px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .game-title { font-weight: 900; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .balance-box { font-size: 0.95rem; font-weight: 700; color: #a0a0ab; }
+        .balance-val { color: var(--gold); font-size: 1.15rem; font-weight: 900; }
+
         /* 3D Dice Stage */
-        .dice-container { display: flex; gap: 30px; margin: 40px 0; perspective: 1000px; }
-        .die { width: 70px; height: 70px; position: relative; transform-style: preserve-3d; transition: transform 1.5s ease-out; }
-        .face { position: absolute; width: 70px; height: 70px; background: #fff; border-radius: 10px; border: 2px solid #ccc; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
-        .dot { background: #222; border-radius: 50%; width: 12px; height: 12px; align-self: center; justify-self: center; }
-        .red-dot { background: #e74c3c; }
+        .stage {
+            perspective: 1200px;
+            margin: 30px 0;
+            display: flex;
+            gap: 35px;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-        /* Cube Positions */
-        .f-1 { transform: translateZ(35px); }
-        .f-6 { transform: rotateY(180deg) translateZ(35px); }
-        .f-2 { transform: rotateY(-90deg) translateZ(35px); }
-        .f-5 { transform: rotateY(90deg) translateZ(35px); }
-        .f-3 { transform: rotateX(90deg) translateZ(35px); }
-        .f-4 { transform: rotateX(-90deg) translateZ(35px); }
+        .shadow-floor {
+            position: absolute;
+            bottom: -25px;
+            width: 220px;
+            height: 25px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, transparent 70%);
+            border-radius: 50%;
+        }
 
-        /* Controls */
-        .panel { width: 100%; max-width: 450px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; }
-        .options { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
-        .opt-btn { flex: 1; padding: 12px; border: 2px solid transparent; background: rgba(255,255,255,0.1); color: #fff; font-size: 0.95rem; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-        .opt-btn.active { background: #f39c12; border-color: #f1c40f; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5); }
-        
-        .bet-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .btn-step { width: 45px; height: 45px; border: none; background: #e74c3c; color: white; font-size: 1.5rem; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .bet-input { width: 100px; text-align: center; font-size: 1.3rem; font-weight: bold; padding: 8px; border-radius: 10px; border: none; background: #fff; color: #222; }
+        .die {
+            width: 75px;
+            height: 75px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1.15);
+        }
 
-        .btn-roll { width: 100%; padding: 15px; border: none; background: linear-gradient(45deg, #2ecc71, #27ae60); color: white; font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
-        .btn-roll:disabled { background: #7f8c8d; cursor: not-allowed; }
-        .status-msg { margin-top: 15px; font-weight: bold; min-height: 24px; }
+        .face {
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 14px;
+            border: 1px solid #ccc;
+            display: grid;
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 7px;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.25), 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            background: #1a1a1a;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            align-self: center;
+            justify-self: center;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .red-dot {
+            background: #d63031;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5), 0 0 6px rgba(214, 48, 49, 0.6);
+        }
+
+        /* Cube Positions (37.5px translateZ) */
+        .f-1 { transform: translateZ(37.5px); }
+        .f-6 { transform: rotateY(180deg) translateZ(37.5px); }
+        .f-2 { transform: rotateY(-90deg) translateZ(37.5px); }
+        .f-5 { transform: rotateY(90deg) translateZ(37.5px); }
+        .f-3 { transform: rotateX(90deg) translateZ(37.5px); }
+        .f-4 { transform: rotateX(-90deg) translateZ(37.5px); }
+
+        /* Controls Panel */
+        .panel {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            padding: 20px;
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+        }
+
+        .options-title {
+            font-size: 0.8rem;
+            color: #a0a0ab;
+            margin-bottom: 10px;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .opt-btn {
+            padding: 12px 6px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .opt-btn .mult { font-size: 0.72rem; color: var(--gold); }
+
+        .opt-btn.active {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-color: #f1c40f;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .bet-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 6px 12px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+
+        .btn-step {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(231, 76, 60, 0.25);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            color: white;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-step:active { background: var(--red); }
+
+        .bet-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bet-label { font-size: 0.7rem; color: #a0a0ab; font-weight: 700; }
+
+        .bet-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bet-input {
+            width: 70px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 900;
+            border: none;
+            background: transparent;
+            color: #fff;
+            outline: none;
+        }
+
+        .preset-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+
+        .btn-preset {
+            padding: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #ccc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-preset:active { background: rgba(243, 156, 18, 0.3); color: #fff; }
+
+        .btn-roll {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 900;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-roll:active { transform: scale(0.98); }
+        .btn-roll:disabled { background: #4a5568; box-shadow: none; cursor: not-allowed; opacity: 0.7; }
+
+        .status-msg {
+            margin-top: 14px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            min-height: 26px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <span>🎲 لعبة أحجار النرد</span>
-        <div class="balance-box">الرصيد: <span id="userBalance">0.00</span> $</div>
+        <div class="game-title"><i class="fa-solid fa-dice-d6" style="color:var(--gold)"></i> لعبة أحجار النرد</div>
+        <div class="balance-box">الرصيد: <span id="userBalance" class="balance-val">0.00</span> <span style="color:var(--gold); font-size:0.8rem;">NPS</span></div>
     </div>
 
-    <!-- 3D Rolling Dice -->
-    <div class="dice-container">
+    <!-- 3D Rolling Stage -->
+    <div class="stage">
+        <div class="shadow-floor"></div>
         <div class="die" id="die1">
             <div class="face f-1"><div class="dot red-dot" style="grid-area: 2/2;"></div></div>
             <div class="face f-2"><div class="dot" style="grid-area: 1/1;"></div><div class="dot" style="grid-area: 3/3;"></div></div>
@@ -70,75 +301,167 @@
 
     <!-- Controls Panel -->
     <div class="panel">
+        <div class="options-title">اختر التوقع:</div>
         <div class="options">
-            <button class="opt-btn active" onclick="selectChoice('under7')">أقل من 7 (x2)</button>
-            <button class="opt-btn" onclick="selectChoice('equal7')">يساوي 7 (x2)</button>
-            <button class="opt-btn" onclick="selectChoice('over7')">أكثر من 7 (x2)</button>
+            <button class="opt-btn active" onclick="selectChoice('under7', this)">
+                <span>أقل من 7</span>
+                <span class="mult">(x2.0)</span>
+            </button>
+            <button class="opt-btn" onclick="selectChoice('equal7', this)">
+                <span>يساوي 7</span>
+                <span class="mult">(x5.0)</span>
+            </button>
+            <button class="opt-btn" onclick="selectChoice('over7', this)">
+                <span>أكثر من 7</span>
+                <span class="mult">(x2.0)</span>
+            </button>
         </div>
 
         <div class="bet-control">
             <button class="btn-step" onclick="adjustBet(-5)">-</button>
-            <input type="number" id="betAmount" class="bet-input" value="5" min="5" max="1000" readonly>
+            <div class="bet-display">
+                <span class="bet-label">مبلغ الرهان</span>
+                <div class="bet-input-wrap">
+                    <input type="number" id="betAmount" class="bet-input" value="5" min="5" readonly>
+                    <span style="color:var(--gold); font-size:0.8rem; font-weight:700;">NPS</span>
+                </div>
+            </div>
             <button class="btn-step" onclick="adjustBet(5)">+</button>
         </div>
 
-        <button class="btn-roll" id="rollBtn" onclick="playGame()">رمي النرد 🎲</button>
+        <div class="preset-row">
+            <button class="btn-preset" onclick="setBet(5)">5</button>
+            <button class="btn-preset" onclick="adjustBet(10)">+10</button>
+            <button class="btn-preset" onclick="multiplyBet(2)">X2</button>
+            <button class="btn-preset" onclick="setBet(100)">100</button>
+        </div>
+
+        <button class="btn-roll" id="rollBtn" onclick="playGame()">
+            <i class="fa-solid fa-dice"></i> رمي النرد الان
+        </button>
         <div class="status-msg" id="statusMsg"></div>
     </div>
 
     <script>
         const tg = window.Telegram?.WebApp;
-        if (tg) tg.expand();
+        if (tg) { tg.expand(); tg.ready(); }
 
-        let userId = tg?.initDataUnsafe?.user?.id || new URLSearchParams(window.location.search).get('user_id') || "123456";
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456";
+
         let selectedChoice = 'under7';
         let isRolling = false;
+        let rotX1 = 0, rotY1 = 0, rotX2 = 0, rotY2 = 0;
 
-        // Sound Generator Web Audio API
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playDiceSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => {
+        /* Synthesizer Web Audio API sound generator */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playRealisticDiceSound() {
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                // Realistic tumbling/clacking sound effects
+                const bumps = 9;
+                for (let i = 0; i < bumps; i++) {
+                    setTimeout(() => {
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        let filter = audioCtx.createBiquadFilter();
+
+                        osc.type = Math.random() > 0.5 ? 'triangle' : 'sine';
+                        osc.frequency.setValueAtTime(180 + Math.random() * 260, audioCtx.currentTime);
+
+                        filter.type = 'lowpass';
+                        filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+                        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+
+                        osc.connect(filter);
+                        filter.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.06);
+                    }, i * 110 + (Math.random() * 30));
+                }
+            } catch(e) {}
+        }
+
+        function playResultSound(isWin) {
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const now = audioCtx.currentTime;
+
+                if (isWin) {
+                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.3);
+                    });
+                } else {
                     let osc = audioCtx.createOscillator();
                     let gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(150 + Math.random() * 200, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(140, now);
+                    osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.05);
-                }, i * 120);
-            }
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {}
         }
 
         async function fetchUser() {
             try {
-                const res = await fetch(`/api/user/get?user_id=${userId}`);
+                const res = await fetch(`/api/user/get?telegram_id=${userId}&user_id=${userId}`);
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('userBalance').innerText = data.balance.toFixed(2);
+                    document.getElementById('userBalance').innerText = parseFloat(data.balance).toFixed(2);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {}
         }
         fetchUser();
 
-        function selectChoice(choice) {
+        function selectChoice(choice, btn) {
             if (isRolling) return;
             selectedChoice = choice;
-            document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
         function adjustBet(delta) {
             if (isRolling) return;
             let input = document.getElementById('betAmount');
             let val = parseInt(input.value) + delta;
-            if (val >= 5 && val <= 1000) input.value = val;
+            if (val >= 5) input.value = val;
         }
 
+        function setBet(val) {
+            if (isRolling) return;
+            document.getElementById('betAmount').value = val;
+        }
+
+        function multiplyBet(factor) {
+            if (isRolling) return;
+            let input = document.getElementById('betAmount');
+            let val = Math.max(5, Math.round(parseInt(input.value) * factor));
+            input.value = val;
+        }
+
+        // Exact rotation angles required to display target die face
         const faceRotations = {
             1: { x: 0, y: 0 },
             6: { x: 0, y: 180 },
@@ -150,6 +473,7 @@
 
         async function playGame() {
             if (isRolling) return;
+
             const betAmount = parseFloat(document.getElementById('betAmount').value);
             const statusMsg = document.getElementById('statusMsg');
             const rollBtn = document.getElementById('rollBtn');
@@ -159,7 +483,7 @@
             isRolling = true;
 
             try {
-                // Call main algorithm endpoint
+                // Call standard casino game backend algorithm
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -175,52 +499,59 @@
                     return;
                 }
 
-                // Determine win/loss status according to 10% Win / 90% Loss algorithm
-                const isWin = (data.tier !== 'loss'); 
+                // Check server logic result tier (tier !== 'loss')
+                const isWin = (data.tier && data.tier !== 'loss');
                 let d1, d2;
 
+                // Match dice output faces visually with selected user prediction and win/loss state
                 if (isWin) {
-                    // Force target sum matching user choice
                     if (selectedChoice === 'under7') [d1, d2] = getRandomDiceSumInRange(2, 6);
                     else if (selectedChoice === 'equal7') [d1, d2] = getRandomDiceSum(7);
                     else [d1, d2] = getRandomDiceSumInRange(8, 12);
                 } else {
-                    // Force target sum NOT matching user choice
                     if (selectedChoice === 'under7') [d1, d2] = getRandomDiceSumInRange(7, 12);
                     else if (selectedChoice === 'equal7') [d1, d2] = (Math.random() > 0.5) ? getRandomDiceSumInRange(2, 6) : getRandomDiceSumInRange(8, 12);
                     else [d1, d2] = getRandomDiceSumInRange(2, 7);
                 }
 
-                playDiceSound();
+                playRealisticDiceSound();
 
-                // Rotate dice animation
                 const die1El = document.getElementById('die1');
                 const die2El = document.getElementById('die2');
 
-                const rX1 = 1440 + faceRotations[d1].x;
-                const rY1 = 1440 + faceRotations[d1].y;
-                const rX2 = 1440 + faceRotations[d2].x;
-                const rY2 = 1440 + faceRotations[d2].y;
+                // Dynamic tumbling rotations
+                rotX1 += 1080 + faceRotations[d1].x - (rotX1 % 360);
+                rotY1 += 1440 + faceRotations[d1].y - (rotY1 % 360);
+                rotX2 += 1440 + faceRotations[d2].x - (rotX2 % 360);
+                rotY2 += 1080 + faceRotations[d2].y - (rotY2 % 360);
 
-                die1El.style.transform = `rotateX(${rX1}deg) rotateY(${rY1}deg)`;
-                die2El.style.transform = `rotateX(${rX2}deg) rotateY(${rY2}deg)`;
+                die1El.style.transform = `rotateX(${rotX1}deg) rotateY(${rotY1}deg) rotateZ(15deg)`;
+                die2El.style.transform = `rotateX(${rotX2}deg) rotateY(${rotY2}deg) rotateZ(-15deg)`;
 
                 setTimeout(() => {
                     const total = d1 + d2;
-                    let calculatedWin = isWin ? (betAmount * 2) : 0;
-                    
+                    let mult = (selectedChoice === 'equal7') ? 5 : 2;
+                    let calculatedWin = isWin ? (betAmount * mult) : 0;
+
+                    playResultSound(isWin);
+
                     if (isWin) {
                         statusMsg.style.color = "#2ecc71";
-                        statusMsg.innerText = `مبروك! النتيجة ${total}، كسبت ${calculatedWin.toFixed(2)}$ 🎯`;
+                        statusMsg.innerText = `🎯 مبروك! المجموع (${total}) - كسبت ${calculatedWin.toFixed(2)} NPS!`;
                     } else {
                         statusMsg.style.color = "#e74c3c";
-                        statusMsg.innerText = `للأسف! النتيجة ${total}، خسرت الرهان ❌`;
+                        statusMsg.innerText = `❌ للأسف! المجموع (${total}) - خسرت الرهان.`;
                     }
 
-                    document.getElementById('userBalance').innerText = data.new_balance.toFixed(2);
+                    if (data.new_balance !== undefined) {
+                        document.getElementById('userBalance').innerText = parseFloat(data.new_balance).toFixed(2);
+                    } else {
+                        fetchUser();
+                    }
+
                     rollBtn.disabled = false;
                     isRolling = false;
-                }, 1600);
+                }, 1450);
 
             } catch (err) {
                 statusMsg.style.color = "#e74c3c";
