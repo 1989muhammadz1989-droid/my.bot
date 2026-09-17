@@ -2,7 +2,7 @@
   "id": "bird_hunt",
   "name": "صيد الطيور في الطبيعة",
   "icon": "🦅",
-  "image": "/games/bird_hunt/cover.png",
+  "image": "cover.jpg",
   "default_algo": {
     "loss_rate": 90.0,
     "normal_rate": 10.0,
