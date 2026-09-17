@@ -712,7 +712,7 @@
             }
         }
 
-        // 2. جلب قائمة الألعاب المتاحة وقراءة الصور (image/icon) ديناميكياً
+        // 2. جلب قائمة الألعاب المتاحة وقراءة الصور مع ربط مسارها بمجلد اللعبة تلقائياً
         async function loadGames() {
             try {
                 const res = await fetch('/api/games');
@@ -734,16 +734,23 @@
                         const badgeClass = isLive ? 'game-badge game-badge-live' : 'game-badge';
                         const badgeText = isLive ? '🎮 حركة حية' : 'متصل باللوحة';
 
-                        // تحديد مسار الصورة (دعم image ورابط الصورة المباشر أو المحلي)
-                        let imgPath = game.image || game.icon || 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
-                        if (imgPath && !imgPath.startsWith('http') && !imgPath.startsWith('/')) {
-                            imgPath = `/games/${imgPath}`;
+                        // معالجة مسار الصورة من مجلد اللعبة المخصص
+                        let rawImg = game.image || game.icon;
+                        let imgPath = 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
+
+                        if (rawImg) {
+                            if (rawImg.startsWith('http://') || rawImg.startsWith('https://') || rawImg.startsWith('/')) {
+                                imgPath = rawImg;
+                            } else {
+                                let cleanPath = rawImg.replace(/^\.\//, '');
+                                imgPath = `/games/${game.id}/${cleanPath}`;
+                            }
                         }
 
                         card.innerHTML = `
                             <div class="game-img-wrapper">
                                 <span class="${badgeClass}">${badgeText}</span>
-                                <img src="${imgPath}" class="game-img" alt="${game.title || game.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/808/808439.png'">
+                                <img src="${imgPath}" class="game-img" alt="${game.title || game.name}" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/808/808439.png';">
                             </div>
                             <div class="game-info">
                                 <div class="game-title">${game.title || game.name || game.id}</div>
