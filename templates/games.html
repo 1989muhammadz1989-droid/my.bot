@@ -486,6 +486,22 @@
             margin-bottom: 6px;
             font-size: 0.85rem;
         }
+
+        .remove-admin-btn {
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .remove-admin-btn:hover {
+            background: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -577,7 +593,7 @@
             <div class="admin-nav">
                 <button class="admin-tab-btn active" onclick="switchAdminTab('algo')">الخوارزميات</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab('users')">المستخدمين والأرصدة</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('add-admin')">إضافة أدمن</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('add-admin')">إدارة المشرفين</button>
             </div>
 
             <!-- تبويب التحكم بالخوارزمية -->
@@ -627,7 +643,7 @@
                 <div id="admin-users-list" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
 
-            <!-- تبويب إضافة أدمن جديد بكامل الصلاحيات -->
+            <!-- تبويب إدارة وإضافة المشرفين -->
             <div id="admin-tab-add-admin" style="display: none;">
                 <div class="admin-form-group">
                     <label>معرف الأدمن الجديد (Telegram ID):</label>
@@ -636,7 +652,7 @@
                 <button class="btn-play" style="margin-top: 10px;" onclick="addNewAdmin()">تعيين كـ أدمن بكامل الصلاحيات</button>
                 
                 <h4 style="font-size: 0.85rem; color: var(--text-dim); margin-top: 15px; margin-bottom: 8px;">قائمة المشرفين الحالية:</h4>
-                <div id="admin-list-display" style="max-height: 150px; overflow-y: auto;"></div>
+                <div id="admin-list-display" style="max-height: 180px; overflow-y: auto;"></div>
             </div>
 
             <div id="admin-msg" class="result-box"></div>
@@ -644,8 +660,9 @@
     </div>
 
     <script>
-        // قائمة المشرفين الافتراضية
-        let adminList = ["7255100997"];
+        // الأدمن الأساسي المحمي نهائياً من الإزالة
+        const PRIMARY_ADMIN_ID = "7255100997";
+        let adminList = [PRIMARY_ADMIN_ID];
 
         // استرجاع أدمنية إضافيين محفوضين سابقاً
         try {
@@ -695,7 +712,7 @@
             }
         }
 
-        // 2. جلب قائمة الألعاب المتاحة ديناميكياً (الألعاب العادية والألعاب الحية)
+        // 2. جلب قائمة الألعاب المتاحة وقراءة الصور (image/icon) ديناميكياً
         async function loadGames() {
             try {
                 const res = await fetch('/api/games');
@@ -717,15 +734,16 @@
                         const badgeClass = isLive ? 'game-badge game-badge-live' : 'game-badge';
                         const badgeText = isLive ? '🎮 حركة حية' : 'متصل باللوحة';
 
-                        let iconPath = game.icon || 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
-                        if (iconPath && !iconPath.startsWith('http') && !iconPath.startsWith('/')) {
-                            iconPath = `/games/${iconPath}`;
+                        // تحديد مسار الصورة (دعم image ورابط الصورة المباشر أو المحلي)
+                        let imgPath = game.image || game.icon || 'https://cdn-icons-png.flaticon.com/512/808/808439.png';
+                        if (imgPath && !imgPath.startsWith('http') && !imgPath.startsWith('/')) {
+                            imgPath = `/games/${imgPath}`;
                         }
 
                         card.innerHTML = `
                             <div class="game-img-wrapper">
                                 <span class="${badgeClass}">${badgeText}</span>
-                                <img src="${iconPath}" class="game-img" alt="${game.title || game.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/808/808439.png'">
+                                <img src="${imgPath}" class="game-img" alt="${game.title || game.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/808/808439.png'">
                             </div>
                             <div class="game-info">
                                 <div class="game-title">${game.title || game.name || game.id}</div>
@@ -868,9 +886,16 @@
             adminList.forEach(id => {
                 const item = document.createElement('div');
                 item.className = 'user-list-item';
+                const isPrimary = (String(id) === PRIMARY_ADMIN_ID);
+                
                 item.innerHTML = `
                     <span><i class="fa-solid fa-user-shield" style="color: var(--accent-gold);"></i> ID: <b>${id}</b></span>
-                    <span style="color: #00e676; font-size: 0.75rem;">مشرف كامل الصلاحيات</span>
+                    <div>
+                        ${isPrimary 
+                            ? `<span style="color: #00e676; font-size: 0.75rem; font-weight: 700;">أدمن أساسي (محمي)</span>` 
+                            : `<button class="remove-admin-btn" onclick="removeAdmin('${id}')"><i class="fa-solid fa-user-minus"></i> إزالة</button>`
+                        }
+                    </div>
                 `;
                 listContainer.appendChild(item);
             });
@@ -908,6 +933,35 @@
             msgBox.className = 'result-box result-win';
             msgBox.innerText = `تمت إضافة الأدمن (${newId}) بنجاح بكامل الصلاحيات!`;
             newIdInput.value = '';
+            renderAdminList();
+        }
+
+        async function removeAdmin(targetId) {
+            const targetStr = String(targetId);
+            const msgBox = document.getElementById('admin-msg');
+            msgBox.style.display = 'block';
+
+            if (targetStr === PRIMARY_ADMIN_ID) {
+                msgBox.className = 'result-box result-loss';
+                msgBox.innerText = 'خطأ: لا يمكن إزالة الأدمن الأساسي المحمي!';
+                return;
+            }
+
+            if (!confirm(`هل أنت تأكد من إزالة الأدمن ID: ${targetStr}؟`)) return;
+
+            adminList = adminList.filter(id => String(id) !== targetStr);
+            try { localStorage.setItem('aurex_admins', JSON.stringify(adminList)); } catch(e){}
+
+            try {
+                await fetch('/api/admin/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id: userId, remove_admin_id: targetStr })
+                });
+            } catch(e){}
+
+            msgBox.className = 'result-box result-win';
+            msgBox.innerText = `تمت إزالة الأدمن (${targetStr}) بنجاح!`;
             renderAdminList();
         }
 
