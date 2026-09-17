@@ -4,6 +4,7 @@
   "title": "🚀 إطلاق الصاروخ (Crash)",
   "description": "اقفز بالصاروخ واجمع أرباحك قبل الانفجار! الرهان يبدأ من 5 ليرة وحتى 1000 ليرة.",
   "icon": "rocket.png",
+    "image": "cover.jpg",
   "min_bet": 5,
   "max_bet": 1000,
   "default_algo": {
