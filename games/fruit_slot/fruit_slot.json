@@ -2,6 +2,7 @@
   "id": "fruit_slot",
   "name": "سلوt الفواكه الثلاثية",
   "icon": "🎰",
+    "image": "cover.jpg",
   "description": "لعبة سلوت الفواكه التشويقية بمضاعفات وجوكر",
   "default_algo": {
     "loss_rate": 90.0,
