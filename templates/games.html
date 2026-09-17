@@ -253,17 +253,16 @@
             opacity: 0.8;
         }
 
-        /* نافذة تشغيل اللعبة (Modal) */
+        /* نافذة تشغيل اللعبة ملء الشاشة بالكامل */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(8px);
             z-index: 1000;
             display: none;
             justify-content: center;
             align-items: center;
-            padding: 15px;
         }
 
         .modal-card {
@@ -280,6 +279,76 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
+        }
+
+        /* تصميم الشاشة الكاملة لتشغيل اللعبة */
+        .game-fullscreen-card {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: #000 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 99999 !important;
+            overflow: hidden !important;
+        }
+
+        /* شريط علوي عائم للشاشة الكاملة يحتوي فقط على الرصيد و زر الإغلاق X */
+        .game-fullscreen-header {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            right: 15px;
+            z-index: 100001;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .game-balance-overlay {
+            pointer-events: auto;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--primary-red);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 900;
+            color: var(--accent-gold);
+            font-size: 0.95rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-close-btn {
+            pointer-events: auto;
+            width: 38px;
+            height: 38px;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--primary-red);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .game-close-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-red);
         }
 
         .close-btn {
@@ -342,22 +411,22 @@
             font-size: 1.2rem;
         }
 
-        /* حاوية عرض الألعاب الحية عبر Iframe */
+        /* حاوية عرض الألعاب الحية عبر Iframe بالشاشة الكاملة */
         .live-iframe-container {
-            width: 100%;
-            flex-grow: 1;
-            min-height: 450px;
-            margin-top: 15px;
-            border-radius: 12px;
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
+            border-radius: 0;
             overflow: hidden;
             background: #000;
-            border: 1px solid var(--glass-border);
+            border: none;
         }
 
         .live-iframe {
-            width: 100%;
-            height: 100%;
-            min-height: 450px;
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
             border: none;
             display: block;
         }
@@ -380,6 +449,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
+            font-size: 0.8rem;
         }
 
         .admin-tab-btn.active {
@@ -431,7 +501,7 @@
         </div>
 
         <div class="header-controls">
-            <!-- زر لوحة الإدارة (يظهر فقط للحساب 7255100997) -->
+            <!-- زر لوحة الإدارة (يظهر للمشرفين المخولين) -->
             <button id="admin-btn" class="admin-btn" onclick="openAdminModal()">
                 <i class="fa-solid fa-shield-halved"></i> الأدمن
             </button>
@@ -461,25 +531,32 @@
         </div>
     </main>
 
-    <!-- نافذة تشغيل اللعبة وإجراء الرهان (يدعم الألعاب المباشرة والحية) -->
-    <div class="modal-overlay" id="game-modal">
-        <div class="modal-card" id="modal-card-element">
-            <i class="fa-solid fa-xmark close-btn" onclick="closeModal('game-modal')"></i>
-            <h2 id="modal-game-title" style="text-align: center; color: var(--primary-red); margin-bottom: 5px;">اسم اللعبة</h2>
-            <p id="modal-game-desc" style="text-align: center; font-size: 0.8rem; color: var(--text-dim);">وصف اللعبة</p>
+    <!-- نافذة تشغيل اللعبة ملء الشاشة باكملها -->
+    <div class="modal-overlay" id="game-modal" style="padding: 0;">
+        <div class="modal-card game-fullscreen-card" id="modal-card-element">
+            <!-- شريط علوي عائم يظهر فقط رصيد العميل وإشارة X للخروج -->
+            <div class="game-fullscreen-header">
+                <div class="game-balance-overlay">
+                    <i class="fa-solid fa-wallet" style="color: var(--accent-gold);"></i>
+                    <span id="modal-user-balance">0.00</span> nps
+                </div>
+                <div class="game-close-btn" onclick="closeModal('game-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
 
             <!-- منطقة الألعاب السريعة/العادية -->
-            <div id="static-play-area">
-                <div class="bet-input-group">
+            <div id="static-play-area" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+                <div class="bet-input-group" style="width: 100%; max-width: 320px;">
                     <label>حدد قيمة الرهان (nps):</label>
                     <input type="number" id="bet-amount" class="bet-input" value="1.0" min="0.1" step="0.5">
                 </div>
 
-                <button class="btn-play" style="padding: 12px; font-size: 1.1rem;" onclick="executePlay()">
+                <button class="btn-play" style="padding: 12px; font-size: 1.1rem; width: 100%; max-width: 320px;" onclick="executePlay()">
                     <i class="fa-solid fa-dice"></i> العب الآن
                 </button>
 
-                <div id="result-box" class="result-box"></div>
+                <div id="result-box" class="result-box" style="width: 100%; max-width: 320px;"></div>
             </div>
 
             <!-- منطقة الألعاب التفاعلية الحية (Motion / Live HTML5 Games) -->
@@ -489,7 +566,7 @@
         </div>
     </div>
 
-    <!-- نافذة لوحة الإدارة (حصرياً للحساب 7255100997) -->
+    <!-- نافذة لوحة الإدارة -->
     <div class="modal-overlay" id="admin-modal">
         <div class="modal-card">
             <i class="fa-solid fa-xmark close-btn" onclick="closeModal('admin-modal')"></i>
@@ -500,6 +577,7 @@
             <div class="admin-nav">
                 <button class="admin-tab-btn active" onclick="switchAdminTab('algo')">الخوارزميات</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab('users')">المستخدمين والأرصدة</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('add-admin')">إضافة أدمن</button>
             </div>
 
             <!-- تبويب التحكم بالخوارزمية -->
@@ -549,12 +627,37 @@
                 <div id="admin-users-list" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
 
+            <!-- تبويب إضافة أدمن جديد بكامل الصلاحيات -->
+            <div id="admin-tab-add-admin" style="display: none;">
+                <div class="admin-form-group">
+                    <label>معرف الأدمن الجديد (Telegram ID):</label>
+                    <input type="text" id="admin-new-id" placeholder="مثال: 123456789">
+                </div>
+                <button class="btn-play" style="margin-top: 10px;" onclick="addNewAdmin()">تعيين كـ أدمن بكامل الصلاحيات</button>
+                
+                <h4 style="font-size: 0.85rem; color: var(--text-dim); margin-top: 15px; margin-bottom: 8px;">قائمة المشرفين الحالية:</h4>
+                <div id="admin-list-display" style="max-height: 150px; overflow-y: auto;"></div>
+            </div>
+
             <div id="admin-msg" class="result-box"></div>
         </div>
     </div>
 
     <script>
-        const ADMIN_ID = "7255100997";
+        // قائمة المشرفين الافتراضية
+        let adminList = ["7255100997"];
+
+        // استرجاع أدمنية إضافيين محفوضين سابقاً
+        try {
+            const savedAdmins = JSON.parse(localStorage.getItem('aurex_admins') || '[]');
+            savedAdmins.forEach(id => {
+                if (!adminList.includes(String(id))) adminList.push(String(id));
+            });
+        } catch(e){}
+
+        function checkIsAdmin(id) {
+            return adminList.includes(String(id));
+        }
 
         // تهيئة Telegram WebApp
         let tg = window.Telegram?.WebApp;
@@ -571,7 +674,7 @@
         let loadedGamesCache = [];
 
         // التحقق من صلاحيات الأدمن وإظهار الزر عند تطابق المعرف
-        if (String(userId) === ADMIN_ID) {
+        if (checkIsAdmin(userId)) {
             document.getElementById('admin-btn').style.display = 'inline-block';
         }
 
@@ -583,7 +686,9 @@
                 if (data.success) {
                     document.getElementById('u-name').innerText = data.full_name || 'مستخدم تلجرام';
                     document.getElementById('u-id').innerText = data.user_id;
-                    document.getElementById('u-balance').innerText = parseFloat(data.balance).toFixed(2);
+                    const bal = parseFloat(data.balance).toFixed(2);
+                    document.getElementById('u-balance').innerText = bal;
+                    document.getElementById('modal-user-balance').innerText = bal;
                 }
             } catch (err) {
                 console.error("خطأ في جلب بيانات المستخدم:", err);
@@ -608,7 +713,6 @@
                         card.className = 'game-card';
                         card.onclick = () => openGameModal(game);
 
-                        // افتراضياً جميع الألعاب المضافة في مجلدات تعتبر ألعاباً حية تفاعلية
                         const isLive = (game.type !== 'static');
                         const badgeClass = isLive ? 'game-badge game-badge-live' : 'game-badge';
                         const badgeText = isLive ? '🎮 حركة حية' : 'متصل باللوحة';
@@ -642,37 +746,29 @@
             }
         }
 
-        // 3. فتح/إغلاق النوافذ (تعتمد تشغيل iframe الحي لجميع ملفات الألعاب في مجلدات الألعاب)
+        // 3. فتح/إغلاق النوافذ ملء الشاشة بالكامل
         function openGameModal(game) {
             currentGameId = game.id;
-            document.getElementById('modal-game-title').innerText = game.title || game.name || game.id;
-            document.getElementById('modal-game-desc').innerText = game.description || '';
+            
+            // مزامنة رصيد العميل للظهور في أعلى اللعبة
+            document.getElementById('modal-user-balance').innerText = document.getElementById('u-balance').innerText;
 
             const staticPlayArea = document.getElementById('static-play-area');
             const liveIframeContainer = document.getElementById('live-iframe-container');
-            const modalCard = document.getElementById('modal-card-element');
             const gameIframe = document.getElementById('game-iframe');
 
-            // فتح اللعبة الحية تلقائياً لجميع الألعاب المضافة في المجلدات
             const isLive = (game.type !== 'static');
 
             if (isLive) {
-                // ضبط النافذة لاستيعاب اللعبة الحية مع الحركات والانيميشن
-                modalCard.style.maxWidth = '850px';
-                modalCard.style.height = '85vh';
                 staticPlayArea.style.display = 'none';
                 liveIframeContainer.style.display = 'block';
 
-                // تجهيز رابط اللعبة الحية وقراءة كود index.html من مجلد اللعبة
                 const entryUrl = game.entry_point || `/games/${game.id}/index.html`;
                 const finalUrl = `${entryUrl}${entryUrl.includes('?') ? '&' : '?'}user_id=${encodeURIComponent(userId)}&game_id=${encodeURIComponent(game.id)}`;
                 
                 gameIframe.src = finalUrl;
             } else {
-                // ضبط النافذة للعب المباشر القديم
-                modalCard.style.maxWidth = '500px';
-                modalCard.style.height = 'auto';
-                staticPlayArea.style.display = 'block';
+                staticPlayArea.style.display = 'flex';
                 liveIframeContainer.style.display = 'none';
                 document.getElementById('result-box').style.display = 'none';
                 gameIframe.src = 'about:blank';
@@ -684,9 +780,9 @@
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
             if (modalId === 'game-modal') {
-                // إيقاف اللعبة الحية لتوفير الأداء وإيقاف الصوت بالخلفية
+                // إيقاف اللعبة الحية وتحديث الرصيد
                 document.getElementById('game-iframe').src = 'about:blank';
-                fetchUserData(); // تحديث الرصيد بعد إغلاق اللعبة
+                fetchUserData();
             }
         }
 
@@ -718,7 +814,9 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    document.getElementById('u-balance').innerText = parseFloat(data.new_balance).toFixed(2);
+                    const newBal = parseFloat(data.new_balance).toFixed(2);
+                    document.getElementById('u-balance').innerText = newBal;
+                    document.getElementById('modal-user-balance').innerText = newBal;
 
                     if (data.multiplier > 0) {
                         resultBox.className = 'result-box result-win';
@@ -738,10 +836,10 @@
         }
 
         // ------------------------------------
-        // وظائف لوحة تحكم الأدمن (7255100997)
+        // وظائف لوحة تحكم الأدمن
         // ------------------------------------
         function openAdminModal() {
-            if (String(userId) !== ADMIN_ID) return;
+            if (!checkIsAdmin(userId)) return;
             document.getElementById('admin-msg').style.display = 'none';
             document.getElementById('admin-modal').style.display = 'flex';
             populateAdminGames();
@@ -751,9 +849,66 @@
         function switchAdminTab(tab) {
             document.getElementById('admin-tab-algo').style.display = tab === 'algo' ? 'block' : 'none';
             document.getElementById('admin-tab-users').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('admin-tab-add-admin').style.display = tab === 'add-admin' ? 'block' : 'none';
+            
             const tabs = document.querySelectorAll('.admin-tab-btn');
             tabs[0].classList.toggle('active', tab === 'algo');
             tabs[1].classList.toggle('active', tab === 'users');
+            tabs[2].classList.toggle('active', tab === 'add-admin');
+
+            if (tab === 'add-admin') {
+                renderAdminList();
+            }
+        }
+
+        function renderAdminList() {
+            const listContainer = document.getElementById('admin-list-display');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+            adminList.forEach(id => {
+                const item = document.createElement('div');
+                item.className = 'user-list-item';
+                item.innerHTML = `
+                    <span><i class="fa-solid fa-user-shield" style="color: var(--accent-gold);"></i> ID: <b>${id}</b></span>
+                    <span style="color: #00e676; font-size: 0.75rem;">مشرف كامل الصلاحيات</span>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        async function addNewAdmin() {
+            const newIdInput = document.getElementById('admin-new-id');
+            const newId = newIdInput.value.trim();
+            const msgBox = document.getElementById('admin-msg');
+            msgBox.style.display = 'block';
+
+            if (!newId) {
+                msgBox.className = 'result-box result-loss';
+                msgBox.innerText = 'يرجى إدخال ايدي تلجرام صحيح';
+                return;
+            }
+
+            if (adminList.includes(newId)) {
+                msgBox.className = 'result-box result-loss';
+                msgBox.innerText = 'هذا المعرف مضاف بالفعل كأدمن';
+                return;
+            }
+
+            try {
+                await fetch('/api/admin/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id: userId, new_admin_id: newId })
+                });
+            } catch(e){}
+
+            adminList.push(newId);
+            try { localStorage.setItem('aurex_admins', JSON.stringify(adminList)); } catch(e){}
+
+            msgBox.className = 'result-box result-win';
+            msgBox.innerText = `تمت إضافة الأدمن (${newId}) بنجاح بكامل الصلاحيات!`;
+            newIdInput.value = '';
+            renderAdminList();
         }
 
         function populateAdminGames() {
