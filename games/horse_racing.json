@@ -2,7 +2,7 @@
   "id": "horse_racing",
   "name": "سباق الخيل الاحترافي",
   "icon": "🏇",
-    "image": "coover.jpg",
+    "image": "cover.jpg",
   "default_algo": {
     "loss_rate": 90.0,
     "normal_rate": 10.0,
