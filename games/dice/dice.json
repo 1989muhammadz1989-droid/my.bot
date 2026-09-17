@@ -2,6 +2,7 @@
   "id": "dice",
   "name": "لعبة النرد (Dice 7)",
   "icon": "🎲",
+    "image": "cover.jpg",
   "description": "توقع مجموع النرد: أقل من 7، يساوي 7، أو أكثر من 7",
   "default_algo": {
     "loss_rate": 90.0,
