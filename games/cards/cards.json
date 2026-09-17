@@ -2,6 +2,13 @@
   "id": "cards",
   "name": "طاولة الشدة الملكية",
   "icon": "cards/icon.png",
-    "image": "cover.jpg",
-  "description": "لعبة كوتشينة تفاعلية على طاولة خضراء، كشف الورقة الأولى مع خيار تغيير الرهان والتحدي ضد الخصم."
+  "image": "cover.jpg",
+  "description": "لعبة كوتشينة تفاعلية على طاولة خضراء، كشف الورقة الأولى مع خيار تغيير الرهان والتحدي ضد الخصم.",
+  "default_algo": {
+    "loss_rate": 90.0,
+    "normal_rate": 10.0,
+    "medium_rate": 0.0,
+    "high_rate": 0.0,
+    "mega_rate": 0.0
+  }
 }
