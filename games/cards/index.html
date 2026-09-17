@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎴 لعبة الشدة الملكية | Royal Cards</title>
+    <title>🎴 لعبة الشدة الملكية | Royal Golden Cards</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --table-felt: radial-gradient(circle at center, #1b6632 0%, #0c3b1b 65%, #04190b 100%);
-            --gold: #ffcf33;
-            --gold-bright: #ffe875;
-            --gold-dark: #b38f00;
-            --red-card: #d32f2f;
+            --gold-light: #fff3a1;
+            --gold-main: #ffd700;
+            --gold-dark: #b8860b;
+            --gold-shadow: rgba(255, 215, 0, 0.4);
+            --gold-border: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --table-felt: radial-gradient(circle at center, #1a4325 0%, #0d2815 60%, #041208 100%);
+            --red-card: #e53935;
             --black-card: #1e1e1e;
-            --border-gold: rgba(255, 207, 51, 0.4);
         }
 
         * {
@@ -32,7 +33,7 @@
             height: 100vh;
             max-height: 100vh;
             overflow: hidden;
-            background: #04190b;
+            background: #030a05;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -42,7 +43,7 @@
         .splash-screen {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle at center, #124d25 0%, #04190b 100%);
+            background: radial-gradient(circle at center, #153c20 0%, #041007 100%);
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -53,146 +54,165 @@
         }
 
         .crown-icon {
-            font-size: 4.5rem;
-            color: var(--gold);
+            font-size: 5rem;
+            background: linear-gradient(135deg, #fff2a3, #ffd700, #997a00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 15px;
-            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 0.6));
+            filter: drop-shadow(0 0 20px var(--gold-shadow));
             animation: pulseCrown 2s infinite ease-in-out;
         }
 
         @keyframes pulseCrown {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--gold-shadow)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)); }
         }
 
         .splash-title {
-            font-size: 2.4rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            color: var(--gold);
-            text-shadow: 0 4px 15px rgba(255, 207, 51, 0.4);
+            background: linear-gradient(135deg, #ffffff, #ffd700, #dda0dd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
             margin-bottom: 8px;
         }
 
         .splash-motto {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #ffe875;
+            color: #fcf6ba;
             margin-bottom: 35px;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
         }
 
         .btn-start-game {
-            background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
-            color: #000;
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+            color: #1a0f00;
             font-size: 1.3rem;
             font-weight: 900;
-            padding: 16px 48px;
+            padding: 16px 50px;
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 6px 25px rgba(255, 207, 51, 0.5);
+            box-shadow: 0 0 25px var(--gold-shadow), inset 0 0 10px rgba(255, 255, 255, 0.8);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .btn-start-game:active {
-            transform: scale(0.95);
-        }
+        .btn-start-game:active { transform: scale(0.95); }
 
         /* ------------------ Header ------------------ */
         .header {
-            background: rgba(4, 20, 9, 0.95);
+            background: rgba(4, 15, 8, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--gold);
-            padding: 0 14px;
+            border-bottom: 2px solid #d4af37;
+            padding: 0 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
             z-index: 50;
-            height: 52px;
+            height: 56px;
             flex-shrink: 0;
         }
 
         .btn-exit {
-            background: rgba(229, 57, 53, 0.2);
-            border: 1px solid #e53935;
-            color: #ff5252;
-            padding: 6px 12px;
-            border-radius: 8px;
+            background: rgba(229, 57, 53, 0.15);
+            border: 1px solid #ef5350;
+            color: #ff6b6b;
+            padding: 6px 14px;
+            border-radius: 10px;
             font-size: 0.9rem;
             font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: 0.2s;
         }
+
+        .btn-exit:active { transform: scale(0.95); }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid var(--gold);
-            padding: 5px 14px;
-            border-radius: 20px;
-            color: var(--gold);
+            background: linear-gradient(145deg, #0f1a12, #050d07);
+            border: 2px solid #ffd700;
+            padding: 6px 16px;
+            border-radius: 25px;
+            color: #ffd700;
             font-weight: 900;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 0 10px rgba(255, 207, 51, 0.2);
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3), inset 0 0 8px rgba(0, 0, 0, 0.9);
         }
 
-        /* ------------------ Table Area ------------------ */
+        .balance-box i { color: #ffe875; }
+
+        /* ------------------ Golden Poker Table Area ------------------ */
         .poker-table {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
             align-items: center;
-            padding: 8px 14px;
+            padding: 10px 14px;
             position: relative;
             background: var(--table-felt);
             min-height: 0;
             overflow: hidden;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
         }
 
+        /* الإطار الذهبي الفاخر للطاولة */
         .table-border-ring {
             position: absolute;
-            inset: 6px;
-            border: 2px dashed rgba(255, 207, 51, 0.15);
+            inset: 8px;
+            border: 3px solid transparent;
+            border-image: var(--gold-border) 1;
+            border-radius: 20px;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .table-inner-glow {
+            position: absolute;
+            inset: 12px;
+            border: 1px dashed rgba(255, 215, 0, 0.3);
             border-radius: 16px;
             pointer-events: none;
         }
 
         .section-title {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #fcf6ba;
+            margin-bottom: 8px;
             text-align: center;
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
         }
 
         .score-badge {
-            color: var(--gold);
+            color: #ffd700;
             font-weight: 900;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px var(--gold-shadow);
         }
 
         .cards-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
-        /* ------------------ Realistic Cards ------------------ */
+        /* ------------------ Realistic Golden Cards ------------------ */
         .card {
-            width: 62px;
-            height: 90px;
+            width: 68px;
+            height: 98px;
             perspective: 1000px;
         }
 
@@ -200,9 +220,9 @@
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.8);
         }
 
         .card.flipped .card-inner {
@@ -213,21 +233,21 @@
             position: absolute;
             width: 100%; height: 100%;
             backface-visibility: hidden;
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 4px 6px;
+            padding: 5px 7px;
         }
 
         .card-back {
-            background-color: #800000;
+            background-color: #580000;
             background-image: 
-                radial-gradient(circle at center, #990000 0%, #4a0000 100%),
-                repeating-linear-gradient(45deg, rgba(255, 207, 51, 0.25) 0, rgba(255, 207, 51, 0.25) 2px, transparent 2px, transparent 8px),
-                repeating-linear-gradient(-45deg, rgba(255, 207, 51, 0.25) 0, rgba(255, 207, 51, 0.25) 2px, transparent 2px, transparent 8px);
-            border: 2px solid var(--gold);
-            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+                radial-gradient(circle at center, #800000 0%, #300000 100%),
+                repeating-linear-gradient(45deg, rgba(255, 215, 0, 0.3) 0, rgba(255, 215, 0, 0.3) 2px, transparent 2px, transparent 8px),
+                repeating-linear-gradient(-45deg, rgba(255, 215, 0, 0.3) 0, rgba(255, 215, 0, 0.3) 2px, transparent 2px, transparent 8px);
+            border: 2px solid #ffd700;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(255, 215, 0, 0.4);
             display: flex; 
             align-items: center; 
             justify-content: center;
@@ -235,99 +255,116 @@
         
         .card-back::after {
             content: '👑'; 
-            font-size: 1.4rem;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            font-size: 1.6rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
         }
 
         .card-front {
-            background: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, #f4f4f4 100%);
             color: var(--black-card);
             transform: rotateY(180deg);
-            border: 1px solid #ccc;
+            border: 2px solid #d4af37;
         }
         .card-front.red { color: var(--red-card); }
 
-        .card-corner { font-size: 0.75rem; font-weight: 900; line-height: 1; text-align: right; }
-        .card-center-suit { font-size: 1.7rem; align-self: center; line-height: 1; }
+        .card-corner { font-size: 0.8rem; font-weight: 900; line-height: 1; text-align: right; }
+        .card-center-suit { font-size: 1.8rem; align-self: center; line-height: 1; }
 
         .game-status {
             text-align: center;
-            padding: 8px 12px;
-            font-size: 0.88rem;
+            padding: 10px 14px;
+            font-size: 0.92rem;
             font-weight: 900;
-            min-height: 42px;
+            min-height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.88);
-            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            background: rgba(3, 12, 6, 0.92);
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8), inset 0 0 10px rgba(255, 215, 0, 0.15);
             z-index: 10;
             width: 92%;
-            max-width: 360px;
+            max-width: 380px;
         }
 
         /* ------------------ Controls Panel ------------------ */
         .controls-panel {
             flex-shrink: 0;
-            background: rgba(4, 18, 8, 0.98);
-            border-top: 2px solid var(--gold);
+            background: rgba(3, 10, 5, 0.98);
+            border-top: 2px solid #d4af37;
             padding: 12px 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             z-index: 60;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
         }
 
         .bet-selector {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.04);
             padding: 6px 12px;
             border-radius: 12px;
-            border: 1px solid var(--border-gold);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
         .btn-step {
-            width: 36px; height: 36px;
-            border-radius: 8px; border: none;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #000; font-size: 1.2rem; font-weight: bold;
+            width: 38px; height: 38px;
+            border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #ffd700, #b8860b);
+            color: #000; font-size: 1.3rem; font-weight: bold;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
         }
         .btn-step:active { transform: scale(0.92); }
 
         .bet-input {
             background: transparent; border: none;
-            color: var(--gold); font-size: 1.3rem;
+            color: #ffd700; font-size: 1.4rem;
             font-weight: 900; text-align: center; width: 90px; outline: none;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
         }
 
         .preset-row { display: flex; gap: 6px; }
         .btn-preset {
             flex: 1; padding: 8px 0;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 207, 51, 0.2);
-            border-radius: 8px; color: var(--gold-bright);
-            font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 8px; color: #fcf6ba;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            transition: 0.2s;
         }
-        .btn-preset:active { background: var(--gold); color: #000; }
+        .btn-preset:active { background: #ffd700; color: #000; }
 
         .action-btns { display: flex; gap: 8px; }
 
         .btn-act {
-            flex: 1; padding: 13px;
+            flex: 1; padding: 14px;
             border: none; border-radius: 12px;
-            font-size: 1.05rem; font-weight: 900;
+            font-size: 1.1rem; font-weight: 900;
             color: #fff; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        .btn-deal { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); border: 1px solid #4caf50; }
-        .btn-change { background: linear-gradient(135deg, #c62828 0%, #8e0000 100%); border: 1px solid #ef5350; }
-        .btn-confirm { background: linear-gradient(135deg, #f57f17 0%, #ff6f00 100%); border: 1px solid #ffb74d; }
+        .btn-deal { 
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%); 
+            border: 1px solid #4caf50; 
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+        .btn-change { 
+            background: linear-gradient(135deg, #8e0000 0%, #c62828 50%, #8e0000 100%); 
+            border: 1px solid #ef5350; 
+        }
+        .btn-confirm { 
+            background: linear-gradient(135deg, #b38728 0%, #fbf5b7 50%, #aa771c 100%); 
+            color: #1a0f00;
+            border: 1px solid #ffe875; 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
         .btn-act:active { transform: scale(0.97); }
     </style>
 </head>
@@ -354,9 +391,10 @@
         </div>
     </header>
 
-    <!-- 🃏 طاولة الشدة -->
+    <!-- 🃏 طاولة الشدة الذهبية الفاخرة -->
     <div class="poker-table">
         <div class="table-border-ring"></div>
+        <div class="table-inner-glow"></div>
 
         <!-- أوراق الخصم -->
         <div>
@@ -377,7 +415,7 @@
     <!-- 🎮 لوحة الرهان والتحكم -->
     <div class="controls-panel">
         <div class="bet-selector">
-            <span style="font-size: 0.8rem; color: #ccc;">قيمة الرهان (NPS):</span>
+            <span style="font-size: 0.85rem; color: #fcf6ba;">قيمة الرهان (NPS):</span>
             <button class="btn-step" onclick="adjustBet(-5)">-</button>
             <input type="number" id="bet-amount" class="bet-input" value="5" min="5" max="1000" step="5">
             <button class="btn-step" onclick="adjustBet(5)">+</button>
@@ -467,7 +505,7 @@
             }
         };
 
-        // ------------------ Telegram WebApp Integrations ------------------
+        // ------------------ Telegram WebApp Integration & User Data ------------------
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.ready(); }
 
@@ -510,6 +548,7 @@
             }
         }
 
+        // جلب رصيد المستخدم الحقيقي المربوط بالسيرفر وقاعدة البيانات
         async function fetchUserData() {
             try {
                 const res = await fetch(`/api/user/get?telegram_id=${userId}`);
@@ -518,7 +557,9 @@
                     userBalance = parseFloat(data.balance);
                     document.getElementById('u-balance').innerText = userBalance.toFixed(2);
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("خطأ في جلب بيانات المستخدم:", e);
+            }
         }
 
         function generateRandomCard() {
@@ -527,10 +568,8 @@
             return { ...rank, ...suit };
         }
 
-        /* ------------------ خوارزمية التحكم بالخسارة/الربح (90% خسارة - 10% ربح) ------------------ */
-        function generateControlledHands() {
-            const playerShouldWin = Math.random() < 0.10; // 10% احتمال الفوز
-
+        // توليد البطاقات لتتوافق بدقة مع النتيجة القادمة من خوارزميات السيرفر
+        function generateMatchingHands(isWin) {
             let pHand, oHand, pSum, oSum;
             let attempts = 0;
 
@@ -544,7 +583,7 @@
                 attempts++;
                 if (attempts > 300) break; // حماية لضمان عدم حدوث Loop
 
-            } while (playerShouldWin ? (pSum <= oSum) : (pSum >= oSum));
+            } while (isWin ? (pSum <= oSum) : (pSum >= oSum));
 
             return { pHand, oHand };
         }
@@ -625,7 +664,7 @@
             updateBetDisplay();
         });
 
-        /* ------------------ بدء الجولة (كشف الكرت الأول لك وللخصم) ------------------ */
+        /* ------------------ بدء الجولة (عرض الكرت الأول مؤقتاً) ------------------ */
         async function startRound() {
             SoundFX.playClick();
             if (userBalance < betAmount) {
@@ -635,9 +674,9 @@
 
             initTableUI();
 
-            const hands = generateControlledHands();
-            playerHand = hands.pHand;
-            oppHand = hands.oHand;
+            // توليد أوراق بدئية للعرض
+            playerHand = [generateRandomCard(), generateRandomCard(), generateRandomCard()];
+            oppHand = [generateRandomCard(), generateRandomCard(), generateRandomCard()];
 
             for (let i = 0; i < 3; i++) {
                 setCardData('p', i, playerHand[i]);
@@ -646,7 +685,7 @@
 
             gameState = 'REVEALED_1';
             
-            // فتح الكرت الأول للاعب وأول كرت للخصم فوراً
+            // فتح الكرت الأول للاعب وأول كرت للخصم
             setTimeout(() => {
                 flipCard('p', 0);
                 document.getElementById('player-score').innerText = playerHand[0].val;
@@ -658,7 +697,7 @@
             }, 200);
 
             document.getElementById('status-text').innerText = "تم فتح الكرت الأول لك وللخصم! اختر: متابعة الرهان أم تغيير الرهان؟";
-            document.getElementById('status-text').style.color = "var(--gold)";
+            document.getElementById('status-text').style.color = "#ffd700";
 
             renderDecisionButtons();
         }
@@ -682,21 +721,22 @@
                 return;
             }
 
-            userBalance -= 10;
-            document.getElementById('u-balance').innerText = userBalance.toFixed(2);
-
+            // اقتطاع رسوم التغيير عبر السيرفر ومزامنتها
             try {
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, game_id: "cards", bet_amount: 10, action: "change_bet" })
+                    body: JSON.stringify({ user_id: userId, game_id: "cards", bet_amount: 10 })
                 });
                 const data = await res.json();
                 if (data.success && data.new_balance !== undefined) {
                     userBalance = parseFloat(data.new_balance);
                     document.getElementById('u-balance').innerText = userBalance.toFixed(2);
                 }
-            } catch (e) {}
+            } catch (e) {
+                userBalance -= 10;
+                document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+            }
 
             document.getElementById('status-text').innerText = "تم خصم 10 NPS رسوم تغيير. اضبط الرهان ثم اضغط تأكيد.";
             document.getElementById('status-text').style.color = "#ff5252";
@@ -709,7 +749,7 @@
             `;
         }
 
-        /* ------------------ كشف كامل الأوراق وحساب النتيجة ------------------ */
+        /* ------------------ الربط الكامل مع السيرفر لحساب الربح والخصم ------------------ */
         async function confirmAndPlay() {
             SoundFX.playClick();
             if (userBalance < betAmount) {
@@ -717,41 +757,57 @@
                 return;
             }
 
-            const pScore = playerHand[0].val + playerHand[1].val + playerHand[2].val;
-            const oppScore = oppHand[0].val + oppHand[1].val + oppHand[2].val;
-
-            let isWin = pScore > oppScore;
-            let isTie = pScore === oppScore;
-            
-            // الربح يكون ضعف سعر الرهان (مثال: لعب بـ 50 يربح 100)
-            let winAmount = isWin ? (betAmount * 2) : (isTie ? betAmount : 0);
-
-            if (isWin) {
-                userBalance += betAmount; // صافي إضافة ضعف الرهان إلى الرصيد
-            } else if (!isTie) {
-                userBalance -= betAmount; // خصم سعر الرهان عند الخسارة
-            }
-            document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+            let isWin = false;
+            let winAmount = 0.0;
+            let newBalance = userBalance;
 
             try {
+                // إرسال الرهان لمحرك اللعبة بالسيرفر app.py
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         user_id: userId, 
                         game_id: "cards", 
-                        bet_amount: betAmount,
-                        win: isWin,
-                        win_amount: winAmount,
-                        result: isWin ? 'win' : (isTie ? 'tie' : 'loss')
+                        bet_amount: betAmount
                     })
                 });
+
                 const data = await res.json();
-                if (data.success && data.new_balance !== undefined) {
-                    userBalance = parseFloat(data.new_balance);
-                    document.getElementById('u-balance').innerText = userBalance.toFixed(2);
+                
+                if (!data.success) {
+                    alert(`⚠️ ${data.message || "حدث خطأ أثناء اللعب!"}`);
+                    return;
                 }
-            } catch(e) {}
+
+                // قراءة النتيجة الحقيقية ومضاعف الربح من السيرفر
+                newBalance = parseFloat(data.new_balance);
+                winAmount = parseFloat(data.win_amount);
+                
+                // الفوز يحقق ضعف قيمة الرهان (win_amount > 0)
+                isWin = data.multiplier > 0 || winAmount > 0;
+
+            } catch(e) {
+                alert("حدث خطأ في الاتصال بالسيرفر! يرجى المحاولة مرة أخرى.");
+                return;
+            }
+
+            // إنتاج بطاقات تناسب النتيجة المحسوبة بالسيرفر بالضبط
+            const matchedHands = generateMatchingHands(isWin);
+            playerHand = matchedHands.pHand;
+            oppHand = matchedHands.oHand;
+
+            for (let i = 0; i < 3; i++) {
+                setCardData('p', i, playerHand[i]);
+                setCardData('opp', i, oppHand[i]);
+            }
+
+            const pScore = playerHand.reduce((a, b) => a + b.val, 0);
+            const oppScore = oppHand.reduce((a, b) => a + b.val, 0);
+
+            // تحديث الرصيد المعروض بالرصيد الحقيقي القادم من قاعدة البيانات
+            userBalance = newBalance;
+            document.getElementById('u-balance').innerText = userBalance.toFixed(2);
 
             // كشف أوراق اللاعب المتبقية
             flipCard('p', 1);
@@ -768,11 +824,8 @@
                     const statusEl = document.getElementById('status-text');
                     if (isWin) {
                         SoundFX.playWin();
-                        statusEl.innerText = `🎉 مبروك! ربحت ${winAmount.toFixed(2)} NPS! (${pScore} ضد ${oppScore})`;
+                        statusEl.innerText = `🎉 مبروك! ربحت ${winAmount.toFixed(2)} NPS (ضعف الرهان)! (${pScore} ضد ${oppScore})`;
                         statusEl.style.color = "#00e676";
-                    } else if (isTie) {
-                        statusEl.innerText = `🤝 تعادل! (${pScore} يساوي ${oppScore})`;
-                        statusEl.style.color = "var(--gold)";
                     } else {
                         SoundFX.playLoss();
                         statusEl.innerText = `💥 خسرت ${betAmount.toFixed(2)} NPS! (${pScore} ضد الخصم ${oppScore})`;
