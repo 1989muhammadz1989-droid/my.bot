@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>صالة البولينج 3D</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #0f172a;
+      color: #fff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 2px solid #334155;
+      z-index: 10;
+    }
+    .balance-box {
+      background: #1e293b;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #38bdf8;
+      font-size: 16px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 15px 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 2px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      z-index: 10;
+    }
+    .bet-control {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #1e293b;
+      padding: 6px 12px;
+      border-radius: 30px;
+      border: 1px solid #475569;
+    }
+    .btn-step {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .btn-step:active {
+      transform: scale(0.9);
+      background: #0284c7;
+    }
+    .bet-display {
+      font-size: 18px;
+      font-weight: bold;
+      min-width: 100px;
+      text-align: center;
+    }
+    .btn-play {
+      width: 100%;
+      max-width: 320px;
+      padding: 14px;
+      border-radius: 25px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+      transition: 0.2s;
+    }
+    .btn-play:disabled {
+      background: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    #status-msg {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 26px;
+      font-weight: bold;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 20;
+    }
+    .msg-win {
+      background: rgba(34, 197, 94, 0.9);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    }
+    .msg-loss {
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+  </style>
+
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div id="header">
+    <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">🎳 صالة البولينج</div>
+    <div class="balance-box">الرصيد: <span id="user-balance">0</span> nps</div>
+  </div>
+
+  <div id="canvas-container">
+    <div id="status-msg"></div>
+  </div>
+
+  <div id="controls">
+    <div class="bet-control">
+      <button class="btn-step" id="btn-minus">-</button>
+      <div class="bet-display">الرهان: <span id="bet-amount">5</span> nps</div>
+      <button class="btn-step" id="btn-plus">+</button>
+    </div>
+    <button class="btn-play" id="btn-bet">راهن وارمي (5 nps)</button>
+  </div>
+
+  <script>
+    // ----------------------------------------------------
+    // 1. إدارة البيانات والاتصال بالسيرفر
+    // ----------------------------------------------------
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || "123456";
+    
+    let currentBalance = 0;
+    let betAmount = 5;
+    const minBet = 5;
+    const maxBet = 1000;
+    let isRolling = false;
+
+    // الصوتيات باستخدام Web Audio API الواقعية
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playRollSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.8);
+
+      whiteNoise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      whiteNoise.start();
+    }
+
+    function playHitSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+
+      gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function fetchUserData() {
+      fetch(`/api/user/get?user_id=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            currentBalance = data.balance;
+            document.getElementById('user-balance').innerText = currentBalance;
+          }
+        })
+        .catch(err => console.error("خطأ جلب بيانات المستخدم:", err));
+    }
+
+    // ----------------------------------------------------
+    // 2. إعداد مشهد Three.js ثلاثي الأبعاد الواقعي
+    // ----------------------------------------------------
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0f1d);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 2.5, 6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    // الإضاءة
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const spotLight = new THREE.SpotLight(0x38bdf8, 1);
+    spotLight.position.set(0, 8, -10);
+    spotLight.target.position.set(0, 0, -12);
+    scene.add(spotLight);
+
+    // أرضية وممر البولينج (Lane)
+    const laneGeometry = new THREE.BoxGeometry(2, 0.1, 16);
+    const laneMaterial = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.2, metalness: 0.1 });
+    const lane = new THREE.Mesh(laneGeometry, laneMaterial);
+    lane.position.set(0, -0.05, -6);
+    lane.receiveShadow = true;
+    scene.add(lane);
+
+    // المزاريب (Gutters)
+    const gutterMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+    const leftGutter = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 16), gutterMat);
+    leftGutter.position.set(-1.2, -0.06, -6);
+    scene.add(leftGutter);
+
+    const rightGutter = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 16), gutterMat);
+    rightGutter.position.set(1.2, -0.06, -6);
+    scene.add(rightGutter);
+
+    // كرة البولينج
+    const ballGeometry = new THREE.SphereGeometry(0.22, 32, 32);
+    const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.1, metalness: 0.8 });
+    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+    ball.castShadow = true;
+    scene.add(ball);
+
+    // سهم تحديد الاتجاه
+    const arrowGeo = new THREE.ConeGeometry(0.08, 0.4, 16);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+    arrow.rotation.x = -Math.PI / 2;
+    arrow.position.set(0, 0.05, 1.2);
+    scene.add(arrow);
+
+    let arrowAngle = 0;
+    let arrowSpeed = 0.03;
+
+    // إعداد الأحجار (10 Pins)
+    const pins = [];
+    const pinPositions = [
+      { x: 0, z: -12 },
+      { x: -0.18, z: -12.4 }, { x: 0.18, z: -12.4 },
+      { x: -0.36, z: -12.8 }, { x: 0, z: -12.8 }, { x: 0.36, z: -12.8 },
+      { x: -0.54, z: -13.2 }, { x: -0.18, z: -13.2 }, { x: 0.18, z: -13.2 }, { x: 0.54, z: -13.2 }
+    ];
+
+    function createPin(x, z) {
+      const pinGroup = new THREE.Group();
+      const bodyGeo = new THREE.CylinderGeometry(0.05, 0.08, 0.5, 16);
+      const pinMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 });
+      const pinMesh = new THREE.Mesh(bodyGeo, pinMat);
+      pinMesh.castShadow = true;
+      pinGroup.add(pinMesh);
+
+      // الشريط الأحمر للحجر
+      const ringGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.08, 16);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xd97706 });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.position.y = 0.1;
+      pinGroup.add(ringMesh);
+
+      pinGroup.position.set(x, 0.25, z);
+      scene.add(pinGroup);
+      return { group: pinGroup, initX: x, initZ: z, isFallen: false };
+    }
+
+    function initPins() {
+      pins.forEach(p => scene.remove(p.group));
+      pins.length = 0;
+      pinPositions.forEach(pos => {
+        pins.push(createPin(pos.x, pos.z));
+      });
+    }
+
+    function resetBallAndCamera() {
+      ball.position.set(0, 0.22, 1.8);
+      ball.rotation.set(0, 0, 0);
+      camera.position.set(0, 2.5, 6);
+      arrow.visible = true;
+      arrow.position.set(0, 0.05, 1.2);
+    }
+
+    initPins();
+    resetBallAndCamera();
+
+    // ----------------------------------------------------
+    // 3. التحريك والفيزياء (Animation & Physics)
+    // ----------------------------------------------------
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // تحريك سهم الاتجاه أثناء التجهيز
+      if (!isRolling) {
+        arrowAngle += arrowSpeed;
+        if (arrowAngle > 0.4 || arrowAngle < -0.4) arrowSpeed = -arrowSpeed;
+        arrow.position.x = Math.sin(arrowAngle) * 0.5;
+        arrow.rotation.z = -arrowAngle;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ----------------------------------------------------
+    // 4. تنفيذ جولة الرهان والرمي
+    // ----------------------------------------------------
+    document.getElementById('btn-plus').addEventListener('click', () => {
+      if (isRolling) return;
+      if (betAmount + 5 <= maxBet && betAmount + 5 <= currentBalance) {
+        betAmount += 5;
+        updateBetUI();
+      }
+    });
+
+    document.getElementById('btn-minus').addEventListener('click', () => {
+      if (isRolling) return;
+      if (betAmount - 5 >= minBet) {
+        betAmount -= 5;
+        updateBetUI();
+      }
+    });
+
+    function updateBetUI() {
+      document.getElementById('bet-amount').innerText = betAmount;
+      document.getElementById('btn-bet').innerText = `راهن وارمي (${betAmount} nps)`;
+    }
+
+    document.getElementById('btn-bet').addEventListener('click', () => {
+      if (isRolling) return;
+      if (currentBalance < betAmount) {
+        showStatus("رصيدك غير كافٍ!", "msg-loss");
+        return;
+      }
+
+      isRolling = true;
+      document.getElementById('btn-bet').disabled = true;
+      arrow.visible = false;
+
+      // خصم رصيد الرهان وإرسال الطلب للسيرفر
+      fetch('/api/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          game_id: 'bowling',
+          bet_amount: betAmount
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          showStatus(data.message || "حدث خطأ!", "msg-loss");
+          isRolling = false;
+          document.getElementById('btn-bet').disabled = false;
+          arrow.visible = true;
+          return;
+        }
+
+        // تحديث الرصيد فور الخصم
+        currentBalance = data.new_balance;
+        document.getElementById('user-balance').innerText = currentBalance;
+
+        // تنفيذ حركة تدحرج الكرة والنتيجة بناءً على رد السيرفر
+        const isWin = data.win_amount > 0;
+        rollBall(isWin, data.win_amount);
+      })
+      .catch(err => {
+        console.error(err);
+        isRolling = false;
+        document.getElementById('btn-bet').disabled = false;
+        arrow.visible = true;
+      });
+    });
+
+    function rollBall(isWin, winAmount) {
+      playRollSound();
+
+      let targetX = isWin ? 0 : (Math.random() > 0.5 ? 0.35 : -0.35); // لو خسارة تنحرف الكرة إسقاط بعض الأحجار فقط
+      let progress = 0;
+
+      const rollInterval = setInterval(() => {
+        progress += 0.02;
+        ball.position.z = THREE.MathUtils.lerp(1.8, -12, progress);
+        ball.position.x = THREE.MathUtils.lerp(0, targetX, progress);
+        ball.rotation.x -= 0.2;
+
+        // الكاميرا تتبع الكرة ببطء
+        camera.position.z = ball.position.z + 4.2;
+        camera.position.x = ball.position.x * 0.5;
+
+        if (progress >= 1) {
+          clearInterval(rollInterval);
+          playHitSound();
+          handleImpact(isWin, winAmount);
+        }
+      }, 16);
+    }
+
+    function handleImpact(isWin, winAmount) {
+      if (isWin) {
+        // إسقاط كل الأحجار (Strike)
+        pins.forEach((pin, idx) => {
+          pin.isFallen = true;
+          pin.group.rotation.x = Math.PI / 2;
+          pin.group.rotation.z = (Math.random() - 0.5) * 1.5;
+          pin.group.position.y = 0.1;
+        });
+        showStatus(`Strike! مبروك فزت بـ ${winAmount} nps`, "msg-win");
+      } else {
+        // إسقاط عدد جزئي فقط من الأحجار (تعتبر جولة خاسرة)
+        const fallCount = Math.floor(Math.random() * 8) + 1; // من 1 إلى 8 أحجار فقط
+        for (let i = 0; i < fallCount; i++) {
+          pins[i].isFallen = true;
+          pins[i].group.rotation.x = Math.PI / 2;
+          pins[i].group.rotation.z = (Math.random() - 0.5) * 1.5;
+          pins[i].group.position.y = 0.1;
+        }
+        showStatus("جولة خاسرة! لم تسقط جميع الأحجار", "msg-loss");
+      }
+
+      // تحديث بيانات الرصيد وإعادة الإعداد تلقائياً للجولة التالية
+      fetchUserData();
+      setTimeout(resetRound, 3500);
+    }
+
+    function showStatus(text, className) {
+      const msg = document.getElementById('status-msg');
+      msg.innerText = text;
+      msg.className = className;
+      msg.style.opacity = '1';
+      setTimeout(() => { msg.style.opacity = '0'; }, 3000);
+    }
+
+    function resetRound() {
+      initPins();
+      resetBallAndCamera();
+      isRolling = false;
+      document.getElementById('btn-bet').disabled = false;
+    }
+
+    // جلب بيانات المستخدم عند تحميل الصفحة
+    fetchUserData();
+
+    // ضبط أبعاد المشهد عند تغيير حجم الشاشة
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  </script>
+</body>
+</html>
