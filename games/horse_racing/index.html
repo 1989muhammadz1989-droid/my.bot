@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سباق الخيل الاحترافي 🏇</title>
+    <title>سباق الخيل المباشر 🏇 - VIP</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
         
@@ -11,102 +11,150 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background: #090d16;
+            background: #070a12;
             color: #f3f4f6;
             display: flex;
             flex-direction: column;
         }
 
-        /* شريط العلوي - ملء الشاشة */
+        /* الشريط العلوي الفاخر */
         .header {
             width: 100%;
-            height: 54px;
-            background: rgba(15, 23, 42, 0.9);
+            height: 52px;
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
-            padding: 0 16px;
+            padding: 0 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
-            z-index: 10;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+            z-index: 20;
         }
-        .user-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; }
+        .user-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; color: #e2e8f0; }
         .balance-box { 
             background: linear-gradient(135deg, #059669, #10b981); 
-            padding: 6px 14px; 
+            padding: 5px 12px; 
             border-radius: 20px; 
             font-weight: bold; 
-            font-size: 1rem; 
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); 
+            font-size: 0.95rem; 
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); 
+            border: 1px solid #34d399;
         }
         .btn-close {
-            background: #ef4444;
+            background: rgba(239, 68, 68, 0.85);
             color: white;
             border: none;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
             transition: 0.2s;
         }
         .btn-close:active { transform: scale(0.9); }
 
-        /* منطقة السباق Canvas dynamic scale */
+        /* شريط الرهانات المباشرة العائم (لا يغطي المضمار) */
+        .live-ticker {
+            width: 100%;
+            height: 28px;
+            background: rgba(11, 15, 25, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            z-index: 15;
+            font-size: 0.78rem;
+        }
+        .ticker-title {
+            background: #d97706;
+            color: #fff;
+            padding: 0 10px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            white-space: nowrap;
+            z-index: 2;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.5);
+        }
+        .ticker-track {
+            display: flex;
+            gap: 20px;
+            white-space: nowrap;
+            will-change: transform;
+            animation: tickerScroll 25s linear infinite;
+        }
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @keyframes tickerScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* منطقة مضمار السباق */
         .canvas-container {
             flex: 1;
             width: 100%;
             position: relative;
-            background: #000;
+            background: #020617;
             overflow: hidden;
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* شريط حالة السباق العائم فوق مضمار السباق */
+        /* حالة الرهان والعداد الصغير العائم */
         .status-overlay {
             position: absolute;
-            top: 12px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.75);
-            padding: 6px 20px;
-            border-radius: 30px;
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.4);
             font-weight: bold;
             color: #fbbf24;
-            font-size: 1rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            font-size: 0.88rem;
             pointer-events: none;
-            z-index: 5;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
-        /* لوحة التحكم والرهان المدمجة بالأسفل */
+        /* لوحة الرهان السفلية */
         .controls {
             width: 100%;
-            background: #1e293b;
-            padding: 10px 14px;
-            border-top: 1px solid #334155;
+            background: #0f172a;
+            padding: 10px 12px;
+            border-top: 1px solid #1e293b;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 10;
+            z-index: 20;
         }
 
         .horse-selector { display: flex; justify-content: space-between; gap: 6px; }
         .horse-btn { 
             flex: 1; 
-            padding: 8px 0; 
-            background: #334155; 
+            padding: 6px 0; 
+            background: #1e293b; 
             border: 2px solid transparent; 
             border-radius: 8px; 
             color: #fff; 
             font-weight: bold; 
-            font-size: 0.85rem; 
+            font-size: 0.8rem; 
             cursor: pointer; 
             transition: all 0.2s ease; 
             display: flex; 
@@ -114,36 +162,36 @@
             align-items: center; 
             gap: 2px; 
         }
-        .horse-btn span.badge { font-size: 0.7rem; padding: 1px 4px; border-radius: 4px; background: rgba(255,255,255,0.15); }
+        .horse-btn span.badge { font-size: 0.68rem; padding: 1px 4px; border-radius: 4px; background: rgba(255,255,255,0.12); }
         .horse-btn.selected { 
-            background: linear-gradient(135deg, #d97706, #f59e0b); 
-            border-color: #fbbf24; 
+            background: linear-gradient(135deg, #b45309, #f59e0b); 
+            border-color: #fef08a; 
             transform: translateY(-2px); 
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); 
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); 
         }
 
         .action-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         .bet-control { 
             display: flex; 
             align-items: center; 
-            background: #0f172a; 
-            border: 1px solid #475569; 
-            border-radius: 10px; 
+            background: #020617; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
             padding: 2px;
         }
         .btn-step { 
-            background: #3b82f6; 
+            background: #2563eb; 
             border: none; 
             color: #fff; 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 8px; 
-            font-size: 1.3rem; 
+            width: 34px; 
+            height: 34px; 
+            border-radius: 6px; 
+            font-size: 1.2rem; 
             font-weight: bold; 
             cursor: pointer; 
             display: flex;
@@ -152,32 +200,35 @@
         }
         .btn-step:active { transform: scale(0.92); }
         .bet-display { 
-            padding: 0 12px; 
-            font-size: 1.1rem; 
+            padding: 0 10px; 
+            font-size: 1rem; 
             font-weight: bold; 
             color: #38bdf8; 
-            min-width: 90px; 
+            min-width: 75px; 
             text-align: center; 
         }
 
         .btn-play { 
             flex: 1;
-            height: 42px;
-            background: linear-gradient(135deg, #16a34a, #22c55e); 
+            height: 38px;
+            background: linear-gradient(135deg, #15803d, #22c55e); 
             border: none; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             color: #fff; 
-            font-size: 1.1rem; 
+            font-size: 0.95rem; 
             font-weight: bold; 
             cursor: pointer; 
-            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35); 
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); 
             transition: all 0.2s; 
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .btn-play:hover { filter: brightness(1.1); }
-        .btn-play:disabled { background: #475569; cursor: not-allowed; box-shadow: none; filter: none; }
+        .btn-play.placed {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .btn-play:disabled { background: #334155; cursor: not-allowed; box-shadow: none; filter: grayscale(0.8); }
     </style>
 </head>
 <body>
@@ -189,13 +240,19 @@
         <button class="btn-close" onclick="exitGame()">✕</button>
     </div>
 
-    <!-- منطقة الرسم الرسومية (تتأقلم تلقائياً) -->
+    <!-- شريط الرهانات المباشرة التلقائي -->
+    <div class="live-ticker">
+        <div class="ticker-title">🔴 مباشر</div>
+        <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- شاشة السباق Canvas -->
     <div class="canvas-container" id="canvasContainer">
-        <div class="status-overlay" id="statusBar">اختر الخيل والمبلغ ثم ابدأ السباق!</div>
+        <div class="status-overlay" id="statusBar">⏳ جاري التحضير...</div>
         <canvas id="raceCanvas"></canvas>
     </div>
 
-    <!-- لوحة التحكم السفلية -->
+    <!-- لوحة التحكم -->
     <div class="controls">
         <div class="horse-selector">
             <button class="horse-btn selected" onclick="selectHorse(1)">
@@ -221,20 +278,16 @@
                 <div class="bet-display"><span id="betAmount">5</span> NPS</div>
                 <button class="btn-step" onclick="adjustBet(5)">+</button>
             </div>
-            <button class="btn-play" id="playBtn" onclick="startRace()">بدء السباق (10 ثوانٍ)</button>
+            <button class="btn-play" id="playBtn" onclick="placeBet()">تاكيد الرهان للجولة القادمة</button>
         </div>
     </div>
 
     <script>
-        // --- المحرك الصوتي (Web Audio API) لشاشات دون ملحقات خارجية ---
+        // --- المحرك الصوتي الاصطناعي (Web Audio API) ---
         class SoundEngine {
-            constructor() {
-                this.ctx = null;
-            }
+            constructor() { this.ctx = null; }
             init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             }
             playTone(freq, duration, type = 'sine', gainVal = 0.1) {
                 if (!this.ctx) return;
@@ -253,22 +306,20 @@
             }
             playGallop() {
                 if (!this.ctx) return;
-                // صوت وقع حوافر خفيف
-                this.playTone(120, 0.05, 'triangle', 0.15);
-                setTimeout(() => this.playTone(80, 0.05, 'sine', 0.1), 60);
+                this.playTone(110, 0.04, 'triangle', 0.12);
+                setTimeout(() => this.playTone(75, 0.04, 'sine', 0.08), 50);
             }
             playWhinny() {
                 if (!this.ctx) return;
-                // صهيل الحصان المحاكي
                 try {
                     let osc = this.ctx.createOscillator();
                     let gain = this.ctx.createGain();
                     osc.type = 'sawtooth';
                     let now = this.ctx.currentTime;
-                    osc.frequency.setValueAtTime(450, now);
-                    osc.frequency.linearRampToValueAtTime(850, now + 0.2);
-                    osc.frequency.linearRampToValueAtTime(400, now + 0.6);
-                    gain.gain.setValueAtTime(0.1, now);
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.25);
+                    osc.frequency.linearRampToValueAtTime(350, now + 0.6);
+                    gain.gain.setValueAtTime(0.08, now);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
@@ -276,27 +327,26 @@
                     osc.stop(now + 0.6);
                 } catch(e){}
             }
-            playTrumpet() {
-                // نغمة انطلاق السباق
-                [300, 400, 500, 600].forEach((f, i) => {
-                    setTimeout(() => this.playTone(f, 0.15, 'square', 0.08), i * 100);
+            playBugle() {
+                [300, 392, 493, 587].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.12, 'square', 0.06), i * 90);
                 });
             }
             playWin() {
                 [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
-                    setTimeout(() => this.playTone(f, 0.25, 'sine', 0.2), i * 120);
+                    setTimeout(() => this.playTone(f, 0.22, 'sine', 0.18), i * 110);
                 });
             }
             playLose() {
-                [400, 350, 300, 250].forEach((f, i) => {
-                    setTimeout(() => this.playTone(f, 0.2, 'sawtooth', 0.15), i * 150);
+                [380, 320, 260, 200].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.2, 'sawtooth', 0.12), i * 130);
                 });
             }
         }
 
         const audio = new SoundEngine();
 
-        // --- إعدادات اللعبة والعناصر ---
+        // --- المتغيرات العامة ---
         const canvas = document.getElementById('raceCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvasContainer');
@@ -307,7 +357,18 @@
         let currentBalance = 0;
         let selectedHorse = 1;
         let betAmount = 5;
-        let isRacing = false;
+        let userHasBetInCurrentRound = false;
+        let pendingBet = null; // { horse, amount }
+
+        // أوقات الدورة التلقائية (بالثواني)
+        const BETTING_TIME = 10; 
+        const LOCK_TIME = 5;     // قفل الرهان في آخر 5 ثوانٍ قبل السباق
+        const RACE_TIME = 15;    // مدة السباق 15 ثانية
+        const RESULT_TIME = 4;
+
+        let currentPhase = 'BETTING'; // BETTING, LOCKED, RACING, RESULT
+        let phaseTimer = BETTING_TIME;
+        let lastTimerUpdate = performance.now();
 
         const horseColors = ['#ef4444', '#3b82f6', '#eab308', '#a855f7', '#22c55e'];
         const horseDarkColors = ['#991b1b', '#1e40af', '#854d0e', '#6b21a8', '#166534'];
@@ -316,13 +377,13 @@
         let particles = [];
         let trackOffset = 0;
         let raceStartTime = 0;
-        let raceDuration = 10000; // 10 ثواني فقط
-        let winningHorseIndex = 0;
+        let winningHorseIndex = 1;
         let isWinResult = false;
-        let animationFrameId = null;
         let lastGallopSoundTime = 0;
 
-        // ضبط قياسات الـ Canvas مع أبعاد الشاشة المتغيرة
+        // أسماء لاعبي الشريط المباشر
+        const fakeNames = ['أحمد', 'سامر', 'عمر', 'خالد', 'محمد', 'يوسف', 'حمزة', 'علي', 'رامي', 'وسيم'];
+
         function resizeCanvas() {
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
@@ -337,7 +398,7 @@
             for (let i = 0; i < 5; i++) {
                 horses.push({
                     id: i + 1,
-                    x: 60,
+                    x: 50,
                     y: laneHeight * i + laneHeight / 2,
                     color: horseColors[i],
                     darkColor: horseDarkColors[i],
@@ -359,8 +420,20 @@
             } catch (e) { console.error(e); }
         }
 
+        function generateLiveTicker() {
+            const track = document.getElementById('tickerTrack');
+            let html = '';
+            for (let i = 0; i < 15; i++) {
+                let name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+                let hNum = Math.floor(Math.random() * 5) + 1;
+                let amt = (Math.floor(Math.random() * 10) + 1) * 5;
+                html += `<div class="ticker-item">👤 <b>${name}</b> رهان <b>${amt} NPS</b> على 🐎 <b>خيل ${hNum}</b></div>`;
+            }
+            track.innerHTML = html + html; // تكرار لتمرير انسيابي
+        }
+
         function selectHorse(num) {
-            if (isRacing) return;
+            if (currentPhase === 'LOCKED' || currentPhase === 'RACING') return;
             selectedHorse = num;
             document.querySelectorAll('.horse-btn').forEach((btn, idx) => {
                 btn.classList.toggle('selected', idx + 1 === num);
@@ -368,8 +441,7 @@
         }
 
         function adjustBet(val) {
-            if (isRacing) return;
-            // الحدود بين 5 و 100 NPS
+            if (currentPhase === 'LOCKED' || currentPhase === 'RACING') return;
             betAmount = Math.min(100, Math.max(5, betAmount + val));
             document.getElementById('betAmount').innerText = betAmount;
         }
@@ -382,69 +454,81 @@
             }
         }
 
-        // --- رسم المضمار الاحترافي 2.5D ---
+        function placeBet() {
+            audio.init();
+            if (currentPhase === 'LOCKED' || currentPhase === 'RACING') return;
+            if (currentBalance < betAmount) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+
+            pendingBet = { horse: selectedHorse, amount: betAmount };
+            userHasBetInCurrentRound = true;
+
+            let playBtn = document.getElementById('playBtn');
+            playBtn.classList.add('placed');
+            playBtn.innerText = `تم الرهان على خيل ${selectedHorse} (${betAmount} NPS) ✓`;
+        }
+
+        // --- محرك ورسم مضمار 2.5D الفاخر ---
         function drawTrack() {
             let w = canvas.width;
             let h = canvas.height;
 
-            // العشب المساعد بالخلفية
             let bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-            bgGrad.addColorStop(0, '#15803d');
-            bgGrad.addColorStop(1, '#166534');
+            bgGrad.addColorStop(0, '#064e3b');
+            bgGrad.addColorStop(1, '#022c22');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, w, h);
 
-            // المضمار الترابي الرئيسي
             let trackGrad = ctx.createLinearGradient(0, 0, 0, h);
             trackGrad.addColorStop(0, '#78350f');
             trackGrad.addColorStop(0.5, '#92400e');
             trackGrad.addColorStop(1, '#451a03');
             ctx.fillStyle = trackGrad;
-            ctx.fillRect(0, 10, w, h - 20);
+            ctx.fillRect(0, 8, w, h - 16);
 
-            // خطوط المسارات النيون المحسنة
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
             ctx.lineWidth = 2;
-            ctx.setLineDash([20, 15]);
-            let laneHeight = (h - 20) / 5;
+            ctx.setLineDash([15, 12]);
+            let laneHeight = (h - 16) / 5;
             for (let i = 1; i < 5; i++) {
                 ctx.beginPath();
-                ctx.moveTo(0, 10 + i * laneHeight);
-                ctx.lineTo(w, 10 + i * laneHeight);
+                ctx.moveTo(0, 8 + i * laneHeight);
+                ctx.lineTo(w, 8 + i * laneHeight);
                 ctx.stroke();
             }
             ctx.setLineDash([]);
 
-            // السياج المتحرك
-            ctx.fillStyle = '#e2e8f0';
-            let fenceSpacing = 50;
+            // السياج
+            ctx.fillStyle = '#f8fafc';
+            let fenceSpacing = 45;
             for (let x = - (trackOffset % fenceSpacing); x < w + 20; x += fenceSpacing) {
-                ctx.fillRect(x, 4, 8, 8);
-                ctx.fillRect(x, h - 12, 8, 8);
+                ctx.fillRect(x, 2, 6, 6);
+                ctx.fillRect(x, h - 8, 6, 6);
             }
 
             // خط النهاية الشطرنجي
-            let finishX = w - 70;
-            let squareSize = 10;
-            for (let y = 10; y < h - 10; y += squareSize) {
-                let isWhite = Math.floor(y / squareSize) % 2 === 0;
+            let finishX = w - 60;
+            let sq = 8;
+            for (let y = 8; y < h - 8; y += sq) {
+                let isWhite = Math.floor(y / sq) % 2 === 0;
                 ctx.fillStyle = isWhite ? '#ffffff' : '#000000';
-                ctx.fillRect(finishX, y, squareSize, squareSize);
+                ctx.fillRect(finishX, y, sq, sq);
                 ctx.fillStyle = isWhite ? '#000000' : '#ffffff';
-                ctx.fillRect(finishX + squareSize, y, squareSize, squareSize);
+                ctx.fillRect(finishX + sq, y, sq, sq);
             }
         }
 
-        // --- نظام الغبار الواقعي ---
         function createDust(x, y) {
-            if (Math.random() < 0.6) {
+            if (Math.random() < 0.5) {
                 particles.push({
-                    x: x - 20,
-                    y: y + 10 + (Math.random() * 6 - 3),
+                    x: x - 18,
+                    y: y + 8 + (Math.random() * 6 - 3),
                     vx: -(Math.random() * 3 + 2),
-                    vy: (Math.random() - 0.5) * 1.5,
-                    radius: Math.random() * 5 + 3,
-                    alpha: 0.7
+                    vy: (Math.random() - 0.5) * 1.2,
+                    radius: Math.random() * 4 + 2,
+                    alpha: 0.6
                 });
             }
         }
@@ -454,7 +538,7 @@
                 let p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.alpha -= 0.03;
+                p.alpha -= 0.035;
 
                 if (p.alpha <= 0) {
                     particles.splice(i, 1);
@@ -463,7 +547,7 @@
 
                 ctx.save();
                 ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = '#b45309';
+                ctx.fillStyle = '#d97706';
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -471,259 +555,277 @@
             }
         }
 
-        // --- رسم الخيل الواقعي وركضه المتفوق برمجياً ---
         function drawRealisticHorse(h) {
             ctx.save();
             ctx.translate(h.x, h.y);
-
-            let scale = 0.85; // حجم متناسق
+            let scale = 0.8;
             ctx.scale(scale, scale);
 
-            // ظل الخيل أسفله
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+            // ظل
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.38)';
             ctx.beginPath();
-            ctx.ellipse(0, 18, 28, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 16, 26, 7, 0, 0, Math.PI * 2);
             ctx.fill();
 
             let c = Math.sin(h.gallopCycle);
             let c2 = Math.cos(h.gallopCycle);
 
-            // 1. الأرجل الخلفية (مفاصل واقعية)
-            drawLeg(ctx, -14, 5, c, true);
-            drawLeg(ctx, -10, 5, -c, true);
+            drawLeg(ctx, -12, 4, c, true);
+            drawLeg(ctx, -8, 4, -c, true);
 
-            // 2. جسم الخيل الأساسي
-            ctx.fillStyle = '#582f0e'; // جسم بني واقعي
-            ctx.beginPath();
-            ctx.ellipse(0, -2, 22, 11, -0.05, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 3. الأرجل الأمامية
-            drawLeg(ctx, 12, 5, -c2, false);
-            drawLeg(ctx, 16, 5, c2, false);
-
-            // 4. الذيل المتحرك
-            ctx.strokeStyle = '#1c1917';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(-22, -4);
-            ctx.quadraticCurveTo(-32 + c * 4, -2 + c * 6, -35, 8);
-            ctx.stroke();
-
-            // 5. السرج والمقعد بلون رهانه الخاص
-            ctx.fillStyle = h.color;
-            ctx.beginPath();
-            ctx.roundRect(-8, -13, 16, 10, 3);
-            ctx.fill();
-
-            // رقم الخيل على السرج
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 9px Arial';
-            ctx.fillText(h.id, -3, -5);
-
-            // 6. الركاب (الجوكي/اللاعب)
-            ctx.fillStyle = '#f8fafc';
-            ctx.beginPath();
-            ctx.arc(2, -18, 5, 0, Math.PI * 2); // رأس الخيال
-            ctx.fill();
-
-            // 7. الرقبة والرأس الواقعية
+            // جسم الخيل
             ctx.fillStyle = '#582f0e';
             ctx.beginPath();
-            ctx.moveTo(12, -7);
-            ctx.lineTo(24, -22 + c * 2); // حركة الرأس مع الركض
-            ctx.lineTo(32, -16 + c * 2);
-            ctx.lineTo(20, 2);
-            ctx.closePath();
+            ctx.ellipse(0, -2, 20, 10, -0.05, 0, Math.PI * 2);
             ctx.fill();
 
-            // العيون ولجام الخيل
-            ctx.fillStyle = '#000';
+            drawLeg(ctx, 10, 4, -c2, false);
+            drawLeg(ctx, 14, 4, c2, false);
+
+            // ذيل
+            ctx.strokeStyle = '#1c1917';
+            ctx.lineWidth = 3.5;
             ctx.beginPath();
-            ctx.arc(27, -18 + c * 2, 1.5, 0, Math.PI * 2);
+            ctx.moveTo(-20, -4);
+            ctx.quadraticCurveTo(-30 + c * 3, -2 + c * 5, -32, 7);
+            ctx.stroke();
+
+            // السرج بلون الخيل
+            ctx.fillStyle = h.color;
+            ctx.beginPath();
+            ctx.roundRect(-7, -12, 14, 9, 3);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 8px Arial';
+            ctx.fillText(h.id, -2, -5);
+
+            // الخيال
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath();
+            ctx.arc(1, -16, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // الرأس والرقبة
+            ctx.fillStyle = '#582f0e';
+            ctx.beginPath();
+            ctx.moveTo(10, -6);
+            ctx.lineTo(22, -20 + c * 2);
+            ctx.lineTo(29, -15 + c * 2);
+            ctx.lineTo(18, 2);
+            ctx.closePath();
             ctx.fill();
 
             ctx.restore();
         }
 
-        // رسم مفاصل الأرجل الواقعية
         function drawLeg(ctx, x, y, cycle, isBack) {
             ctx.save();
             ctx.translate(x, y);
             ctx.strokeStyle = '#3a1e08';
-            ctx.lineWidth = 3.5;
+            ctx.lineWidth = 3;
             ctx.lineCap = 'round';
 
-            let angle1 = cycle * 0.6;
-            let angle2 = Math.sin(cycle) * 0.5 + 0.4;
+            let angle1 = cycle * 0.55;
+            let angle2 = Math.sin(cycle) * 0.45 + 0.35;
 
             ctx.rotate(angle1);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(0, 10);
-            
-            ctx.translate(0, 10);
+            ctx.lineTo(0, 9);
+            ctx.translate(0, 9);
             ctx.rotate(isBack ? -angle2 : angle2);
-            ctx.lineTo(0, 10);
+            ctx.lineTo(0, 9);
             ctx.stroke();
 
-            // الحافر
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(-2, 9, 4, 3);
-
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-2, 8, 4, 3);
             ctx.restore();
         }
 
-        // --- المحرك الرئيسي المحسن (60 إطار/ثانية) ---
-        function renderLoop(timestamp) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (isRacing) {
-                let elapsedTime = timestamp - raceStartTime;
-                let progressRatio = Math.min(1, elapsedTime / raceDuration);
-                let remainingSecs = Math.max(0, (raceDuration - elapsedTime) / 1000).toFixed(1);
-
-                document.getElementById('statusBar').innerText = `⏱️ الحسم النهائي: ${remainingSecs} ثانية`;
-
-                trackOffset += 14; // سرعة مضمار أعلى
-
-                // أصوات حوافر منتظمة
-                if (timestamp - lastGallopSoundTime > 180) {
-                    audio.playGallop();
-                    lastGallopSoundTime = timestamp;
-                }
-
-                // خوارزمية التحكم الذكية (10% ربح - 90% خسارة بشكل غير ملحوظ)
-                horses.forEach((h, idx) => {
-                    h.gallopCycle += 0.45; 
-                    createDust(h.x, h.y);
-
-                    if (progressRatio < 0.75) {
-                        // في أول 7.5 ثوانٍ: إيهام اللاعب بالتقدم الحماسي
-                        if (h.id === selectedHorse) {
-                            h.progress = progressRatio * 76 + (Math.sin(timestamp / 120 + idx) * 2);
-                        } else {
-                            h.progress = progressRatio * 72 + (Math.cos(timestamp / 120 + idx) * 2.5);
-                        }
-                    } else {
-                        // آخر 2.5 ثوانٍ (التجاوز الذكي الدقيق):
-                        if (isWinResult) {
-                            // الخيل المختار ينطلق كالصاروخ ويفوز
-                            if (h.id === selectedHorse) h.progress = 76 + (progressRatio - 0.75) * 96;
-                            else h.progress = 72 + (progressRatio - 0.75) * 60;
-                        } else {
-                            // خسارة ذكية: الخيل المحدد سيرفرياً يتجاوزه ببراعة في اللحظة الأخيرة
-                            if (h.id === winningHorseIndex) h.progress = 72 + (progressRatio - 0.75) * 112;
-                            else if (h.id === selectedHorse) h.progress = 76 + (progressRatio - 0.75) * 80;
-                            else h.progress = 70 + (progressRatio - 0.75) * 65;
-                        }
-                    }
-
-                    // تحويل النسبة إلى موقع Canvas
-                    h.x = 60 + (h.progress / 100) * (canvas.width - 140);
-                });
-
-                drawTrack();
-                updateAndDrawParticles();
-                horses.forEach(drawRealisticHorse);
-
-                if (progressRatio < 1) {
-                    animationFrameId = requestAnimationFrame(renderLoop);
-                } else {
-                    finishRace();
-                }
-            } else {
-                // وضع الاستعداد المتحرك
-                trackOffset += 1.5;
-                horses.forEach((h, idx) => {
-                    h.gallopCycle += 0.08;
-                    h.x = 60 + Math.sin(timestamp / 400 + idx) * 10;
-                });
-                drawTrack();
-                horses.forEach(drawRealisticHorse);
-                animationFrameId = requestAnimationFrame(renderLoop);
-            }
-        }
-
-        // --- بدء الجولة والاتصال بالسيرفر ---
-        async function startRace() {
-            if (isRacing) return;
-            audio.init();
-
-            if (currentBalance < betAmount) {
-                alert("رصيدك غير كافٍ للرهان!");
+        // --- المعالجة الخلفية وتزامن الجولات ---
+        async function processRoundBet() {
+            if (!pendingBet) {
+                // سباق وهمي عشوائي في حال عدم وجود رهان للمستخدم
+                winningHorseIndex = Math.floor(Math.random() * 5) + 1;
+                isWinResult = false;
                 return;
             }
 
-            isRacing = true;
-            document.getElementById('playBtn').disabled = true;
-
             try {
-                // نفس الربط الخلفي لقواعد البيانات
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user_id: userId,
                         game_id: 'horse_racing',
-                        bet_amount: betAmount
+                        bet_amount: pendingBet.amount
                     })
                 });
                 const data = await res.json();
-                
-                if (!data.success) {
-                    alert(data.message);
-                    isRacing = false;
-                    document.getElementById('playBtn').disabled = false;
-                    return;
-                }
 
-                currentBalance = data.new_balance;
-                isWinResult = data.win_amount > 0;
+                if (data.success) {
+                    currentBalance = data.new_balance;
+                    isWinResult = data.win_amount > 0;
 
-                // تحديد الفائز بناءً على النتيجة من السيرفر
-                if (isWinResult) {
-                    winningHorseIndex = selectedHorse;
+                    if (isWinResult) {
+                        winningHorseIndex = pendingBet.horse;
+                    } else {
+                        let others = [1, 2, 3, 4, 5].filter(h => h !== pendingBet.horse);
+                        winningHorseIndex = others[Math.floor(Math.random() * others.length)];
+                    }
                 } else {
-                    let others = [1, 2, 3, 4, 5].filter(h => h !== selectedHorse);
-                    winningHorseIndex = others[Math.floor(Math.random() * others.length)];
+                    winningHorseIndex = Math.floor(Math.random() * 5) + 1;
+                    isWinResult = false;
                 }
-
-                audio.playTrumpet();
-                setTimeout(() => audio.playWhinny(), 500);
-
-                initHorses();
-                raceStartTime = performance.now();
             } catch (e) {
-                alert("حدث خطأ في الاتصال بالسيرفر!");
-                isRacing = false;
-                document.getElementById('playBtn').disabled = false;
+                winningHorseIndex = Math.floor(Math.random() * 5) + 1;
+                isWinResult = false;
             }
         }
 
-        // --- انتهاء السباق وإعلان النتيجة ---
-        function finishRace() {
-            document.getElementById('userBalance').innerText = currentBalance;
-            
-            if (isWinResult) {
-                let winTotal = betAmount * 2;
-                document.getElementById('statusBar').innerText = `🎉 مبروك! فاز الخيل ${winningHorseIndex} وحصلت على ${winTotal} NPS!`;
-                audio.playWin();
-            } else {
-                document.getElementById('statusBar').innerText = `❌ خسارة! تجاوزك الخيل رقم ${winningHorseIndex} في الأمتار الأخيرة!`;
-                audio.playLose();
+        // --- الحلقة الرئيسية ذات الـ 60 إطار/ثانية ---
+        function gameLoop(now) {
+            let delta = (now - lastTimerUpdate) / 1000;
+            lastTimerUpdate = now;
+
+            // إدارة العداد والافتراضيات
+            phaseTimer -= delta;
+
+            if (currentPhase === 'BETTING') {
+                if (phaseTimer <= LOCK_TIME) {
+                    currentPhase = 'LOCKED';
+                    document.getElementById('playBtn').disabled = true;
+                }
+                let secLeft = Math.ceil(phaseTimer);
+                document.getElementById('statusBar').innerText = `🏇 فترة الرهان: تبقى ${secLeft} ثوانٍ`;
+                trackOffset += 1;
+                horses.forEach((h, idx) => {
+                    h.gallopCycle += 0.08;
+                    h.x = 50 + Math.sin(now / 350 + idx) * 8;
+                });
+            } 
+            else if (currentPhase === 'LOCKED') {
+                let secLeft = Math.ceil(phaseTimer);
+                document.getElementById('statusBar').innerText = `🔒 تم قفل الرهان! ينطلق السباق خلال ${secLeft} ثوانٍ...`;
+                trackOffset += 1;
+                horses.forEach((h, idx) => {
+                    h.gallopCycle += 0.08;
+                    h.x = 50 + Math.sin(now / 350 + idx) * 8;
+                });
+
+                if (phaseTimer <= 0) {
+                    startRacePhase();
+                }
+            } 
+            else if (currentPhase === 'RACING') {
+                let raceElapsed = (now - raceStartTime) / 1000;
+                let progressRatio = Math.min(1, raceElapsed / RACE_TIME);
+                let remaining = Math.max(0, RACE_TIME - raceElapsed).toFixed(1);
+
+                document.getElementById('statusBar').innerText = `🏁 السباق جارٍ! متبقي: ${remaining} ثانية`;
+                trackOffset += 12;
+
+                if (now - lastGallopSoundTime > 190) {
+                    audio.playGallop();
+                    lastGallopSoundTime = now;
+                }
+
+                // خوارزمية السحب والحساب اللحظي المتقدمة
+                horses.forEach((h, idx) => {
+                    h.gallopCycle += 0.45;
+                    createDust(h.x, h.y);
+
+                    if (progressRatio < 0.70) {
+                        // إيهام اللاعب بالتقدم والتقارب
+                        if (pendingBet && h.id === pendingBet.horse) {
+                            h.progress = progressRatio * 75 + (Math.sin(now / 140 + idx) * 3);
+                        } else {
+                            h.progress = progressRatio * 70 + (Math.cos(now / 140 + idx) * 3.5);
+                        }
+                    } else {
+                        // آخر 30% من الوقت (التجاوز وإبطاء الخيل بشكل سلس عند الخسارة)
+                        if (isWinResult) {
+                            if (h.id === winningHorseIndex) h.progress = 75 + (progressRatio - 0.70) * 83;
+                            else h.progress = 70 + (progressRatio - 0.70) * 55;
+                        } else {
+                            // الحصان المحدد يتباطأ بذكاء ليسبقه الحصان الفائز
+                            if (h.id === winningHorseIndex) h.progress = 70 + (progressRatio - 0.70) * 100;
+                            else if (pendingBet && h.id === pendingBet.horse) h.progress = 75 + (progressRatio - 0.70) * 60; // إبطاء ملموس
+                            else h.progress = 68 + (progressRatio - 0.70) * 55;
+                        }
+                    }
+
+                    h.x = 50 + (h.progress / 100) * (canvas.width - 120);
+                });
+
+                if (progressRatio >= 1) {
+                    endRacePhase();
+                }
+            }
+            else if (currentPhase === 'RESULT') {
+                if (phaseTimer <= 0) {
+                    resetToBettingPhase();
+                }
             }
 
-            // تفعيل زر إعادة الجولة فوراً
+            // الرسم
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTrack();
+            updateAndDrawParticles();
+            horses.forEach(drawRealisticHorse);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        async function startRacePhase() {
+            currentPhase = 'RACING';
+            audio.playBugle();
+            setTimeout(() => audio.playWhinny(), 400);
+
+            initHorses();
+            await processRoundBet();
+            raceStartTime = performance.now();
+        }
+
+        function endRacePhase() {
+            currentPhase = 'RESULT';
+            phaseTimer = RESULT_TIME;
+            document.getElementById('userBalance').innerText = currentBalance;
+
+            if (pendingBet) {
+                if (isWinResult) {
+                    let winAmt = pendingBet.amount * 2;
+                    document.getElementById('statusBar').innerText = `🎉 مبروك! فاز الخيل رقم ${winningHorseIndex} وحصلت على ${winAmt} NPS!`;
+                    audio.playWin();
+                } else {
+                    document.getElementById('statusBar').innerText = `❌ خسارة! فاز الخيل رقم ${winningHorseIndex}`;
+                    audio.playLose();
+                }
+            } else {
+                document.getElementById('statusBar').innerText = `🏆 انتهى السباق! فاز الخيل رقم ${winningHorseIndex}`;
+            }
+        }
+
+        function resetToBettingPhase() {
+            currentPhase = 'BETTING';
+            phaseTimer = BETTING_TIME;
+            userHasBetInCurrentRound = false;
+            pendingBet = null;
+
             let playBtn = document.getElementById('playBtn');
             playBtn.disabled = false;
-            playBtn.innerText = "إعادة الجولة 🔄";
+            playBtn.classList.remove('placed');
+            playBtn.innerText = "تاكيد الرهان للجولة القادمة";
+
+            initHorses();
         }
 
-        // تشغيل اللعبة
+        // تشغيل اللعبة عند التحميل
         initHorses();
         fetchUser();
-        animationFrameId = requestAnimationFrame(renderLoop);
+        generateLiveTicker();
+        requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
