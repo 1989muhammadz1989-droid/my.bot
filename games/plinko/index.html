@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة بلينكو الفاخرة - Plinko NPS</title>
+    <title>بلينكو VIP - Plinko NPS</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #151a24;
+            --bg-color: #080b12;
+            --card-bg: #121824;
             --accent-gold: #ffd700;
             --accent-cyan: #00f2fe;
             --accent-green: #00e676;
-            --accent-red: #ff1744;
-            --accent-purple: #9c27b0;
+            --accent-red: #ff2a5f;
             --text-main: #ffffff;
-            --text-muted: #8a99ad;
+            --text-muted: #7e8b9b;
         }
 
         * {
@@ -38,19 +37,18 @@
             align-items: center;
             justify-content: flex-start;
             overflow-x: hidden;
-            background: radial-gradient(circle at top, #1a233a 0%, #0b0e14 70%);
+            background: radial-gradient(circle at top, #182238 0%, #080b12 75%);
         }
 
-        /* Header & Balance Section */
         .header {
             width: 100%;
-            max-width: 500px;
-            padding: 15px 20px;
+            max-width: 480px;
+            padding: 12px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(21, 26, 36, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(18, 24, 36, 0.85);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: sticky;
             top: 0;
@@ -58,7 +56,7 @@
         }
 
         .game-title {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 900;
             background: linear-gradient(45deg, var(--accent-gold), var(--accent-cyan));
             -webkit-background-clip: text;
@@ -69,150 +67,122 @@
         }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 20px;
-            padding: 6px 16px;
+            padding: 5px 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+            gap: 6px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
         }
 
-        .balance-box i {
-            color: var(--accent-gold);
-            font-size: 1.1rem;
-        }
+        .balance-box i { color: var(--accent-gold); font-size: 1rem; }
+        .balance-amount { font-size: 1.05rem; font-weight: 800; color: #fff; }
+        .currency-tag { color: var(--accent-gold); font-size: 0.8rem; font-weight: 700; }
 
-        .balance-amount {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .currency-tag {
-            color: var(--accent-gold);
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        /* Game Board Container */
         .game-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 10px;
-            position: relative;
         }
 
-        /* History Strip */
         .history-bar {
             width: 100%;
-            height: 36px;
+            height: 34px;
             display: flex;
             gap: 6px;
             justify-content: flex-end;
             align-items: center;
             overflow-x: hidden;
-            padding: 0 10px;
-            margin-bottom: 10px;
+            padding: 0 5px;
+            margin-bottom: 8px;
         }
 
         .history-badge {
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 800;
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn 0.25s ease-out;
             white-space: nowrap;
         }
 
         @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        /* Plinko Board Canvas */
         .canvas-wrapper {
             position: relative;
             width: 100%;
-            background: rgba(15, 20, 30, 0.6);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: rgba(10, 14, 23, 0.75);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.9), 0 12px 35px rgba(0, 0, 0, 0.6);
             overflow: hidden;
             display: flex;
             justify-content: center;
         }
 
-        canvas {
-            display: block;
-            max-width: 100%;
-        }
+        canvas { display: block; max-width: 100%; }
 
-        /* Betting Controls Area */
         .controls-panel {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             background: var(--card-bg);
-            border-radius: 20px 20px 0 0;
-            padding: 20px;
-            margin-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 22px 22px 0 0;
+            padding: 18px;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
         }
 
-        .control-group {
-            margin-bottom: 15px;
-        }
+        .control-group { margin-bottom: 12px; }
 
         .control-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
         }
 
         .bet-input-box {
             display: flex;
             align-items: center;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            overflow: hidden;
-            padding: 4px;
+            padding: 3px;
         }
 
         .btn-adjust {
-            width: 45px;
-            height: 45px;
-            background: #222b3c;
+            width: 42px;
+            height: 42px;
+            background: #1c2434;
             border: none;
             color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .btn-adjust:active {
-            transform: scale(0.92);
-            background: var(--accent-cyan);
-            color: #000;
-        }
+        .btn-adjust:active { transform: scale(0.92); background: var(--accent-cyan); color: #000; }
 
         .bet-amount-display {
             flex: 1;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: var(--accent-gold);
             border: none;
@@ -224,95 +194,68 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .btn-quick {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-main);
-            padding: 8px 0;
+            padding: 7px 0;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
-        .btn-quick:active, .btn-quick.active {
-            background: rgba(0, 242, 254, 0.2);
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-        }
+        .btn-quick:active { background: rgba(0, 242, 254, 0.2); border-color: var(--accent-cyan); }
 
-        /* Main Action Button */
         .btn-play {
             width: 100%;
-            height: 55px;
+            height: 52px;
             background: linear-gradient(135deg, #00e676, #00b0ff);
             border: none;
             border-radius: 14px;
-            color: #000;
-            font-size: 1.3rem;
+            color: #050a10;
+            font-size: 1.25rem;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.35);
-            transition: all 0.2s;
+            box-shadow: 0 5px 20px rgba(0, 230, 118, 0.35);
+            transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .btn-play:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2);
-        }
+        .btn-play:active { transform: translateY(2px); box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2); }
+        .btn-play:disabled { background: #222c3d; color: #505f75; box-shadow: none; cursor: not-allowed; }
 
-        .btn-play:disabled {
-            background: #2a3447;
-            color: #5a6982;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        /* Result Popup Banner */
         .result-toast {
             position: absolute;
-            top: 40%;
+            top: 42%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: rgba(10, 15, 25, 0.95);
+            background: rgba(8, 12, 20, 0.94);
             border: 2px solid var(--accent-gold);
             border-radius: 16px;
-            padding: 15px 30px;
+            padding: 12px 26px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
             z-index: 20;
             pointer-events: none;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .result-toast.show {
-            transform: translate(-50%, -50%) scale(1);
-        }
+        .result-toast.show { transform: translate(-50%, -50%) scale(1); }
+        .result-toast .title { font-size: 0.85rem; color: var(--text-muted); }
+        .result-toast .value { font-size: 1.7rem; font-weight: 900; color: var(--accent-gold); }
 
-        .result-toast .title {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .result-toast .value {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--accent-gold);
-        }
-
-        /* Color Tiers for Buckets */
-        .tier-loss { background: rgba(255, 23, 68, 0.2); color: #ff1744; border: 1px solid #ff1744; }
-        .tier-normal { background: rgba(0, 230, 118, 0.2); color: #00e676; border: 1px solid #00e676; }
-        .tier-medium { background: rgba(0, 242, 254, 0.2); color: #00f2fe; border: 1px solid #00f2fe; }
-        .tier-high { background: rgba(156, 39, 176, 0.2); color: #e040fb; border: 1px solid #e040fb; }
+        .tier-loss { background: rgba(255, 42, 95, 0.18); color: #ff2a5f; border: 1px solid #ff2a5f; }
+        .tier-normal { background: rgba(255, 170, 0, 0.18); color: #ffaa00; border: 1px solid #ffaa00; }
+        .tier-medium { background: rgba(0, 230, 118, 0.18); color: #00e676; border: 1px solid #00e676; }
+        .tier-high { background: rgba(0, 242, 254, 0.18); color: #00f2fe; border: 1px solid #00f2fe; }
         .tier-mega { background: rgba(255, 215, 0, 0.25); color: #ffd700; border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
     </style>
 </head>
@@ -320,7 +263,7 @@
 
     <div class="header">
         <div class="game-title">
-            <i class="fa-solid fa-circle-nodes"></i> بلينكو NPS
+            <i class="fa-solid fa-circle-nodes"></i> بلينكو VIP
         </div>
         <div class="balance-box">
             <i class="fa-solid fa-coins"></i>
@@ -368,81 +311,76 @@
     </div>
 
     <script>
-        // ----------------------------------------------------
-        // 1. الإعدادات العامة والمتغيرات
-        // ----------------------------------------------------
         const GAME_ID = "plinko";
         const MIN_BET = 5;
         const MAX_BET = 1000;
         
-        // استخراج user_id من رابط الصفحة أو تلجرام
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || "1001";
 
         let currentBalance = 0;
         let isPlaying = false;
 
-        // إعدادات الصوت (Web Audio API)
+        // توليد الأصوات ديناميكياً بواسطة Web Audio API
         const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playSound(type) {
             try {
+                if (AudioCtx.state === 'suspended') AudioCtx.resume();
                 const osc = AudioCtx.createOscillator();
                 const gain = AudioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(AudioCtx.destination);
 
                 if (type === 'bounce') {
-                    osc.frequency.setValueAtTime(300 + Math.random() * 200, AudioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.05, AudioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.05);
+                    osc.frequency.setValueAtTime(350 + Math.random() * 250, AudioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.04, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.04);
                     osc.start();
-                    osc.stop(AudioCtx.currentTime + 0.05);
+                    osc.stop(AudioCtx.currentTime + 0.04);
                 } else if (type === 'win') {
                     osc.frequency.setValueAtTime(400, AudioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(800, AudioCtx.currentTime + 0.2);
-                    gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(850, AudioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.15, AudioCtx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.3);
                     osc.start();
                     osc.stop(AudioCtx.currentTime + 0.3);
                 } else if (type === 'loss') {
-                    osc.frequency.setValueAtTime(200, AudioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(100, AudioCtx.currentTime + 0.25);
-                    gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.25);
+                    osc.frequency.setValueAtTime(220, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(110, AudioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.12, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.2);
                     osc.start();
-                    osc.stop(AudioCtx.currentTime + 0.25);
+                    osc.stop(AudioCtx.currentTime + 0.2);
                 }
             } catch (e) {}
         }
 
-        // ----------------------------------------------------
-        // 2. إعدادات اللوحة والـ Canvas
-        // ----------------------------------------------------
+        // إعدادات اللوحة والـ Canvas
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
 
-        const ROWS = 8; // عدد صفوف الدبابيس
+        const ROWS = 8;
         const PEGS = [];
         const BUCKETS = [
-            { label: '500x', tier: 'mega', mult: 500 },
-            { label: '50x',  tier: 'high', mult: 50 },
-            { label: '10x',  tier: 'medium', mult: 10 },
-            { label: '1.5x', tier: 'normal', mult: 1.5 },
-            { label: '0x',   tier: 'loss', mult: 0 },
-            { label: '1.5x', tier: 'normal', mult: 1.5 },
-            { label: '10x',  tier: 'medium', mult: 10 },
-            { label: '50x',  tier: 'high', mult: 50 },
-            { label: '500x', tier: 'mega', mult: 500 }
+            { label: '5x',   tier: 'mega', mult: 5 },
+            { label: '2x',   tier: 'high', mult: 2 },
+            { label: '1.2x', tier: 'medium', mult: 1.2 },
+            { label: '0.5x', tier: 'normal', mult: 0.5 },
+            { label: '0.1x', tier: 'loss', mult: 0.1 },
+            { label: '0.2x', tier: 'loss', mult: 0.2 },
+            { label: '1.2x', tier: 'medium', mult: 1.2 },
+            { label: '2x',   tier: 'high', mult: 2 },
+            { label: '5x',   tier: 'mega', mult: 5 }
         ];
 
         let activeBalls = [];
+        let particles = [];
 
-        // إنشاء شبكة الدبابيس (Pyramid Layout)
         function initBoard() {
             PEGS.length = 0;
-            const startY = 60;
-            const rowSpacing = 40;
+            const startY = 55;
+            const rowSpacing = 42;
 
             for (let r = 0; r < ROWS; r++) {
                 const count = r + 3;
@@ -453,8 +391,7 @@
                     PEGS.push({
                         x: startX + c * spacing,
                         y: startY + r * rowSpacing,
-                        radius: 5,
-                        hitRadius: 5,
+                        radius: 4.5,
                         glow: 0
                     });
                 }
@@ -463,24 +400,43 @@
 
         initBoard();
 
-        // ----------------------------------------------------
-        // 3. محرك الرسوميات والانيميشن
-        // ----------------------------------------------------
+        // محرك الشرارات والجرافيكس
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 14; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6 - 2,
+                    radius: Math.random() * 3 + 1,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
         function drawBoard() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // رسم شبكة خلفية ملونة ناعمة
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.02)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
 
             // رسم الدبابيس (Pegs)
             PEGS.forEach(peg => {
                 ctx.beginPath();
-                ctx.arc(peg.x, peg.y, peg.glow > 0 ? 7 : 5, 0, Math.PI * 2);
+                ctx.arc(peg.x, peg.y, peg.glow > 0 ? 6.5 : 4.5, 0, Math.PI * 2);
                 
                 if (peg.glow > 0) {
                     ctx.fillStyle = "#00f2fe";
                     ctx.shadowColor = "#00f2fe";
-                    ctx.shadowBlur = 15;
+                    ctx.shadowBlur = 18;
                     peg.glow--;
                 } else {
-                    ctx.fillStyle = "#a2b4c7";
+                    ctx.fillStyle = "#8aa0b8";
                     ctx.shadowBlur = 0;
                 }
                 
@@ -488,8 +444,8 @@
                 ctx.shadowBlur = 0;
             });
 
-            // رسم السلال في الأسفل (Buckets)
-            const bucketWidth = 40;
+            // رسم السلال
+            const bucketWidth = 38;
             const bucketGap = 4;
             const totalBucketWidth = (BUCKETS.length * bucketWidth) + ((BUCKETS.length - 1) * bucketGap);
             const startX = (canvas.width - totalBucketWidth) / 2;
@@ -498,55 +454,85 @@
             BUCKETS.forEach((b, i) => {
                 const x = startX + i * (bucketWidth + bucketGap);
                 
-                // تحديد ألوان السلال بحسب الفئة
-                let bgColor = "rgba(255, 23, 68, 0.2)";
-                let borderColor = "#ff1744";
-                let textColor = "#ff1744";
+                let bgColor = "rgba(255, 42, 95, 0.15)";
+                let borderColor = "#ff2a5f";
+                let textColor = "#ff2a5f";
 
-                if (b.tier === 'normal') { bgColor = "rgba(0, 230, 118, 0.2)"; borderColor = "#00e676"; textColor = "#00e676"; }
-                if (b.tier === 'medium') { bgColor = "rgba(0, 242, 254, 0.2)"; borderColor = "#00f2fe"; textColor = "#00f2fe"; }
-                if (b.tier === 'high') { bgColor = "rgba(156, 39, 176, 0.2)"; borderColor = "#e040fb"; textColor = "#e040fb"; }
+                if (b.tier === 'normal') { bgColor = "rgba(255, 170, 0, 0.18)"; borderColor = "#ffaa00"; textColor = "#ffaa00"; }
+                if (b.tier === 'medium') { bgColor = "rgba(0, 230, 118, 0.18)"; borderColor = "#00e676"; textColor = "#00e676"; }
+                if (b.tier === 'high') { bgColor = "rgba(0, 242, 254, 0.18)"; borderColor = "#00f2fe"; textColor = "#00f2fe"; }
                 if (b.tier === 'mega') { bgColor = "rgba(255, 215, 0, 0.25)"; borderColor = "#ffd700"; textColor = "#ffd700"; }
 
-                // خلفية السلة
                 ctx.fillStyle = bgColor;
                 ctx.beginPath();
                 ctx.roundRect(x, bucketY, bucketWidth, 32, 6);
                 ctx.fill();
 
-                // إطار السلة
                 ctx.strokeStyle = borderColor;
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // نص المضاعف
                 ctx.fillStyle = textColor;
                 ctx.font = "bold 11px Cairo";
                 ctx.textAlign = "center";
                 ctx.fillText(b.label, x + bucketWidth / 2, bucketY + 20);
             });
 
-            // رسم وتحديث الكرات الحية
+            // تحديث ورسم الشرارات
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+
+                if (p.alpha <= 0) {
+                    particles.splice(index, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // رسم وتحديث الكرات مع ذيل الحركة (Trail)
             activeBalls.forEach((ball, index) => {
+                ball.trail.push({ x: ball.x, y: ball.y });
+                if (ball.trail.length > 8) ball.trail.shift();
+
+                // ذيل الحركة
+                for (let t = 0; t < ball.trail.length; t++) {
+                    const pt = ball.trail[t];
+                    const alpha = (t + 1) / ball.trail.length;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, ball.radius * (alpha * 0.7), 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.4})`;
+                    ctx.fill();
+                }
+
+                // جسم الكرة
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
                 ctx.fillStyle = "#ffd700";
                 ctx.shadowColor = "#ffd700";
-                ctx.shadowBlur = 12;
+                ctx.shadowBlur = 15;
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // تحديث حركة الكرة وفق المسار المحسوب
                 updateBallPath(ball, index);
             });
 
             requestAnimationFrame(drawBoard);
         }
 
-        // تحديث مسار الكرة
         function updateBallPath(ball, index) {
             if (ball.step >= ball.path.length) {
-                // الكرة وصلت إلى السلة النهائية
+                const targetBucketX = ball.x;
+                const targetBucketY = ball.y;
+                createParticles(targetBucketX, targetBucketY, ball.resultData.win_amount > 0 ? "#ffd700" : "#ff2a5f");
+                
                 activeBalls.splice(index, 1);
                 onBallLanded(ball.resultData);
                 return;
@@ -557,16 +543,19 @@
             const dy = target.y - ball.y;
             const dist = Math.hypot(dx, dy);
 
-            const speed = 7; // سرعة حركة الكرة
+            // إعطاء تأثير التشويق عبر تخفيف سرعة الكرة قليلاً عند الاقتراب من النهاية
+            let speed = 7.5;
+            if (ball.step >= ball.path.length - 3) {
+                speed = 5.2; // إبطاء تشويقي قبل السقوط النهائي
+            }
 
             if (dist < speed) {
                 ball.x = target.x;
                 ball.y = target.y;
                 ball.step++;
 
-                // تفعيل توهج الدبوس عند التصادم
                 if (target.pegRef) {
-                    target.pegRef.glow = 8;
+                    target.pegRef.glow = 10;
                     playSound('bounce');
                 }
             } else {
@@ -577,40 +566,32 @@
 
         requestAnimationFrame(drawBoard);
 
-        // ----------------------------------------------------
-        // 4. خوارزمية حساب مسار الكرة ليطابق نتيجة السيرفر
-        // ----------------------------------------------------
+        // توليد مسار انسيابي طردي يطابق نتيجة السيرفر
         function generatePathForTier(targetTier) {
-            // اختيار السلة المناسبة بحسب نتيجة السيرفر
             let validIndices = [];
             BUCKETS.forEach((b, idx) => {
                 if (b.tier === targetTier) validIndices.push(idx);
             });
 
-            // في حال عدم التطابق التام نختار سلة عشوائية
             const targetBucketIdx = validIndices[Math.floor(Math.random() * validIndices.length)] || 4;
 
             const path = [];
             let currentX = canvas.width / 2;
-            let currentY = 20;
+            let currentY = 18;
 
             path.push({ x: currentX, y: currentY });
 
-            // حساب الحركة عبر صفوف الدبابيس
-            // عدد خطوات اليمين المطلوبة لتطابق السلة
             let rightMovesNeeded = targetBucketIdx;
-            let totalSteps = BUCKETS.length - 1; // 8 خطوات
+            let totalSteps = BUCKETS.length - 1;
 
-            // توليد اتجاهات الحركة (0=يسار, 1=يمين)
             let moves = [];
             for (let i = 0; i < rightMovesNeeded; i++) moves.push(1);
             while (moves.length < totalSteps) moves.push(0);
 
-            // خلط الاتجاهات عشوائياً لتبدو سقوط طبيعي للكرة
             moves.sort(() => Math.random() - 0.5);
 
-            const startY = 60;
-            const rowSpacing = 40;
+            const startY = 55;
+            const rowSpacing = 42;
             const spacing = 36;
 
             let colIndex = 0;
@@ -619,36 +600,29 @@
                 const count = r + 3;
                 const rowStartX = (canvas.width - (count - 1) * spacing) / 2;
                 
-                // الدبوس المستهدف في هذا الصف
                 const pegX = rowStartX + (colIndex + moves[r]) * spacing;
                 const pegY = startY + r * rowSpacing;
 
-                // البحث عن كائن الدبوس لغرض التوهج
                 const pegObj = PEGS.find(p => Math.abs(p.x - pegX) < 5 && Math.abs(p.y - pegY) < 5);
 
-                path.push({ x: pegX, y: pegY - 8, pegRef: pegObj });
+                path.push({ x: pegX, y: pegY - 7, pegRef: pegObj });
 
                 if (moves[r] === 1) colIndex++;
             }
 
-            // النقطة النهائية داخل السلة
-            const bucketWidth = 40;
+            const bucketWidth = 38;
             const bucketGap = 4;
             const totalBucketWidth = (BUCKETS.length * bucketWidth) + ((BUCKETS.length - 1) * bucketGap);
             const startX = (canvas.width - totalBucketWidth) / 2;
             const finalX = startX + targetBucketIdx * (bucketWidth + bucketGap) + bucketWidth / 2;
-            const finalY = canvas.height - 30;
+            const finalY = canvas.height - 28;
 
             path.push({ x: finalX, y: finalY });
 
             return path;
         }
 
-        // ----------------------------------------------------
-        // 5. الربط المباشر مع APIs السيرفر (app-٩.py)
-        // ----------------------------------------------------
-
-        // جلب بيانات المستخدم والرصيد
+        // الربط المباشر مع APIs السيرفر (app-٩.py)
         async function fetchUserData() {
             try {
                 const res = await fetch(`/api/user/get?user_id=${userId}`);
@@ -658,7 +632,7 @@
                     updateUIBalance();
                 }
             } catch (err) {
-                console.error("خطأ في جلب بيانات المستخدم:", err);
+                console.error("خطأ في جلب البيانات:", err);
             }
         }
 
@@ -666,7 +640,6 @@
             document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
         }
 
-        // تشغيل لعبة بلينكو عند الضغط على الزر
         async function playGame() {
             if (isPlaying) return;
 
@@ -674,7 +647,7 @@
             const betAmount = parseFloat(betInput.value);
 
             if (isNaN(betAmount) || betAmount < MIN_BET || betAmount > MAX_BET) {
-                alert(`مبلغ الرهان يجب أن يكون بين ${MIN_BET} و ${MAX_BET} NPS`);
+                alert(`الرهان يجب أن يكون بين ${MIN_BET} و ${MAX_BET} NPS`);
                 return;
             }
 
@@ -687,7 +660,6 @@
             document.getElementById('btnPlay').disabled = true;
 
             try {
-                // إرسال الرهان إلى API السيرفر
                 const response = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -707,61 +679,55 @@
                     return;
                 }
 
-                // خصم الرصيد مؤقتاً بالواجهة
                 currentBalance = result.new_balance;
                 updateUIBalance();
 
-                // توليد المسار بناءً على الـ tier القادم من السيرفر
                 const generatedPath = generatePathForTier(result.tier);
 
-                // إضافة الكرة لمجال الأنيميشن
                 activeBalls.push({
                     x: canvas.width / 2,
                     y: 15,
-                    radius: 7,
+                    radius: 6.5,
                     step: 0,
+                    trail: [],
                     path: generatedPath,
                     resultData: result
                 });
 
             } catch (err) {
-                console.error("خطأ في الاتصال بالسيرفر:", err);
+                console.error("خطأ بالسيرفر:", err);
                 alert("تعذر الاتصال بالسيرفر!");
                 isPlaying = false;
                 document.getElementById('btnPlay').disabled = false;
             }
         }
 
-        // عند استقرار الكرة في السلة
         function onBallLanded(data) {
             isPlaying = false;
             document.getElementById('btnPlay').disabled = false;
 
-            // إظهار النتيجة للمستخدم
             const toast = document.getElementById('resultToast');
             const toastTitle = document.getElementById('toastTitle');
             const toastValue = document.getElementById('toastValue');
 
             if (data.win_amount > 0) {
-                toastTitle.innerText = `ربح (${data.multiplier}x)!`;
+                toastTitle.innerText = `عائد (${data.multiplier}x)!`;
                 toastValue.innerText = `+${data.win_amount.toFixed(2)} NPS`;
-                toastValue.style.color = "var(--accent-gold)";
+                toastValue.style.color = data.multiplier >= 1.0 ? "var(--accent-gold)" : "var(--accent-cyan)";
                 playSound('win');
             } else {
-                toastTitle.innerText = "خسارة!";
+                toastTitle.innerText = "لم تحالفك الحظ!";
                 toastValue.innerText = `0.00 NPS`;
                 toastValue.style.color = "var(--accent-red)";
                 playSound('loss');
             }
 
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+            setTimeout(() => toast.classList.remove('show'), 1800);
 
-            // إضافتها إلى شريط السجل في الأعلى
             addHistoryBadge(data.multiplier, data.tier);
         }
 
-        // إضافة الشارة لشريط النتائج السابقة
         function addHistoryBadge(mult, tier) {
             const bar = document.getElementById('historyBar');
             const badge = document.createElement('div');
@@ -770,14 +736,11 @@
 
             bar.insertBefore(badge, bar.firstChild);
 
-            if (bar.children.length > 8) {
+            if (bar.children.length > 7) {
                 bar.removeChild(bar.lastChild);
             }
         }
 
-        // ----------------------------------------------------
-        // 6. التحكم بمبالغ الرهان
-        // ----------------------------------------------------
         function setBet(val) {
             document.getElementById('betAmount').value = val;
         }
@@ -794,7 +757,6 @@
             if (val > MIN_BET) input.value = Math.max(MIN_BET, val - 5);
         });
 
-        // تحميل بيانات المستخدم فور بدء الصفحة
         fetchUserData();
     </script>
 </body>
