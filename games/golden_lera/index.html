@@ -18,7 +18,8 @@
             --gold-light: #fff3a1;
             --gold-glow: rgba(212, 175, 55, 0.8);
             --copper: #b87333;
-            --copper-glow: rgba(184, 115, 51, 0.7);
+            --copper-light: #e68a00;
+            --copper-glow: rgba(184, 115, 51, 0.8);
             --bg-main: radial-gradient(circle at center, #3a0007 0%, #1a0003 60%, #000000 100%);
             --card-bg: rgba(20, 0, 5, 0.95);
             --text-dark: #ffffff;
@@ -297,13 +298,17 @@
             animation: fastSpinSmoothReverse 0.1s linear infinite;
         }
 
-        .reel-strip.decelerate-stop {
-            animation: reelSlowdownAndStop 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .reel-strip.spinning-superfast {
+            animation: fastSpinSmoothReverse 0.04s linear infinite;
         }
 
         @keyframes fastSpinSmoothReverse {
-            0% { transform: translateY(0px); filter: blur(3px); }
-            100% { transform: translateY(-240px); filter: blur(3px); }
+            0% { transform: translateY(0px); filter: blur(4px); }
+            100% { transform: translateY(-240px); filter: blur(4px); }
+        }
+
+        .reel-strip.decelerate-stop {
+            animation: reelSlowdownAndStop 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         @keyframes reelSlowdownAndStop {
@@ -313,6 +318,7 @@
             100% { transform: translateY(0); }
         }
 
+        /* --- تطوير شكل ومظهر الرموز (إطارات ملكية وثلاثية الأبعاد) --- */
         .symbol {
             height: 80px;
             width: 100%;
@@ -322,7 +328,7 @@
             align-items: center;
             position: relative;
             flex-shrink: 0;
-            padding: 2px;
+            padding: 3px;
             overflow: hidden;
         }
 
@@ -334,26 +340,33 @@
             justify-content: center;
             position: relative;
             font-size: 42px;
-            background: transparent;
-            transition: all 0.2s ease-out;
+            background: radial-gradient(circle at 30% 30%, rgba(60, 5, 10, 0.8), rgba(15, 0, 3, 0.95));
+            border: 1.5px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             max-width: 100%;
             object-fit: contain;
         }
 
-        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); }
-        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); }
-        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); }
-        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); }
-        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); }
-        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); }
-        .symbol.lira-coin .symbol-badge { filter: drop-shadow(0 0 14px #ffd700); animation: liraGlow 1s infinite alternate; }
+        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); border-color: rgba(34, 197, 94, 0.4); }
+        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); border-color: rgba(168, 85, 247, 0.4); }
+        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); border-color: rgba(255, 140, 0, 0.4); }
+        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); border-color: rgba(234, 179, 8, 0.4); }
+        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); border-color: rgba(250, 204, 21, 0.4); }
+        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); border-color: rgba(255, 223, 0, 0.5); }
+        .symbol.lira-coin .symbol-badge { 
+            border-color: var(--gold);
+            filter: drop-shadow(0 0 14px #ffd700); 
+            animation: liraGlow 1.2s infinite alternate ease-in-out; 
+        }
 
         @keyframes liraGlow {
-            0% { transform: scale(0.95); }
-            100% { transform: scale(1.08); filter: drop-shadow(0 0 18px #ffd700); }
+            0% { transform: scale(0.96); box-shadow: inset 0 0 5px var(--gold); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 18px #ffd700); box-shadow: inset 0 0 15px var(--gold); }
         }
         
-        .symbol.star-sym .symbol-badge { filter: drop-shadow(0 0 14px #fbbf24); }
+        .symbol.star-sym .symbol-badge { filter: drop-shadow(0 0 14px #fbbf24); border-color: #fbbf24; }
         .symbol.dollar-sym .symbol-badge { filter: drop-shadow(0 0 14px #10b981); font-weight: 900; color: #10b981; font-size: 46px; }
 
         .symbol.seven .symbol-badge {
@@ -362,11 +375,30 @@
             font-weight: 900;
             font-style: italic;
             font-size: 48px;
+            border-color: var(--gold);
         }
 
         .symbol.jar-rare .symbol-badge {
-            font-size: 48px;
+            font-size: 46px;
+            border-color: var(--gold);
             filter: drop-shadow(0 0 20px var(--gold)) drop-shadow(0 0 10px var(--red-bright));
+            background: radial-gradient(circle at center, #5a0005, #100003);
+        }
+
+        /* شارة المضاعف فوق الجرة */
+        .jar-mult-tag {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: linear-gradient(135deg, var(--red-bright), var(--red-dark));
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 8px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 8px var(--red-glow);
+            z-index: 5;
         }
 
         /* --- الجرة الممتدة 3D الجوكر عند تحقيق الربح لتغطية العمود كاملاً --- */
@@ -425,118 +457,115 @@
         .symbol.win-pop-red .symbol-badge {
             animation: symbolWinRed 0.35s infinite alternate ease-in-out;
             z-index: 10;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--gold-glow);
         }
 
         @keyframes symbolWinRed {
             0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--red-bright)); }
-            100% { transform: scale(1.2); filter: drop-shadow(0 0 25px var(--gold)) brightness(1.3); }
+            100% { transform: scale(1.18); filter: drop-shadow(0 0 25px var(--gold)) brightness(1.3); }
         }
 
-        /* --- 4. الوعاء النحاسي لجمع الليرات --- */
+        /* --- 4. الوعاء النحاسي لجمع الليرات (بدون نسب أو خطوط) --- */
         .pot-container {
             width: 95%;
             max-width: 420px;
             margin: 8px auto 4px;
-            background: rgba(15, 0, 3, 0.9);
-            border: 1.5px solid var(--copper);
-            border-radius: 16px;
-            padding: 8px 12px;
-            box-shadow: 0 0 15px var(--copper-glow);
+            background: rgba(15, 0, 3, 0.95);
+            border: 2px solid var(--copper);
+            border-radius: 20px;
+            padding: 10px 16px;
+            box-shadow: 0 0 20px var(--copper-glow), inset 0 0 10px #000;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             position: relative;
         }
 
         .pot-wrapper {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
             width: 100%;
+            gap: 15px;
+        }
+
+        .pot-title-label {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--gold-light);
+            text-shadow: 0 0 8px var(--copper-glow);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .pot-vessel {
             position: relative;
-            width: 48px;
-            height: 48px;
-            background: radial-gradient(circle at 30% 30%, #e68a00, #b87333 60%, #3a1a00 100%);
-            border-radius: 50% 50% 42% 42%;
-            border: 2px solid var(--gold);
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 12px var(--copper-glow);
+            width: 62px;
+            height: 62px;
+            background: radial-gradient(circle at 35% 30%, #f5a623, #b87333 55%, #3a1a00 100%);
+            border-radius: 45% 45% 50% 50% / 35% 35% 65% 65%;
+            border: 3px solid var(--gold);
+            box-shadow: inset 0 -6px 12px rgba(0,0,0,0.9), inset 0 4px 8px rgba(255,255,255,0.4), 0 0 18px var(--copper-glow);
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             flex-shrink: 0;
+            transition: transform 0.2s;
         }
 
-        .pot-vessel.exploding {
-            animation: potExplodeAnim 0.8s cubic-bezier(0.36,.07,.19,.97) infinite;
+        .pot-vessel::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            width: 70%;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 3;
         }
 
-        @keyframes potExplodeAnim {
-            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px #ff0000); }
-            25% { transform: scale(1.15) rotate(-6deg); filter: drop-shadow(0 0 25px #ffd700); }
-            50% { transform: scale(0.95) rotate(6deg); filter: drop-shadow(0 0 35px #ff0000); }
-            75% { transform: scale(1.2) rotate(-4deg); filter: drop-shadow(0 0 45px #ffffff); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
-        .pot-coins-level {
+        .pot-coins-fill {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(0deg, #ffd700, #fff3a1);
+            background: linear-gradient(0deg, #d4af37 0%, #ffd700 70%, #fff3a1 100%);
             height: 0%;
-            transition: height 0.3s ease;
-            box-shadow: 0 0 10px #ffd700;
+            transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 -2px 10px #ffd700;
+            z-index: 1;
+        }
+
+        .pot-vessel.exploding {
+            animation: potExplodeAnim 0.7s cubic-bezier(0.36,.07,.19,.97) infinite;
+        }
+
+        @keyframes potExplodeAnim {
+            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 15px #ff0000); }
+            25% { transform: scale(1.2) rotate(-8deg); filter: drop-shadow(0 0 30px #ffd700); }
+            50% { transform: scale(0.9) rotate(8deg); filter: drop-shadow(0 0 45px #ff0000); }
+            75% { transform: scale(1.25) rotate(-5deg); filter: drop-shadow(0 0 55px #ffffff); }
+            100% { transform: scale(1) rotate(0deg); }
         }
 
         .pot-icon {
             position: relative;
-            z-index: 2;
-            font-size: 24px;
+            z-index: 4;
+            font-size: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
         }
 
-        .pot-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .pot-title {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--gold-light);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .pot-progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #100002;
-            border: 1px solid var(--copper);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .pot-fill-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--copper), var(--gold));
-            box-shadow: 0 0 8px var(--gold);
-            transition: width 0.3s ease;
-        }
-
+        /* --- تحريك قفز الليرات من البكرة إلى الوعاء النحاسي --- */
         .flying-lira-coin {
             position: fixed;
             z-index: 9999;
             pointer-events: none;
-            font-size: 26px;
-            filter: drop-shadow(0 0 12px #ffd700);
+            font-size: 32px;
+            filter: drop-shadow(0 0 15px #ffd700);
             will-change: transform;
         }
 
@@ -917,21 +946,15 @@
         <div class="slots-frame" id="slotsFrame"></div>
     </div>
 
-    <!-- 4. الوعاء النحاسي لتجميع الليرات الذهبية -->
+    <!-- 4. الوعاء النحاسي لتجميع الليرات الذهبية (بدون نسب أو أرقام) -->
     <div class="pot-container" id="potContainer">
         <div class="pot-wrapper">
-            <div class="pot-vessel" id="potVessel">
-                <div class="pot-coins-level" id="potCoinsLevel"></div>
-                <div class="pot-icon">🏺</div>
+            <div class="pot-title-label">
+                <span>🏺 الوعاء النحاسي لليرات الذهبية</span>
             </div>
-            <div class="pot-info">
-                <div class="pot-title">
-                    <span>🪙 الوعاء النحاسي (الليرات الذهبية)</span>
-                    <span id="potPercentText">0%</span>
-                </div>
-                <div class="pot-progress-bar">
-                    <div class="pot-fill-bar" id="potFillBar"></div>
-                </div>
+            <div class="pot-vessel" id="potVessel">
+                <div class="pot-coins-fill" id="potCoinsFill"></div>
+                <div class="pot-icon">🏺</div>
             </div>
         </div>
     </div>
@@ -985,7 +1008,7 @@
             <div class="bonus-option-card" onclick="confirmBuyBonus(1)">
                 <div>
                     <div style="font-weight: 900; color: var(--gold); font-size: 0.9rem;">🏺 ظهور جرة واحدة</div>
-                    <div style="font-size: 0.75rem; color: #888;">ظهور جرة بمضاعف 3x لكل ضربة (5 ضربات)</div>
+                    <div style="font-size: 0.75rem; color: #888;">ظهور جرة بمضاعف (2x أو 3x) لكل ضربة (5 ضربات)</div>
                 </div>
                 <div style="color: var(--gold); font-weight: 900; font-size: 0.95rem;" id="price1">150 NSP</div>
             </div>
@@ -994,41 +1017,41 @@
         </div>
     </div>
 
-    <!-- نافذة جدول الأرباح -->
+    <!-- نافذة جدول الأرباح المحدثة شتملة خط البطيخ والجرة المكملة -->
     <div class="modal" id="paytable-modal">
         <div class="modal-body">
-            <div style="font-size: 1.2rem; font-weight: 900; color: var(--gold); margin-bottom: 6px;">📖 جدول أرباح الرموز</div>
-            <p style="color: #aaa; font-size: 0.78rem; margin-bottom: 10px;">تحتسب الأرباح عند اكتمال خطوط الربح المحددة:</p>
+            <div style="font-size: 1.2rem; font-weight: 900; color: var(--gold); margin-bottom: 6px;">📖 جدول أرباح الرموز والخطوط</div>
+            <p style="color: #aaa; font-size: 0.78rem; margin-bottom: 10px;">تحتسب الأرباح عند اكتمال الرموز على خطوط الربح الأفوقية والقطرية:</p>
             
             <div class="paytable-grid">
                 <div class="paytable-card">
-                    <div class="sym">🍋/🍍/🍊</div>
-                    <div class="desc"><b>الفواكه العادية</b><br>3x = 1x | 4x = 1.5x | 5x = 5x</div>
+                    <div class="sym">🍉</div>
+                    <div class="desc"><b>خط البطيخ (رابح)</b><br>3x = 4x | 4x = 6x | 5x = 10x الرهان</div>
                 </div>
                 <div class="paytable-card">
-                    <div class="sym">🍉/🍇</div>
-                    <div class="desc"><b>البطيخ / العنب</b><br>3x = 4x | 4x = 5x | 5x = 8x</div>
+                    <div class="sym">🍇/🍊/🍍/🍋</div>
+                    <div class="desc"><b>الفواكه الملكية</b><br>3x = 2x | 4x = 3x | 5x = 5x</div>
                 </div>
                 <div class="paytable-card">
                     <div class="sym">🔔</div>
-                    <div class="desc"><b>الأجراس</b><br>3x = 2x | 4x = 3x | 5x = 6x</div>
+                    <div class="desc"><b>الأجراس</b><br>3x = 3x | 4x = 4x | 5x = 8x</div>
                 </div>
                 <div class="paytable-card">
                     <div class="sym">7️⃣</div>
-                    <div class="desc"><b>السبيعات</b><br>2x = 1x | 3x = 3x | 4x = 5x | 5x = 50x!!</div>
+                    <div class="desc"><b>السبيعات</b><br>2x = 1x | 3x = 4x | 4x = 10x | 5x = 50x!!</div>
                 </div>
                 <div class="paytable-card">
                     <div class="sym">🪙</div>
-                    <div class="desc"><b>الليرة الذهبية</b><br>تملأ الوعاء النحاسي لتفجير أرباح متتالية!</div>
+                    <div class="desc"><b>الليرة الذهبية</b><br>تقفز للوعاء لفتحه وتفعيل جولات التفجير!</div>
                 </div>
                 <div class="paytable-card">
                     <div class="sym">⭐</div>
-                    <div class="desc"><b>النجمة</b><br>3x = 20x الرهان</div>
+                    <div class="desc"><b>النجمة الساطعة</b><br>3x = 20x الرهان</div>
                 </div>
             </div>
 
             <div style="background: #2b0005; border: 1px solid var(--red-primary); border-radius: 12px; padding: 8px; font-size: 11px; color: var(--gold); text-align: right; margin-top: 6px;">
-                🏺 <b>الجرة (Wild 3x):</b> رمز الجوكر النادر، يكمل الربح عبر الأعمدة الثلاثة وتتمدد لتملأ العمود كاملاً فقط عند وجود ربح!
+                🏺 <b>الجرة الجوكر (Wild):</b> تظهر حصراً في الصفوف الثلاثة المنتصفة، وتكمل الربح للرموز على يمينها ويسارها، وتظهر بمضاعف عادي (1x, 2x, 3x) أو 5x عند الانفجار!
             </div>
 
             <button class="modal-btn" onclick="closePaytableModal()">فهمت 🚀</button>
@@ -1072,6 +1095,16 @@
     </div>
 
     <script>
+        /* ====================================================
+           1. إعدادات الخوارزمية (نسبة الربح والخسارة ونظام الوعاء)
+           ==================================================== */
+        const ALGORITHM_CONFIG = {
+            winRate: 0.10,   // نسبة الربح 10%
+            lossRate: 0.90,  // نسبة الخسارة 90%
+            potMinRounds: 50,  // الحد الأدنى لجولات التفجير العشوائية
+            potMaxRounds: 200  // الحد الأقصى لجولات التفجير العشوائية
+        };
+
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.ready(); }
 
@@ -1090,7 +1123,7 @@
             }
         }
 
-        const splashWaitTime = 4000; 
+        const splashWaitTime = 3000; 
         let loadProgress = 0;
         const intervalTime = splashWaitTime / 100;
 
@@ -1106,7 +1139,7 @@
             }
         }, intervalTime);
 
-        /* --- الجاك بوت (Jackpot): زيادة طفيفة كل 10 ثواني وتصفير كل 3 إلى 4 أيام --- */
+        /* --- الجاك بوت (Jackpot) --- */
         let jackpotVal = parseFloat(localStorage.getItem('gl_jackpot_val')) || 124850.00;
         let jackpotLastReset = parseInt(localStorage.getItem('gl_jackpot_reset_ts')) || Date.now();
 
@@ -1132,15 +1165,18 @@
             updateJackpotDisplay();
         }, 10000);
 
-        /* --- الوعاء النحاسي وتجميع الليرات --- */
+        /* --- نظام الوعاء النحاسي لتجميع الليرات الذهبية (من 50 إلى 200 جولة عشوائياً) --- */
         let potCoins = parseInt(localStorage.getItem('gl_pot_coins')) || 0;
-        let potTarget = parseInt(localStorage.getItem('gl_pot_target')) || (Math.floor(Math.random() * 100) + 50);
+        let potTarget = parseInt(localStorage.getItem('gl_pot_target')) || getRandomPotTarget();
+
+        function getRandomPotTarget() {
+            return Math.floor(Math.random() * (ALGORITHM_CONFIG.potMaxRounds - ALGORITHM_CONFIG.potMinRounds + 1)) + ALGORITHM_CONFIG.potMinRounds;
+        }
 
         function updatePotUI() {
             let percent = Math.min(Math.floor((potCoins / potTarget) * 100), 100);
-            document.getElementById('potFillBar').style.width = percent + '%';
-            document.getElementById('potCoinsLevel').style.height = percent + '%';
-            document.getElementById('potPercentText').innerText = percent + '%';
+            const fillEl = document.getElementById('potCoinsFill');
+            if (fillEl) fillEl.style.height = percent + '%';
         }
         updatePotUI();
 
@@ -1167,6 +1203,7 @@
         const reelStrips = [];
         const slotsFrame = document.getElementById('slotsFrame');
 
+        /* --- نظام الأصوات المطور كلياً --- */
         function playProSound(type) {
             initAudio();
             if (!audioCtx) return;
@@ -1216,6 +1253,17 @@
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(now); osc.stop(now + 0.25);
             }
+            else if (type === 'coin_jump') {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.12);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.12);
+            }
             else if (type === 'win_sound') {
                 let notes = [523.25, 659.25, 783.99, 1046.50];
                 notes.forEach((freq, i) => {
@@ -1233,16 +1281,16 @@
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
-                gain.gain.setValueAtTime(0.8, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.6);
+                gain.gain.setValueAtTime(0.9, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(now); osc.stop(now + 0.5);
+                osc.start(now); osc.stop(now + 0.6);
             }
         }
 
-        /* --- تحميل بيانات المستخدم من السيرفر قاعدة البيانات app.py --- */
+        /* --- تحميل بيانات المستخدم من السيرفر app.py --- */
         async function loadUserData() {
             let tgUser = tg?.initDataUnsafe?.user;
             let userId = tgUser?.id || "123456789";
@@ -1267,25 +1315,25 @@
         }
         loadUserData();
 
-        /* --- توليد قائمة الرموز (حظر ظهور أكثر من جرة واحدة باللعب العادي) --- */
-        function generateRandomSymbols(count) {
+        /* --- توليد العوامل العشوائية للرموز والجرة --- */
+        function generateRandomSymbols(count, colIndex = 0) {
             const fruits = ['🍉', '🍇', '🍊', '🍍', '🍋', '🔔', '🪙'];
             let list = [];
-            let jarAdded = false;
 
             for (let i = 0; i < count; i++) {
                 let rand = Math.random();
                 let sym = '';
                 let mult = 1;
 
-                // ظهور جرة واحدة فقط بمعدل نادر وبمضاعف 3x ثابت
-                if (rand < 0.02 && !jarAdded) { 
+                // الجرة تظهر فقط في الأنابيب الثلاثة التي في المنتصف (الأعمدة 1, 2, 3)
+                if ((colIndex >= 1 && colIndex <= 3) && rand < 0.03) { 
                     sym = '🏺';
-                    mult = 3; 
-                    jarAdded = true;
-                } else if (rand < 0.04) {
+                    // مضاعف عشوائي للجرة: 1x (بدون مضاعف)، 2x، أو 3x
+                    const mults = [1, 2, 3];
+                    mult = mults[Math.floor(Math.random() * mults.length)];
+                } else if (rand < 0.05) {
                     sym = '7'; 
-                } else if (rand < 0.07) {
+                } else if (rand < 0.08) {
                     sym = '⭐';
                 } else {
                     sym = fruits[Math.floor(Math.random() * fruits.length)];
@@ -1317,6 +1365,12 @@
             } else if (symObj.sym === '🏺') {
                 div.classList.add('jar-rare');
                 badge.innerText = '🏺';
+                if (symObj.mult > 1) {
+                    const multTag = document.createElement('div');
+                    multTag.className = 'jar-mult-tag';
+                    multTag.innerText = `${symObj.mult}x`;
+                    div.appendChild(multTag);
+                }
             } else {
                 badge.innerText = symObj.sym;
             }
@@ -1342,7 +1396,7 @@
             slotsFrame.appendChild(reel);
             
             reelStrips.push(reelStrip);
-            populateStrip(reelStrip, generateRandomSymbols(6));
+            populateStrip(reelStrip, generateRandomSymbols(6, i));
         }
 
         function openLevelMenu() {
@@ -1440,29 +1494,37 @@
             else startSpin();
         }
 
-        /* --- تحريك انطلاق الليرة الذهبية للوعاء النحاسي --- */
+        /* --- تحريك قفز الليرة الذهبية وانتقالها بقوس للوعاء النحاسي --- */
         function animateLiraToPot(startElement) {
             if (!startElement) return;
+            playProSound('coin_jump');
             const rect = startElement.getBoundingClientRect();
             const potRect = document.getElementById('potVessel').getBoundingClientRect();
 
             const coin = document.createElement('div');
             coin.className = 'flying-lira-coin';
             coin.innerText = '🪙';
-            coin.style.left = (rect.left + rect.width / 2) + 'px';
-            coin.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+            const targetX = potRect.left + potRect.width / 2;
+            const targetY = potRect.top + potRect.height / 2;
 
+            coin.style.left = startX + 'px';
+            coin.style.top = startY + 'px';
             document.body.appendChild(coin);
 
-            const deltaX = (potRect.left + potRect.width / 2) - (rect.left + rect.width / 2);
-            const deltaY = (potRect.top + potRect.height / 2) - (rect.top + rect.height / 2);
+            const deltaX = targetX - startX;
+            const deltaY = targetY - startY;
 
+            // انحناء قوسي للقفز
             coin.animate([
                 { transform: 'translate(0, 0) scale(1) rotate(0deg)', opacity: 1 },
-                { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.5) rotate(720deg)`, opacity: 0.9 }
+                { transform: `translate(${deltaX * 0.5}px, ${deltaY - 60}px) scale(1.4) rotate(360deg)`, opacity: 1 },
+                { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.4) rotate(720deg)`, opacity: 0.8 }
             ], {
-                duration: 650,
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+                duration: 700,
+                easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)'
             }).onfinish = () => {
                 coin.remove();
                 potCoins++;
@@ -1471,50 +1533,61 @@
             };
         }
 
-        /* --- إنشاء الشبكة المطابقة لخوارزمية app.py والإدارة --- */
-        function buildGridForBackendResult(tier, multiplier, bet) {
+        /* --- إنشاء شبكة البكرات بالاعتماد على خوارزميات الربح 10% والخاصرة 90% --- */
+        function buildGridForBackendResult(tier, multiplier, isExplosionRound = false) {
             let grid = [];
-            const fruits = ['🍊', '🍇', '🍉', '🍍', '🍋', '🔔'];
+            const normalFruits = ['🍊', '🍇', '🍉', '🍍', '🍋', '🔔'];
+            const modestFruits = ['🍊', '🍋', '🍍']; // فواكه الأرباح المعتدلة عند التفجير
 
-            // 1. عند رفع نسبة الربح الضخم إلى 100% في الإدارة (Mega Win) -> صفوف الـ 7 بالكامل!
-            if (tier === 'mega' || multiplier >= 50.0) {
-                for (let c = 0; c < 5; c++) {
-                    grid.push([
-                        { sym: '7', mult: 1 },
-                        { sym: '7', mult: 1 },
-                        { sym: '7', mult: 1 }
-                    ]);
-                }
-                return { grid: grid, isMegaSevens: true };
-            }
-
-            // 2. تدويرة ربح عادي أو متوسط
-            if (multiplier > 0) {
-                let matchFruit = fruits[Math.floor(Math.random() * fruits.length)];
+            // 1. حالة تفجير الوعاء النحاسي الجرة بمضاعف 5x وأرباح معتدلة (برتقال، ليمون، أو أناناس)
+            if (isExplosionRound) {
+                let chosenFruit = modestFruits[Math.floor(Math.random() * modestFruits.length)];
                 
-                // العمود 0 والعمود 1 يحويان نفس الفاكهة
-                let col0 = [{ sym: matchFruit, mult: 1 }, { sym: fruits[0], mult: 1 }, { sym: fruits[1], mult: 1 }];
-                let col1 = [{ sym: matchFruit, mult: 1 }, { sym: fruits[2], mult: 1 }, { sym: fruits[3], mult: 1 }];
-                
-                // العمود 2 يحوي جرة الجوكر المكملة بمضاعف 3x
-                let col2 = [{ sym: '🏺', mult: 3 }, { sym: fruits[4], mult: 1 }, { sym: fruits[1], mult: 1 }];
-                
-                let col3 = [{ sym: fruits[2], mult: 1 }, { sym: fruits[3], mult: 1 }, { sym: fruits[4], mult: 1 }];
-                let col4 = [{ sym: fruits[0], mult: 1 }, { sym: fruits[1], mult: 1 }, { sym: fruits[2], mult: 1 }];
+                let col0 = [{ sym: chosenFruit, mult: 1 }, { sym: normalFruits[1], mult: 1 }, { sym: normalFruits[2], mult: 1 }];
+                let col1 = [{ sym: chosenFruit, mult: 1 }, { sym: normalFruits[3], mult: 1 }, { sym: normalFruits[4], mult: 1 }];
+                // الجرة في العمود 2 (المنتصف) بمضاعف 5x
+                let col2 = [{ sym: '🏺', mult: 5 }, { sym: normalFruits[0], mult: 1 }, { sym: normalFruits[1], mult: 1 }];
+                let col3 = [{ sym: chosenFruit, mult: 1 }, { sym: normalFruits[2], mult: 1 }, { sym: normalFruits[3], mult: 1 }];
+                let col4 = [{ sym: chosenFruit, mult: 1 }, { sym: normalFruits[4], mult: 1 }, { sym: normalFruits[0], mult: 1 }];
 
                 grid = [col0, col1, col2, col3, col4];
-                return { grid: grid, winJarCol: 2, winCoords: [[0,0], [1,0], [2,0]] };
+                return { grid: grid, winJarCol: 2, winJarMult: 5, winCoords: [[0,0], [1,0], [2,0], [3,0], [4,0]] };
             }
 
-            // 3. تدويرة عدم ربح (Loss)
+            // 2. حالة الربح العادي (10%) - يشمل خط البطيخ 🍉 والجرة المكملة (1x, 2x, 3x)
+            if (tier === 'win' || multiplier > 0) {
+                let isWatermelonWin = Math.random() < 0.4;
+                let matchFruit = isWatermelonWin ? '🍉' : normalFruits[Math.floor(Math.random() * normalFruits.length)];
+                let jarMult = [1, 2, 3][Math.floor(Math.random() * 3)];
+
+                let col0 = [{ sym: matchFruit, mult: 1 }, { sym: normalFruits[0], mult: 1 }, { sym: normalFruits[1], mult: 1 }];
+                let col1 = [{ sym: matchFruit, mult: 1 }, { sym: normalFruits[2], mult: 1 }, { sym: normalFruits[3], mult: 1 }];
+                
+                // الجرة المكملة في الصف الأوسط حصراً (العمود 2)
+                let col2 = [{ sym: '🏺', mult: jarMult }, { sym: normalFruits[4], mult: 1 }, { sym: normalFruits[1], mult: 1 }];
+                
+                let col3 = [{ sym: matchFruit, mult: 1 }, { sym: normalFruits[2], mult: 1 }, { sym: normalFruits[3], mult: 1 }];
+                let col4 = [{ sym: normalFruits[0], mult: 1 }, { sym: normalFruits[1], mult: 1 }, { sym: normalFruits[2], mult: 1 }];
+
+                grid = [col0, col1, col2, col3, col4];
+                return { grid: grid, winJarCol: 2, winJarMult: jarMult, winCoords: [[0,0], [1,0], [2,0], [3,0]] };
+            }
+
+            // 3. حالة الجولات الخاسرة (90%) - فواكه غير مرتبطة وعشوائية لمنع أي تطابق
             for (let c = 0; c < 5; c++) {
                 let col = [];
                 for (let r = 0; r < 3; r++) {
-                    let randSym = fruits[(c + r) % fruits.length];
-                    // إمكانية ظهور ليرة ذهب أو جرة نادرة غير رابحة على الإطلاق
-                    if (c === 3 && r === 2 && Math.random() < 0.15) randSym = '🏺';
-                    else if (Math.random() < 0.1) randSym = '🪙';
-                    col.push({ sym: randSym, mult: 1 });
+                    // توزيع الفواكه بتباعد يضمن عدم وجود 3 رموز متطابقة على أي خط ربح
+                    let randFruit = normalFruits[(c * 2 + r + Math.floor(Math.random() * 2)) % normalFruits.length];
+                    
+                    // إمكانية ظهور ليرة ذهب أو جرة غير رابحة في الأعمدة الوسطى
+                    if (c === 2 && r === 1 && Math.random() < 0.12) {
+                        col.push({ sym: '🏺', mult: 1 });
+                    } else if (Math.random() < 0.08) {
+                        col.push({ sym: '🪙', mult: 1 });
+                    } else {
+                        col.push({ sym: randFruit, mult: 1 });
+                    }
                 }
                 grid.push(col);
             }
@@ -1542,27 +1615,29 @@
             document.getElementById('spinBtn').innerText = '⏹️';
             document.getElementById('lineInfo').innerText = 'جاري التدوير...';
 
+            // فحص انفجار الوعاء النحاسي عند الوصول للهدف العشوائي (بين 50 و 200 جولة)
+            let isPotExploding = potCoins >= potTarget;
+
             let spinSoundInterval = setInterval(() => {
                 if (isSpinning) playProSound('spin_tick');
             }, 55);
 
-            reelStrips.forEach(strip => {
-                populateStrip(strip, generateRandomSymbols(9));
-                strip.classList.add('spinning');
+            reelStrips.forEach((strip, colIdx) => {
+                populateStrip(strip, generateRandomSymbols(9, colIdx));
+                if (isPotExploding) strip.classList.add('spinning-superfast');
+                else strip.classList.add('spinning');
             });
 
-            // فحص تفجير الوعاء النحاسي عند اكتمال الليرات (كل ~100 جولة)
-            let isPotExploding = potCoins >= potTarget;
             if (isPotExploding) {
                 playProSound('pot_explode');
                 document.getElementById('potVessel').classList.add('exploding');
-                document.getElementById('lineInfo').innerText = '💥 انفجار الوعاء النحاسي! ربح ليرات مضمون!';
-                await new Promise(r => setTimeout(r, 800));
+                document.getElementById('lineInfo').innerText = '💥 انفجار الوعاء النحاسي! تمطر ليرات وجرة 5x!';
+                triggerUltraFastGoldShower(40);
+                await new Promise(r => setTimeout(r, 1200));
             }
 
             let serverResult = null;
             try {
-                // التواصل المباشر مع سيرفر app.py لخصم الرهان وتحديد الخوارزمية
                 let response = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1576,30 +1651,30 @@
                     serverResult = await response.json();
                 }
             } catch (err) {
-                console.warn("تعذر الاتصال بالمحرك مباشرة، يتم حساب النتيجة محلياً:", err);
+                console.warn("تعذر الاتصال بالمحرك مباشرة، يتم حساب النتيجة طبقاً للنسب المعرفة:", err);
             }
 
-            // بحال عدم الاتصال يتم تطبيق خوارزمية افتراضية مطابقة
+            // تطبيق خوارزمية النسب 10% ربح / 90% خسارة إذا لم يستجب السيرفر
             if (!serverResult || !serverResult.success) {
-                let isWin = Math.random() < 0.35;
-                let mult = isWin ? (Math.random() < 0.1 ? 10.0 : 3.0) : 0.0;
+                let isWin = isPotExploding || (Math.random() < ALGORITHM_CONFIG.winRate);
+                let mult = isWin ? (isPotExploding ? 5.0 : (Math.random() < 0.2 ? 6.0 : 2.5)) : 0.0;
                 let winAmt = currentBet * mult;
                 serverResult = {
                     success: true,
-                    tier: mult >= 10 ? 'high' : (isWin ? 'normal' : 'loss'),
+                    tier: isWin ? 'win' : 'loss',
                     multiplier: mult,
                     win_amount: winAmt,
                     new_balance: currentBalance - currentBet + winAmt
                 };
             }
 
-            // تحديث الرصيد من رد قاعدة البيانات في app.py
+            // تحديث الرصيد
             currentBalance = parseFloat(serverResult.new_balance);
             localStorage.setItem('gl_balance', currentBalance);
             document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
 
-            // تحضير مصفوفة الرموز المناسبة لنتيجة app.py
-            let generated = buildGridForBackendResult(serverResult.tier, serverResult.multiplier, currentBet);
+            // بناء شبكة البكرات للنتيجة
+            let generated = buildGridForBackendResult(serverResult.tier, serverResult.multiplier, isPotExploding);
             let finalGrid = generated.grid;
 
             let initialDelay = speedLevel === 1 ? 350 : (speedLevel === 2 ? 200 : 70);
@@ -1613,6 +1688,7 @@
 
                 let strip = reelStrips[reelIdx];
                 strip.classList.remove('spinning');
+                strip.classList.remove('spinning-superfast');
 
                 let columnData = finalGrid[reelIdx];
                 populateStrip(strip, columnData);
@@ -1620,7 +1696,7 @@
                 strip.classList.add('decelerate-stop');
                 setTimeout(() => strip.classList.remove('decelerate-stop'), 380);
 
-                // فحص انطلاق الليرات الذهبية للوعاء النحاسي
+                // فحص ظهور الليرات الذهبية وقفزها للوعاء النحاسي
                 columnData.forEach((s, rowIdx) => {
                     if (s && s.sym === '🪙' && strip.children[rowIdx]) {
                         animateLiraToPot(strip.children[rowIdx]);
@@ -1632,37 +1708,36 @@
 
             clearInterval(spinSoundInterval);
 
-            // تزويد الوعاء النحاسي تدريجياً في كل دورة ليعطي معدل تفجير كل ~100 دورة
-            potCoins += 1;
-            localStorage.setItem('gl_pot_coins', potCoins);
-            updatePotUI();
-
-            if (isPotExploding) {
+            // تزويد جولة في الوعاء
+            if (!isPotExploding) {
+                potCoins += 1;
+                localStorage.setItem('gl_pot_coins', potCoins);
+                updatePotUI();
+            } else {
                 document.getElementById('potVessel').classList.remove('exploding');
                 potCoins = 0;
-                potTarget = Math.floor(Math.random() * 150) + 50; // تعيين هدف جديد عشوائي من 50 إلى 200
+                potTarget = getRandomPotTarget(); // تعيين هدف عشوائي جديد بين 50 و 200
                 localStorage.setItem('gl_pot_coins', potCoins);
                 localStorage.setItem('gl_pot_target', potTarget);
                 updatePotUI();
             }
 
-            await displaySpinResults(serverResult, generated);
+            await displaySpinResults(serverResult, generated, isPotExploding);
 
             isSpinning = false;
             forceStopRequested = false;
             document.getElementById('spinBtn').innerText = '↻';
         }
 
-        async function displaySpinResults(res, generated) {
+        async function displaySpinResults(res, generated, isExplosion = false) {
             let winAmount = parseFloat(res.win_amount);
             document.getElementById('winAmount').innerText = winAmount.toFixed(2);
 
             let hasWin = winAmount > 0;
             let winMultiplier = winAmount / currentBet;
 
-            // إذا دخلت الجرة في خط ربح توسع البكرة بالكامل 3D
             if (generated.winJarCol !== undefined && hasWin) {
-                expandJarInReel(generated.winJarCol, 3);
+                expandJarInReel(generated.winJarCol, generated.winJarMult || 3);
                 playProSound('jar_drop');
                 triggerScreenShake();
                 await new Promise(r => setTimeout(r, 400));
@@ -1678,8 +1753,8 @@
                 applyShineToWinners(generated.winCoords || []);
                 triggerUltraFastGoldShower(25);
 
-                if (winMultiplier >= 10.0 || generated.isMegaSevens) {
-                    showJarBanner("👑 مبروك يا ملك 👑", `${winMultiplier.toFixed(1)}x`);
+                if (isExplosion || winMultiplier >= 5.0) {
+                    showJarBanner("👑 مبروك يا ملك 👑", `${(generated.winJarMult || winMultiplier).toFixed(0)}x`);
                     showKingWinModal(winAmount, winMultiplier);
                 } else {
                     playProSound('win_sound');
@@ -1713,14 +1788,14 @@
                     
                     const startX = Math.random() * 92 + 4;
                     const dx = (Math.random() - 0.5) * 260 + 'px';
-                    const duration = (0.25 + Math.random() * 0.2) + 's';
+                    const duration = (0.25 + Math.random() * 0.25) + 's';
 
                     coin.style.left = startX + 'vw';
                     coin.style.setProperty('--dx', dx);
                     coin.style.setProperty('--duration', duration);
 
                     document.body.appendChild(coin);
-                    setTimeout(() => { coin.remove(); }, 500);
+                    setTimeout(() => { coin.remove(); }, 600);
                 }, i * 15);
             }
 
