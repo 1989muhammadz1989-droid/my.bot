@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة صيد الطيور الاحترافية</title>
+    <title>لعبة صيد الطيور الاحترافية - المطورة</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -12,13 +12,13 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #050b14;
+            background-color: #03070d;
         }
         #gameCanvas {
             width: 100vw;
@@ -26,7 +26,8 @@
             display: block;
             touch-action: none;
         }
-        /* HUD UI Elements */
+
+        /* Top Bar / HUD */
         .top-bar {
             position: absolute;
             top: 15px;
@@ -40,12 +41,12 @@
         }
         .exit-btn {
             pointer-events: auto;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: #fff;
             font-size: 20px;
             font-weight: bold;
@@ -53,69 +54,130 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: transform 0.15s ease, background 0.2s;
         }
-        .exit-btn:active { transform: scale(0.9); }
+        .exit-btn:active { transform: scale(0.9); background: rgba(231, 76, 60, 0.7); }
         
         .balance-badge {
             pointer-events: auto;
-            background: rgba(10, 25, 47, 0.7);
-            backdrop-filter: blur(12px);
-            padding: 8px 18px;
-            border-radius: 25px;
+            background: rgba(8, 20, 38, 0.85);
+            backdrop-filter: blur(14px);
+            padding: 10px 22px;
+            border-radius: 30px;
             color: #2ecc71;
-            border: 1px solid rgba(46, 204, 113, 0.4);
+            border: 1px solid rgba(46, 204, 113, 0.5);
             font-weight: 800;
             font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .balance-badge span { color: #f1c40f; font-size: 18px; }
 
-        .controls-bar {
+        /* Controls & Difficulty Panel */
+        .controls-container {
             position: absolute;
-            bottom: 25px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 15px;
-            background: rgba(10, 20, 30, 0.82);
-            backdrop-filter: blur(16px);
-            padding: 10px 22px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            gap: 10px;
             z-index: 20;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            width: calc(100% - 30px);
+            max-width: 500px;
         }
-        
+
+        .difficulty-bar {
+            display: flex;
+            gap: 8px;
+            background: rgba(5, 12, 22, 0.85);
+            backdrop-filter: blur(16px);
+            padding: 5px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            justify-content: space-between;
+        }
+        .diff-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: none;
+            background: transparent;
+            color: #a0aec0;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .diff-btn.active[data-diff="easy"] {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(46, 204, 113, 0.4);
+        }
+        .diff-btn.active[data-diff="medium"] {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(230, 126, 34, 0.4);
+        }
+        .diff-btn.active[data-diff="hard"] {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(10, 22, 38, 0.90);
+            backdrop-filter: blur(20px);
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+        }
+
+        .bet-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .bet-btn {
             background: rgba(231, 76, 60, 0.85);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease;
+            transition: transform 0.1s ease, background 0.2s;
         }
-        .bet-btn:active { transform: scale(0.88); background: #e74c3c; }
+        .bet-btn:active { transform: scale(0.88); background: #c0392b; }
 
         .bet-display {
             color: #fff;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
-            min-width: 100px;
             text-align: center;
         }
         .bet-value {
             color: #f1c40f;
-            font-size: 17px;
+            font-size: 16px;
+            display: block;
         }
 
         .shoot-btn {
@@ -124,40 +186,47 @@
             border: none;
             padding: 12px 28px;
             border-radius: 25px;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(230, 126, 34, 0.5);
+            box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
             transition: transform 0.1s ease, filter 0.2s;
         }
-        .shoot-btn:active { transform: scale(0.93); filter: brightness(1.2); }
-        .shoot-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        .shoot-btn:active { transform: scale(0.93); filter: brightness(1.25); }
+        .shoot-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
 
         /* Toast Notifications */
         .toast-message {
             position: absolute;
-            top: 40%;
+            top: 35%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.7);
             padding: 16px 36px;
-            border-radius: 20px;
+            border-radius: 24px;
             color: white;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 900;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 30;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
         }
         .toast-message.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
-        .toast-win { background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95)); border: 2px solid #fff; }
-        .toast-loss { background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95)); border: 2px solid #fff; }
+        .toast-win { 
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95)); 
+            border: 2px solid #55efc4; 
+        }
+        .toast-loss { 
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95)); 
+            border: 2px solid #ff7675; 
+        }
     </style>
 </head>
 <body>
@@ -168,12 +237,24 @@
         <div class="balance-badge">الرصيد: <span id="userBalance">0</span> NPS</div>
     </div>
 
-    <!-- Bet & Action Controls -->
-    <div class="controls-bar">
-        <button class="bet-btn" onclick="adjustBet(-5)">-</button>
-        <div class="bet-display">الرهان: <span class="bet-value" id="betAmount">5</span> NPS</div>
-        <button class="bet-btn" onclick="adjustBet(5)">+</button>
-        <button class="shoot-btn" id="shootBtn" onclick="shoot()">إطلاق 🔥</button>
+    <!-- Controls Container -->
+    <div class="controls-container">
+        <!-- Difficulty Bar -->
+        <div class="difficulty-bar">
+            <button class="diff-btn active" data-diff="easy" onclick="setDifficulty('easy')">سهل (ربح 2x)</button>
+            <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium')">متوسط (ربح 3x)</button>
+            <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">صعب (ربح 5x)</button>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="bet-controls">
+                <button class="bet-btn" onclick="adjustBet(-5)">-</button>
+                <div class="bet-display">الرهان<span class="bet-value" id="betAmount">5 NPS</span></div>
+                <button class="bet-btn" onclick="adjustBet(5)">+</button>
+            </div>
+            <button class="shoot-btn" id="shootBtn" onclick="shoot()">إطلاق 🔥</button>
+        </div>
     </div>
 
     <div id="toast" class="toast-message"></div>
@@ -188,11 +269,8 @@
         }
 
         function exitGame() {
-            if (tg) {
-                tg.close();
-            } else {
-                alert("تم الخروج من اللعبة");
-            }
+            if (tg) tg.close();
+            else alert("تم الخروج من اللعبة");
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -204,6 +282,7 @@
 
         let balance = 0;
         let betAmount = 5;
+        let difficulty = 'easy'; // 'easy', 'medium', 'hard'
         let isPlaying = false;
         let screenShake = 0;
         let waterOffset = 0;
@@ -218,7 +297,7 @@
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Audio Synthesizer Engine (Self-contained Web Audio API)
+        // Audio Engine (Web Audio API)
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) {
@@ -231,8 +310,7 @@
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
 
-            // Muzzle explosion sound
-            const bufferSize = audioCtx.sampleRate * 0.3;
+            const bufferSize = audioCtx.sampleRate * 0.35;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
@@ -244,31 +322,29 @@
 
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(1000, now);
-            filter.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+            filter.frequency.setValueAtTime(1200, now);
+            filter.frequency.exponentialRampToValueAtTime(60, now + 0.3);
 
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
 
             noise.connect(filter);
             filter.connect(gain);
             gain.connect(audioCtx.destination);
-
             noise.start(now);
 
-            // Sub bass impact
             const osc = audioCtx.createOscillator();
             const oscGain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
-            oscGain.gain.setValueAtTime(0.8, now);
-            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(25, now + 0.25);
+            oscGain.gain.setValueAtTime(0.9, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
 
             osc.connect(oscGain);
             oscGain.connect(audioCtx.destination);
             osc.start(now);
-            osc.stop(now + 0.25);
+            osc.stop(now + 0.28);
         }
 
         function playHitSound() {
@@ -276,20 +352,19 @@
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
-            gain.gain.setValueAtTime(0.5, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(520, now);
+            osc.frequency.exponentialRampToValueAtTime(110, now + 0.18);
+            gain.gain.setValueAtTime(0.6, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
-            osc.stop(now + 0.15);
+            osc.stop(now + 0.18);
         }
 
         function startNatureAmbience() {
             if (!audioCtx) return;
-            // Ambient soft background wind/water simulation
             const bufferSize = audioCtx.sampleRate * 2;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -303,11 +378,11 @@
 
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'bandpass';
-            filter.frequency.value = 400;
-            filter.Q.value = 3.0;
+            filter.frequency.value = 350;
+            filter.Q.value = 4.0;
 
             const gain = audioCtx.createGain();
-            gain.gain.value = 0.04;
+            gain.gain.value = 0.03;
 
             noise.connect(filter);
             filter.connect(gain);
@@ -315,23 +390,25 @@
             noise.start();
         }
 
-        // Entities & Game Objects
+        // Realistic Small Bird Object
         const bird = {
             x: 100,
             y: canvas.height * 0.3,
-            vx: 3.5,
-            vy: 1.2,
-            size: 28,
+            vx: 3,
+            vy: 1,
+            size: 14, // Smaller, realistic bird size
             state: 'flying',
             wingAngle: 0,
-            wingSpeed: 0.2
+            wingSpeed: 0.25,
+            targetY: canvas.height * 0.3,
+            directionChangeTimer: 0
         };
 
         const crosshair = { x: canvas.width / 2, y: canvas.height / 3 };
         const particles = [];
+        const floatingTexts = [];
         let muzzleFlashTime = 0;
 
-        // Mouse/Touch Tracking
         window.addEventListener('pointermove', (e) => {
             crosshair.x = e.clientX;
             crosshair.y = e.clientY;
@@ -351,223 +428,274 @@
         }
         fetchUserData();
 
+        function setDifficulty(diff) {
+            if (isPlaying) return;
+            difficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.diff === diff);
+            });
+            respawnBird();
+        }
+
         function adjustBet(val) {
             if (isPlaying) return;
             betAmount += val;
             if (betAmount < 5) betAmount = 5;
             if (betAmount > 1000) betAmount = 1000;
-            document.getElementById("betAmount").innerText = betAmount;
+            document.getElementById("betAmount").innerText = betAmount + " NPS";
         }
 
-        // Render Realistic Background
+        // Render Highly Realistic Sunset & Wilderness Landscape
         function drawRealisticBackground() {
-            // Sky gradient
-            let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.75);
-            skyGradient.addColorStop(0, "#0b1d3a");
-            skyGradient.addColorStop(0.4, "#204968");
-            skyGradient.addColorStop(0.7, "#4b7998");
-            skyGradient.addColorStop(1, "#c8d6e5");
-            ctx.fillStyle = skyGradient;
+            // Atmospheric Sky Gradient
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.75);
+            skyGrad.addColorStop(0, "#08101e");
+            skyGrad.addColorStop(0.35, "#18324a");
+            skyGrad.addColorStop(0.65, "#43657d");
+            skyGrad.addColorStop(0.88, "#d1a075");
+            skyGrad.addColorStop(1, "#f3c193");
+            ctx.fillStyle = skyGrad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Sun / Horizon Glow
-            let sunGlow = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.5, 10, canvas.width * 0.5, canvas.height * 0.5, 250);
-            sunGlow.addColorStop(0, "rgba(255, 235, 180, 0.6)");
-            sunGlow.addColorStop(1, "rgba(255, 235, 180, 0)");
+            // Sun & Volumetric Light Rays
+            const sunX = canvas.width * 0.5;
+            const sunY = canvas.height * 0.48;
+
+            let sunGlow = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 300);
+            sunGlow.addColorStop(0, "rgba(255, 240, 200, 0.9)");
+            sunGlow.addColorStop(0.2, "rgba(255, 180, 120, 0.5)");
+            sunGlow.addColorStop(1, "rgba(255, 180, 120, 0)");
             ctx.fillStyle = sunGlow;
             ctx.beginPath();
-            ctx.arc(canvas.width * 0.5, canvas.height * 0.5, 250, 0, Math.PI * 2);
+            ctx.arc(sunX, sunY, 300, 0, Math.PI * 2);
             ctx.fill();
 
-            // Distant Mountains
-            ctx.fillStyle = "#1e3740";
+            // Distant Foggy Mountains
+            ctx.fillStyle = "rgba(28, 48, 64, 0.9)";
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.58);
-            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.42);
-            ctx.lineTo(canvas.width * 0.45, canvas.height * 0.58);
-            ctx.lineTo(canvas.width * 0.7, canvas.height * 0.39);
-            ctx.lineTo(canvas.width, canvas.height * 0.58);
+            ctx.moveTo(0, canvas.height * 0.55);
+            ctx.lineTo(canvas.width * 0.18, canvas.height * 0.40);
+            ctx.lineTo(canvas.width * 0.38, canvas.height * 0.55);
+            ctx.lineTo(canvas.width * 0.62, canvas.height * 0.36);
+            ctx.lineTo(canvas.width * 0.85, canvas.height * 0.55);
+            ctx.lineTo(canvas.width, canvas.height * 0.42);
             ctx.lineTo(canvas.width, canvas.height);
             ctx.lineTo(0, canvas.height);
             ctx.fill();
 
-            // Near Mountains
-            ctx.fillStyle = "#13272d";
+            // Midground Forest Mountain
+            ctx.fillStyle = "#122533";
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.64);
-            ctx.lineTo(canvas.width * 0.35, canvas.height * 0.48);
-            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.65);
-            ctx.lineTo(canvas.width * 0.85, canvas.height * 0.50);
-            ctx.lineTo(canvas.width, canvas.height * 0.64);
+            ctx.moveTo(0, canvas.height * 0.62);
+            ctx.lineTo(canvas.width * 0.28, canvas.height * 0.46);
+            ctx.lineTo(canvas.width * 0.52, canvas.height * 0.62);
+            ctx.lineTo(canvas.width * 0.78, canvas.height * 0.48);
+            ctx.lineTo(canvas.width, canvas.height * 0.60);
             ctx.lineTo(canvas.width, canvas.height);
             ctx.lineTo(0, canvas.height);
             ctx.fill();
 
-            // River with Shimmer Effect
-            waterOffset += 0.03;
-            let riverGradient = ctx.createLinearGradient(0, canvas.height * 0.62, 0, canvas.height);
-            riverGradient.addColorStop(0, "#1a4a5e");
-            riverGradient.addColorStop(0.5, "#0f3042");
-            riverGradient.addColorStop(1, "#081d28");
-            
-            ctx.fillStyle = riverGradient;
+            // Water River & Dynamic Reflections
+            waterOffset += 0.025;
+            let riverGrad = ctx.createLinearGradient(0, canvas.height * 0.60, 0, canvas.height);
+            riverGrad.addColorStop(0, "#193c4d");
+            riverGrad.addColorStop(0.5, "#0d2532");
+            riverGrad.addColorStop(1, "#05131c");
+
+            ctx.fillStyle = riverGrad;
             ctx.beginPath();
-            ctx.moveTo(canvas.width * 0.38, canvas.height * 0.62);
-            ctx.quadraticCurveTo(canvas.width * 0.45, canvas.height * 0.78, canvas.width * 0.1, canvas.height);
-            ctx.lineTo(canvas.width * 0.75, canvas.height);
-            ctx.quadraticCurveTo(canvas.width * 0.58, canvas.height * 0.78, canvas.width * 0.52, canvas.height * 0.62);
+            ctx.moveTo(canvas.width * 0.35, canvas.height * 0.60);
+            ctx.quadraticCurveTo(canvas.width * 0.45, canvas.height * 0.78, canvas.width * 0.05, canvas.height);
+            ctx.lineTo(canvas.width * 0.85, canvas.height);
+            ctx.quadraticCurveTo(canvas.width * 0.60, canvas.height * 0.78, canvas.width * 0.55, canvas.height * 0.60);
             ctx.fill();
 
-            // Animated River Waves / Reflection
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-            ctx.lineWidth = 2;
-            for (let i = 0; i < 5; i++) {
-                let y = canvas.height * (0.68 + i * 0.06);
+            // Water Specular Light Waves
+            ctx.strokeStyle = "rgba(255, 220, 180, 0.22)";
+            ctx.lineWidth = 1.8;
+            for (let i = 0; i < 7; i++) {
+                let y = canvas.height * (0.65 + i * 0.05);
                 ctx.beginPath();
-                ctx.moveTo(canvas.width * 0.3, y);
+                ctx.moveTo(canvas.width * 0.28, y);
                 ctx.quadraticCurveTo(
-                    canvas.width * 0.45 + Math.sin(waterOffset + i) * 15,
-                    y + Math.cos(waterOffset + i) * 5,
-                    canvas.width * 0.6,
+                    canvas.width * 0.45 + Math.sin(waterOffset + i * 1.5) * 20,
+                    y + Math.cos(waterOffset + i) * 4,
+                    canvas.width * 0.68,
                     y
                 );
                 ctx.stroke();
             }
 
-            // Foreground Trees & Land Banks
-            ctx.fillStyle = "#0a190f";
+            // Foreground Trees & Bank Silhouettes
+            ctx.fillStyle = "#07130c";
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.7);
-            ctx.lineTo(canvas.width * 0.38, canvas.height * 0.72);
-            ctx.lineTo(0, canvas.height * 0.95);
+            ctx.moveTo(0, canvas.height * 0.68);
+            ctx.lineTo(canvas.width * 0.36, canvas.height * 0.72);
+            ctx.lineTo(0, canvas.height * 0.98);
             ctx.fill();
 
             ctx.beginPath();
-            ctx.moveTo(canvas.width, canvas.height * 0.72);
-            ctx.lineTo(canvas.width * 0.52, canvas.height * 0.74);
-            ctx.lineTo(canvas.width, canvas.height * 0.98);
+            ctx.moveTo(canvas.width, canvas.height * 0.70);
+            ctx.lineTo(canvas.width * 0.54, canvas.height * 0.74);
+            ctx.lineTo(canvas.width, canvas.height * 0.99);
             ctx.fill();
         }
 
-        // Update Bird Mechanics
+        // Dynamic Bird Mechanics Based on Difficulty
         function updateBird() {
             if (bird.state === 'flying') {
                 bird.x += bird.vx;
-                bird.y += Math.sin(bird.x * 0.015) * bird.vy;
                 bird.wingAngle += bird.wingSpeed;
 
-                if (bird.x > canvas.width + 60) {
-                    bird.x = -60;
-                    bird.y = canvas.height * (0.15 + Math.random() * 0.3);
-                } else if (bird.x < -60) {
-                    bird.x = canvas.width + 60;
-                    bird.y = canvas.height * (0.15 + Math.random() * 0.3);
+                // Difficulty movement behaviors
+                if (difficulty === 'easy') {
+                    bird.y += Math.sin(bird.x * 0.012) * 1.2;
+                } else if (difficulty === 'medium') {
+                    bird.y += Math.sin(bird.x * 0.025) * 2.8;
+                } else if (difficulty === 'hard') {
+                    bird.directionChangeTimer++;
+                    if (bird.directionChangeTimer % 20 === 0) {
+                        bird.targetY = canvas.height * (0.12 + Math.random() * 0.35);
+                    }
+                    bird.y += (bird.targetY - bird.y) * 0.08 + (Math.random() - 0.5) * 5;
+                }
+
+                if (bird.x > canvas.width + 50) {
+                    bird.x = -50;
+                    resetBirdPos();
+                } else if (bird.x < -50) {
+                    bird.x = canvas.width + 50;
+                    resetBirdPos();
                 }
             } else if (bird.state === 'falling') {
-                bird.y += 9.8;
-                bird.x += bird.vx * 0.3;
-                bird.wingAngle += 0.4;
+                bird.y += 10.5;
+                bird.x += bird.vx * 0.25;
+                bird.wingAngle += 0.5;
                 if (bird.y >= canvas.height * 0.75) {
                     bird.state = 'dead';
-                    createFeatherExplosion(bird.x, bird.y, 15);
-                    setTimeout(respawnBird, 1200);
+                    createFeatherExplosion(bird.x, bird.y, 20);
+                    setTimeout(respawnBird, 1000);
                 }
             }
         }
 
-        // Draw Detailed Bird
+        function resetBirdPos() {
+            bird.y = canvas.height * (0.15 + Math.random() * 0.3);
+            bird.targetY = bird.y;
+        }
+
+        function respawnBird() {
+            bird.x = Math.random() > 0.5 ? -40 : canvas.width + 40;
+            
+            let baseSpeed = 3;
+            if (difficulty === 'medium') baseSpeed = 6.5;
+            if (difficulty === 'hard') baseSpeed = 10.5;
+
+            bird.vx = bird.x < 0 ? (baseSpeed + Math.random() * 1.5) : -(baseSpeed + Math.random() * 1.5);
+            bird.wingSpeed = 0.2 + (baseSpeed * 0.03);
+            resetBirdPos();
+            bird.state = 'flying';
+        }
+
+        // Draw Highly Detailed, Small Realistic Bird
         function drawRealisticBird() {
             ctx.save();
             ctx.translate(bird.x, bird.y);
 
             if (bird.vx < 0 && bird.state === 'flying') ctx.scale(-1, 1);
-            if (bird.state === 'falling') ctx.rotate(Math.PI / 2.5);
+            if (bird.state === 'falling') ctx.rotate(Math.PI / 2.2);
 
             const s = bird.size;
-            const wingY = Math.sin(bird.wingAngle) * (s * 0.8);
+            const wingY = Math.sin(bird.wingAngle) * (s * 0.95);
 
-            // Tail feathers
-            ctx.fillStyle = "#5c2c10";
+            // Tail Feathers
+            ctx.fillStyle = "#3d1e0b";
             ctx.beginPath();
-            ctx.moveTo(-s * 0.8, 0);
-            ctx.lineTo(-s * 1.5, -s * 0.3);
+            ctx.moveTo(-s * 0.9, 0);
+            ctx.lineTo(-s * 1.6, -s * 0.35);
             ctx.lineTo(-s * 1.4, 0);
-            ctx.lineTo(-s * 1.5, s * 0.3);
+            ctx.lineTo(-s * 1.6, s * 0.35);
             ctx.fill();
 
-            // Body
+            // Main Body
             let bodyGrad = ctx.createLinearGradient(-s, -s, s, s);
-            bodyGrad.addColorStop(0, "#8b4513");
-            bodyGrad.addColorStop(0.6, "#d2691e");
-            bodyGrad.addColorStop(1, "#f4a460");
+            bodyGrad.addColorStop(0, "#4a250d");
+            bodyGrad.addColorStop(0.5, "#a0522d");
+            bodyGrad.addColorStop(1, "#cd853f");
             ctx.fillStyle = bodyGrad;
             ctx.beginPath();
-            ctx.ellipse(0, 0, s, s * 0.55, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, s, s * 0.52, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Head
-            ctx.fillStyle = "#1e5330"; // Mallard duck / Wild bird green tint head
+            // Mallard Green Head Gloss
+            let headGrad = ctx.createRadialGradient(s * 0.7, -s * 0.2, 1, s * 0.7, -s * 0.2, s * 0.4);
+            headGrad.addColorStop(0, "#00b894");
+            headGrad.addColorStop(0.8, "#006266");
+            ctx.fillStyle = headGrad;
             ctx.beginPath();
-            ctx.arc(s * 0.75, -s * 0.2, s * 0.38, 0, Math.PI * 2);
+            ctx.arc(s * 0.7, -s * 0.2, s * 0.36, 0, Math.PI * 2);
             ctx.fill();
 
-            // Eye
+            // Tiny Eye
             ctx.fillStyle = "#ffffff";
             ctx.beginPath();
-            ctx.arc(s * 0.85, -s * 0.28, 3, 0, Math.PI * 2);
+            ctx.arc(s * 0.8, -s * 0.28, 2, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = "#000000";
             ctx.beginPath();
-            ctx.arc(s * 0.86, -s * 0.28, 1.5, 0, Math.PI * 2);
+            ctx.arc(s * 0.82, -s * 0.28, 1, 0, Math.PI * 2);
             ctx.fill();
 
             // Beak
             ctx.fillStyle = "#f39c12";
             ctx.beginPath();
-            ctx.moveTo(s * 1.05, -s * 0.3);
-            ctx.lineTo(s * 1.5, -s * 0.15);
-            ctx.lineTo(s * 1.05, 0);
+            ctx.moveTo(s * 0.98, -s * 0.28);
+            ctx.lineTo(s * 1.45, -s * 0.12);
+            ctx.lineTo(s * 0.98, 0);
             ctx.fill();
 
-            // Animated Wing (Back)
-            ctx.fillStyle = "#6e330a";
+            // Wings Layering
+            ctx.fillStyle = "#3a1c09";
             ctx.beginPath();
             ctx.moveTo(-s * 0.2, -s * 0.1);
-            ctx.quadraticCurveTo(0, -s * 1.3 - wingY, s * 0.4, -s * 0.2);
+            ctx.quadraticCurveTo(0, -s * 1.4 - wingY, s * 0.35, -s * 0.2);
             ctx.fill();
 
-            // Animated Wing (Front)
-            ctx.fillStyle = "#a0522d";
+            ctx.fillStyle = "#8b4513";
             ctx.beginPath();
             ctx.moveTo(-s * 0.3, 0);
-            ctx.quadraticCurveTo(0, -s * 1.5 - wingY, s * 0.5, -s * 0.1);
+            ctx.quadraticCurveTo(0, -s * 1.6 - wingY, s * 0.45, -s * 0.1);
             ctx.fill();
 
             ctx.restore();
         }
 
-        function respawnBird() {
-            bird.x = Math.random() > 0.5 ? -40 : canvas.width + 40;
-            bird.vx = bird.x < 0 ? (3 + Math.random() * 2) : -(3 + Math.random() * 2);
-            bird.y = canvas.height * (0.15 + Math.random() * 0.3);
-            bird.state = 'flying';
-        }
-
-        // Particle System (Feathers & Explosions)
+        // Particle System (Feathers & Win Popup Text)
         function createFeatherExplosion(x, y, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.7) * 8,
-                    size: Math.random() * 6 + 3,
-                    color: Math.random() > 0.4 ? "#d2691e" : "#ffffff",
+                    vx: (Math.random() - 0.5) * 9,
+                    vy: (Math.random() - 0.7) * 9,
+                    size: Math.random() * 5 + 2,
+                    color: Math.random() > 0.4 ? "#a0522d" : (Math.random() > 0.5 ? "#ffffff" : "#f39c12"),
                     rotation: Math.random() * Math.PI,
-                    rotSpeed: (Math.random() - 0.5) * 0.2,
+                    rotSpeed: (Math.random() - 0.5) * 0.25,
                     life: 1.0
                 });
             }
+        }
+
+        function addFloatingText(x, y, text, color) {
+            floatingTexts.push({
+                x: x,
+                y: y,
+                text: text,
+                color: color,
+                opacity: 1.0,
+                vy: -2
+            });
         }
 
         function updateAndDrawParticles() {
@@ -575,9 +703,9 @@
                 let p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.15; // Gravity
+                p.vy += 0.18;
                 p.rotation += p.rotSpeed;
-                p.life -= 0.02;
+                p.life -= 0.022;
 
                 if (p.life <= 0) {
                     particles.splice(i, 1);
@@ -590,74 +718,92 @@
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
                 ctx.beginPath();
-                ctx.ellipse(0, 0, p.size, p.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.ellipse(0, 0, p.size, p.size * 0.35, 0, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
+            }
+
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                let ft = floatingTexts[i];
+                ft.y += ft.vy;
+                ft.opacity -= 0.02;
+
+                if (ft.opacity <= 0) {
+                    floatingTexts.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.font = "900 22px Arial";
+                ctx.fillStyle = ft.color;
+                ctx.globalAlpha = ft.opacity;
+                ctx.shadowColor = "#000";
+                ctx.shadowBlur = 6;
+                ctx.fillText(ft.text, ft.x - 20, ft.y);
                 ctx.restore();
             }
         }
 
-        // Crosshair HUD
+        // Dynamic Crosshair HUD
         function drawCrosshair() {
             ctx.save();
             ctx.strokeStyle = "#e74c3c";
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = "#000";
-            ctx.shadowBlur = 4;
+            ctx.lineWidth = 2.2;
+            ctx.shadowColor = "rgba(0,0,0,0.6)";
+            ctx.shadowBlur = 5;
 
             ctx.beginPath();
-            ctx.arc(crosshair.x, crosshair.y, 18, 0, Math.PI * 2);
+            ctx.arc(crosshair.x, crosshair.y, 16, 0, Math.PI * 2);
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.arc(crosshair.x, crosshair.y, 4, 0, Math.PI * 2);
+            ctx.arc(crosshair.x, crosshair.y, 3, 0, Math.PI * 2);
             ctx.fillStyle = "#e74c3c";
             ctx.fill();
 
-            // Cross lines
             ctx.beginPath();
-            ctx.moveTo(crosshair.x - 26, crosshair.y);
-            ctx.lineTo(crosshair.x - 10, crosshair.y);
-            ctx.moveTo(crosshair.x + 10, crosshair.y);
-            ctx.lineTo(crosshair.x + 26, crosshair.y);
+            ctx.moveTo(crosshair.x - 24, crosshair.y);
+            ctx.lineTo(crosshair.x - 8, crosshair.y);
+            ctx.moveTo(crosshair.x + 8, crosshair.y);
+            ctx.lineTo(crosshair.x + 24, crosshair.y);
 
-            ctx.moveTo(crosshair.x, crosshair.y - 26);
-            ctx.lineTo(crosshair.x, crosshair.y - 10);
-            ctx.moveTo(crosshair.x, crosshair.y + 10);
-            ctx.lineTo(crosshair.x, crosshair.y + 26);
+            ctx.moveTo(crosshair.x, crosshair.y - 24);
+            ctx.lineTo(crosshair.x, crosshair.y - 8);
+            ctx.moveTo(crosshair.x, crosshair.y + 8);
+            ctx.lineTo(crosshair.x, crosshair.y + 24);
             ctx.stroke();
 
             ctx.restore();
         }
 
-        // Muzzle Flash Effect
+        // Muzzle Flash
         function drawMuzzleFlash() {
             if (muzzleFlashTime > 0) {
                 muzzleFlashTime--;
                 ctx.save();
-                let flashGrad = ctx.createRadialGradient(crosshair.x, crosshair.y, 5, crosshair.x, crosshair.y, 80);
-                flashGrad.addColorStop(0, "rgba(255, 255, 200, 0.9)");
-                flashGrad.addColorStop(0.3, "rgba(255, 140, 0, 0.6)");
+                let flashGrad = ctx.createRadialGradient(crosshair.x, crosshair.y, 4, crosshair.x, crosshair.y, 70);
+                flashGrad.addColorStop(0, "rgba(255, 255, 220, 0.95)");
+                flashGrad.addColorStop(0.3, "rgba(255, 120, 0, 0.7)");
                 flashGrad.addColorStop(1, "rgba(255, 0, 0, 0)");
 
                 ctx.fillStyle = flashGrad;
                 ctx.beginPath();
-                ctx.arc(crosshair.x, crosshair.y, 80, 0, Math.PI * 2);
+                ctx.arc(crosshair.x, crosshair.y, 70, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
         }
 
-        // Game Loop
+        // Render Game Loop
         function gameLoop() {
             ctx.save();
 
-            // Screen Shake Effect
             if (screenShake > 0) {
                 let dx = (Math.random() - 0.5) * screenShake;
                 let dy = (Math.random() - 0.5) * screenShake;
                 ctx.translate(dx, dy);
-                screenShake *= 0.85;
-                if (screenShake < 0.5) screenShake = 0;
+                screenShake *= 0.82;
+                if (screenShake < 0.4) screenShake = 0;
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -674,7 +820,7 @@
         }
         gameLoop();
 
-        // Shoot Function & Backend API Integration
+        // Independent Shoot Round API Handler
         async function shoot() {
             initAudio();
             if (isPlaying) return;
@@ -687,19 +833,20 @@
             isPlaying = true;
             document.getElementById("shootBtn").disabled = true;
 
-            // Visual & Audio Shoot FX
             playGunshotSound();
-            screenShake = 12;
+            screenShake = 14;
             muzzleFlashTime = 4;
 
             try {
+                // Send round bet & selected difficulty to Backend
                 const res = await fetch("/api/play", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         user_id: userId,
                         game_id: "bird_hunt",
-                        bet_amount: betAmount
+                        bet_amount: betAmount,
+                        difficulty: difficulty
                     })
                 });
 
@@ -711,17 +858,26 @@
                     return;
                 }
 
+                // Balance update from backend database
                 balance = data.new_balance;
                 document.getElementById("userBalance").innerText = balance;
 
-                // 10% Win Rate / Backend Multiplier Check (2x Payout on Win)
-                if (data.multiplier > 0) {
+                // Win Multipliers: Easy (2x), Medium (3x), Hard (5x)
+                let multi = 0;
+                if (difficulty === 'easy') multi = 2;
+                if (difficulty === 'medium') multi = 3;
+                if (difficulty === 'hard') multi = 5;
+
+                if (data.win || data.multiplier > 0) {
                     bird.state = 'falling';
                     playHitSound();
-                    createFeatherExplosion(crosshair.x, crosshair.y, 25);
-                    let winAmount = data.win_amount || (betAmount * 2);
-                    showToast(`اصابة دقيقة! ربحت ${winAmount} NPS 🎯`, "win");
+                    createFeatherExplosion(crosshair.x, crosshair.y, 30);
+                    
+                    let winAmount = data.win_amount || (betAmount * multi);
+                    addFloatingText(crosshair.x, crosshair.y - 20, `+${winAmount} NPS`, "#2ecc71");
+                    showToast(`إصابة دقيقة! ربحت ${winAmount} NPS 🎯`, "win");
                 } else {
+                    addFloatingText(crosshair.x, crosshair.y - 20, `-${betAmount} NPS`, "#e74c3c");
                     showToast(`خسارة! فقدت ${betAmount} NPS 💥`, "loss");
                 }
             } catch (e) {
@@ -731,14 +887,14 @@
             setTimeout(() => {
                 isPlaying = false;
                 document.getElementById("shootBtn").disabled = false;
-            }, 900);
+            }, 850);
         }
 
         function showToast(msg, type) {
             const toast = document.getElementById("toast");
             toast.innerText = msg;
             toast.className = `toast-message show toast-${type}`;
-            setTimeout(() => { toast.className = "toast-message"; }, 2200);
+            setTimeout(() => { toast.className = "toast-message"; }, 2000);
         }
     </script>
 </body>
