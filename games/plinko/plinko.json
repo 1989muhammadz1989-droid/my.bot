@@ -1,0 +1,14 @@
+{
+  "id": "plinko",
+  "name": "بلينكو VIP",
+  "description": "لعبة بلينكو الفاخرة ذات الفيزياء السلسة والمكافآت التشويقية",
+  "icon": "fa-solid fa-circle-nodes",
+    "image": "cover.jpg",
+  "default_algo": {
+    "loss_rate": 65.0,
+    "normal_rate": 25.0,
+    "medium_rate": 7.0,
+    "high_rate": 2.5,
+    "mega_rate": 0.5
+  }
+}
