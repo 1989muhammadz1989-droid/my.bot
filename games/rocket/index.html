@@ -291,9 +291,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('user_id') || urlParams.get('telegram_id') || "123456789";
 
-        // أرقام الحماس عند الانسحاب المبكر
-        const HYPE_MULTIPLIERS = [15.0, 25.0, 40.0, 60.0, 85.0, 100.0];
-
         let userBalance = 0.0;
         let gameState = 'COUNTDOWN'; // COUNTDOWN, RUNNING, CRASHED
         let currentMult = 1.00;
@@ -303,14 +300,17 @@
         let particles = [];
         let stars = [];
         let shakeTime = 0;
+        let lastCrashPos = { x: 0, y: 0 };
         
         let hasBetInCurrentRound = false;
         let hasCashedOutCurrentRound = false;
-        let serverCalculatedMult = 0.0;
         let countdownTimer = 5;
         let countdownInterval = null;
 
-        /* Advanced Realistic Synthesizer Audio System */
+        // متغيّر النظام الذكي لتتبع انسحاب اللاعب السابق
+        let lastUserCashoutMult = null;
+
+        /* System Synthesizer Audio */
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -410,7 +410,7 @@
         setInterval(updateLiveFeed, 4000);
         updateLiveFeed();
 
-        // Canvas Setup & Space Background
+        // Canvas Setup
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -431,7 +431,7 @@
             });
         }
 
-        /* رسم الصاروخ */
+        /* رسم الصاروخ للأعلى مباشرة */
         function drawRealisticRocket(x, y, scaleMult, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -542,31 +542,22 @@
                 ctx.globalAlpha = 1.0;
 
                 if (gameState === 'RUNNING') {
-                    s.y += s.speed * (1 + (currentMult - 1) * 0.2);
+                    s.y += s.speed * (1 + (currentMult - 1) * 0.25);
                     if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
                 }
             });
 
-            const startX = 50;
-            const startY = canvas.height - 50;
-            const targetX = canvas.width - 60;
-            const targetY = 70;
+            const startX = canvas.width / 2;
+            const startY = canvas.height - 60;
+            const targetY = 80;
 
             if (gameState === 'RUNNING') {
-                animProgress += 0.004 * (1 + (currentMult - 1) * 0.05);
+                animProgress += 0.0035 * (1 + (currentMult - 1) * 0.04);
                 if (animProgress > 1) animProgress = 1;
 
-                // مسار صعودي مستمر بدون أي نزول أو اهتزاز أسفل
-                const curX = startX + (targetX - startX) * Math.min(animProgress, 1.0);
+                const curX = startX;
                 const curY = startY - (startY - targetY) * Math.pow(Math.min(animProgress, 1.0), 0.85);
 
-                // حساب اتجاه رأس الصاروخ بزاوية صعود ثابتة ونظيفة
-                const nextP = Math.min(animProgress + 0.01, 1.0);
-                const nextX = startX + (targetX - startX) * nextP;
-                const nextY = startY - (startY - targetY) * Math.pow(nextP, 0.85);
-                const flightAngle = Math.atan2(nextY - curY, nextX - curX) + Math.PI / 2;
-
-                // رسم خط المسار المتوهج
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
                 ctx.lineTo(curX, curY);
@@ -579,17 +570,18 @@
 
                 for (let i = 0; i < 2; i++) {
                     particles.push({
-                        x: curX, y: curY + 10,
-                        vx: -Math.random() * 2, vy: Math.random() * 3 + 1,
+                        x: curX + (Math.random() * 8 - 4),
+                        y: curY + 25,
+                        vx: (Math.random() - 0.5) * 1.5,
+                        vy: Math.random() * 3 + 2,
                         size: Math.random() * 4 + 2,
                         color: Math.random() > 0.4 ? '#ffcc00' : '#ff0033',
                         life: 1.0
                     });
                 }
 
-                drawRealisticRocket(curX, curY, currentMult, flightAngle);
+                drawRealisticRocket(curX, curY, currentMult, 0);
 
-                // تسارع المضاعف
                 currentMult += 0.008 * (1 + (currentMult - 1) * 0.12);
                 document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
 
@@ -602,11 +594,11 @@
             } else if (gameState === 'CRASHED') {
                 if (shakeTime > 0) {
                     shakeTime -= 0.03;
-                    drawExplosion(targetX, targetY);
+                    drawExplosion(lastCrashPos.x, lastCrashPos.y);
                 }
                 drawParticles();
             } else {
-                drawRealisticRocket(startX, startY, 1.0, Math.PI / 3.8);
+                drawRealisticRocket(startX, startY, 1.0, 0);
             }
 
             requestAnimationFrame(renderLoop);
@@ -614,6 +606,7 @@
 
         function triggerCrash(x, y) {
             gameState = 'CRASHED';
+            lastCrashPos = { x, y };
             playSound('boom');
             shakeTime = 1.0;
             createExplosionParticles(x, y);
@@ -667,7 +660,6 @@
             currentMult = 1.00;
             hasBetInCurrentRound = false;
             hasCashedOutCurrentRound = false;
-            serverCalculatedMult = 0.0;
             countdownTimer = 5;
 
             document.getElementById('mult-display').innerText = '1.00x';
@@ -689,13 +681,9 @@
         }
 
         function launchRocketRound() {
-            // إن لم يراهن اللاعب، يتم توليد رقم عشوائي للجولة
+            // عند مراقبة الجولة دون رهان: يحلق الصاروخ بمستويات عالية للتشويق (5x - 100x)
             if (!hasBetInCurrentRound) {
-                const r = Math.random();
-                if (r < 0.2) targetCrashMult = 1.00; // انفجار فوري
-                else if (r < 0.5) targetCrashMult = parseFloat((Math.random() * 0.9 + 1.1).toFixed(2)); // 1.1x - 2.0x
-                else if (r < 0.8) targetCrashMult = parseFloat((Math.random() * 2.0 + 2.0).toFixed(2)); // 2.0x - 4.0x
-                else targetCrashMult = parseFloat((Math.random() * 5.0 + 4.0).toFixed(2)); // حتى 9.0x
+                targetCrashMult = parseFloat((Math.random() * 95 + 5).toFixed(2));
             }
 
             gameState = 'RUNNING';
@@ -743,7 +731,7 @@
             }
         }
 
-        /* الرهان والخصم المباشر من السيرفر */
+        /* تنفيذ الرهان والخوارزمية الذكية المضادة لنمط انسحاب اللاعب */
         async function placeBet() {
             if (userBalance < betAmount) {
                 alert("رصيدك غير كافٍ للرهان!");
@@ -764,13 +752,27 @@
                     return;
                 }
 
-                serverCalculatedMult = parseFloat(data.multiplier || 0);
-
-                // تحديد نقطة الانفجار استناداً لنتيجة الخوارزمية مع سقف 10.0x للرهان النشط
-                if (serverCalculatedMult <= 0.0) {
-                    targetCrashMult = 1.00; // انفجار فوري 0x/1.0x
+                /* 
+                   قراءة ذكية مضادة لسلوك اللاعب:
+                   1. إذا انسحب في الجولة السابقة عند رقم عالي مثل 3.0x -> سينفجر الرهان التالي بين 1.20x و 1.50x ليخسر عند انتماء انتظاره للوصول إلى 3x.
+                   2. إذا كان ينسحب فوراً أو مبكراً جداً (أقل من 2.0x) -> سينفجر الرهان بشكل فوري عند 1.00x أو 1.05x لكسر حيلته ومباغتته.
+                   3. إذا لم ينسحب سابقاً (خسر الرهان السابق) -> النسبة العامة 95% انفجار مبكر جداً (1.00x - 1.10x).
+                */
+                if (lastUserCashoutMult !== null) {
+                    if (lastUserCashoutMult >= 3.0) {
+                        targetCrashMult = parseFloat((1.20 + Math.random() * 0.30).toFixed(2)); // ينفجر بين 1.20x و 1.50x
+                    } else if (lastUserCashoutMult < 2.0) {
+                        targetCrashMult = Math.random() < 0.7 ? 1.00 : parseFloat((1.01 + Math.random() * 0.05).toFixed(2)); // انفجار فوري 1.00x - 1.05x
+                    } else {
+                        targetCrashMult = parseFloat((1.05 + Math.random() * (lastUserCashoutMult * 0.4)).toFixed(2));
+                    }
+                    lastUserCashoutMult = null; // إعادة ضبط المتغير بعد تطبيق الفخ
                 } else {
-                    targetCrashMult = Math.min(10.0, serverCalculatedMult);
+                    if (Math.random() < 0.95) {
+                        targetCrashMult = Math.random() < 0.5 ? 1.00 : parseFloat((1.01 + Math.random() * 0.10).toFixed(2));
+                    } else {
+                        targetCrashMult = parseFloat((1.50 + Math.random() * 0.80).toFixed(2));
+                    }
                 }
 
                 hasBetInCurrentRound = true;
@@ -782,11 +784,12 @@
             }
         }
 
-        /* تنفيذ السحب وبدء ميزة الحماس العشوائية */
         function executeCashout() {
             if (gameState !== 'RUNNING' || hasCashedOutCurrentRound) return;
 
             hasCashedOutCurrentRound = true;
+            lastUserCashoutMult = currentMult; // تسجيل مضاعف انسحاب اللاعب لاستخدامه في إفشال رهان الجولة القادمة
+
             const winMult = currentMult.toFixed(2);
             const totalWin = parseFloat((betAmount * currentMult).toFixed(2));
 
@@ -795,15 +798,6 @@
             document.getElementById('status-display').innerText = `🎉 تم الانسحاب عند ${winMult}x (+${totalWin} NPS)!`;
             document.getElementById('status-display').className = 'status-text status-cashed';
             document.getElementById('mult-display').style.color = '#00e676';
-
-            // تفعيل ميزة "الحماس عند الانسحاب المبكر": الصاروخ يستمر بالتحليق بشكل عشوائي حتى 100x
-            const isEarlyCashout = currentMult < 3.0;
-            const shouldTriggerHype = isEarlyCashout && Math.random() < 0.35; // 35% احتمال تحليق حماسي بعد الانسحاب
-
-            if (shouldTriggerHype) {
-                const randomHype = HYPE_MULTIPLIERS[Math.floor(Math.random() * HYPE_MULTIPLIERS.length)];
-                targetCrashMult = Math.max(targetCrashMult, randomHype);
-            }
 
             updateUIState();
             fetchUserData();
