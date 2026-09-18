@@ -1,0 +1,14 @@
+{
+  "id": "bowling",
+  "name": "صالة البولينج 3D",
+  "icon": "🎳",
+    "image": "cover.jpg",
+  "description": "إسقاط جميع أحجار البولينج يمنحك ضعف مبلغ الرهان!",
+  "default_algo": {
+    "loss_rate": 90.0,
+    "normal_rate": 10.0,
+    "medium_rate": 0.0,
+    "high_rate": 0.0,
+    "mega_rate": 0.0
+  }
+}
