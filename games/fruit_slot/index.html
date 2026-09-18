@@ -47,6 +47,41 @@
             pointer-events: none;
         }
 
+        /* 🎈 احتفالية البالونات عند الفوز */
+        .balloon-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            width: 36px;
+            height: 46px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            opacity: 0.9;
+            animation: floatUp 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-115vh) rotate(25deg); opacity: 0; }
+        }
+
         /* ------------------ Header ------------------ */
         .header {
             background: linear-gradient(180deg, rgba(30, 1, 7, 0.95) 0%, rgba(15, 0, 3, 0.9) 100%);
@@ -115,7 +150,6 @@
             position: relative;
         }
 
-        /* إطار السلوت الذهبي المصمم طابق الصورة */
         .slot-frame {
             position: relative;
             background: linear-gradient(145deg, #bf8f30, #593e0b, #e6be65, #422d05);
@@ -168,33 +202,57 @@
             color: #000;
         }
 
-        /* شجرة الجوكر والمضاعف */
+        /* 🌟 شجرة الجوكر والمضاعف المضيئة واللامعة */
         .tree-symbol {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             line-height: 1;
+            position: relative;
         }
 
         .tree-symbol .tree-icon {
             font-size: 2.7rem;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 20px rgba(255, 223, 0, 0.6));
+            animation: treeGlow 1.8s infinite alternate ease-in-out;
+        }
+
+        @keyframes treeGlow {
+            0% { transform: scale(0.96); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.7)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(255, 239, 150, 1)); }
         }
 
         .tree-symbol .tree-badge {
             font-size: 0.85rem;
-            background: linear-gradient(135deg, #ffd700, #b8860b);
+            background: linear-gradient(135deg, #fff3a1 0%, #ffd700 50%, #b8860b 100%);
             color: #000;
             font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 8px;
+            padding: 2px 10px;
+            border-radius: 10px;
             margin-top: 2px;
             border: 1px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* اللافتة الذهبية السفلى مثل الصورة تماماً */
+        .tree-symbol .tree-badge::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.85) 50%, transparent 70%);
+            transform: rotate(25deg);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(25deg); }
+            100% { transform: translateX(100%) rotate(25deg); }
+        }
+
+        /* اللافتة الذهبية */
         .golden-banner {
             margin-top: 12px;
             background: linear-gradient(180deg, #ffe082 0%, #cfa138 50%, #7a540c 100%);
@@ -293,7 +351,39 @@
             font-weight: bold;
         }
 
+        .action-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-speed {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--gold-mid);
+            color: var(--gold-bright);
+            padding: 12px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            min-width: 90px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-speed.fast {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: #fff;
+            border-color: var(--gold-bright);
+            box-shadow: 0 0 12px rgba(230, 126, 34, 0.7);
+        }
+
         .btn-spin {
+            flex: 1;
             background: linear-gradient(180deg, #ffe082 0%, #db9d24 50%, #8c5a08 100%);
             color: #000;
             font-weight: 900;
@@ -314,6 +404,9 @@
     </style>
 </head>
 <body>
+
+    <!-- 🎈 حاوية البالونات للأحتفال -->
+    <div class="balloon-container" id="balloonContainer"></div>
 
     <!-- 🏆 Header -->
     <header class="header">
@@ -344,7 +437,6 @@
                 <div class="reel-window" id="reelWin3"><div class="reel-strip" id="reel3"></div></div>
             </div>
 
-            <!-- اللافتة الذهبية مثل الصورة -->
             <div class="golden-banner">
                 <h2>لعبة السلوتس</h2>
                 <span>GOLDEN GAME</span>
@@ -368,9 +460,15 @@
             <div class="bet-grid" id="betButtonsContainer"></div>
         </div>
 
-        <button class="btn-spin" id="spinBtn" onclick="spin()">
-            <i class="fa-solid fa-rotate-right"></i> دوران 🚀
-        </button>
+        <div class="action-row">
+            <button class="btn-speed" id="speedBtn" onclick="toggleSpeed()">
+                <i class="fa-solid fa-bolt" id="speedIcon"></i>
+                <span id="speedTxt">سرعة: عادية</span>
+            </button>
+            <button class="btn-spin" id="spinBtn" onclick="spin()">
+                <i class="fa-solid fa-rotate-right"></i> دوران 🚀
+            </button>
+        </div>
     </div>
 
     <script>
@@ -425,6 +523,7 @@
         let userBalance = 0.0;
         let selectedBet = 3;
         let currentBetPage = 1;
+        let isFastSpeed = false;
 
         const baseFruits = ['🍊', '🍋', '🍒', '🍉', '🍇', '🔔'];
 
@@ -438,6 +537,25 @@
                 localStorage.setItem('royal_slot_jackpot_val', storedVal);
                 counterEl.innerText = Math.floor(storedVal).toLocaleString('en-US');
             }, 400);
+        }
+
+        // ------------------ Speed Toggle ------------------
+        function toggleSpeed() {
+            playClickSound();
+            isFastSpeed = !isFastSpeed;
+            const speedBtn = document.getElementById('speedBtn');
+            const speedTxt = document.getElementById('speedTxt');
+            const speedIcon = document.getElementById('speedIcon');
+
+            if (isFastSpeed) {
+                speedBtn.classList.add('fast');
+                speedTxt.innerText = 'سرعة: فائقة';
+                speedIcon.className = 'fa-solid fa-bolt-lightning';
+            } else {
+                speedBtn.classList.remove('fast');
+                speedTxt.innerText = 'سرعة: عادية';
+                speedIcon.className = 'fa-solid fa-bolt';
+            }
         }
 
         // ------------------ Bet Quick Selector ------------------
@@ -514,10 +632,9 @@
             }
         }
 
-        // ------------------ Reel Physics Animation ------------------
-        function animateSingleReel(reelIdx, targetSymbol, delay, callback) {
+        // ------------------ Reel Physics Animation (معاً فوراً) ------------------
+        function animateSingleReel(reelIdx, targetSymbol, totalSpinSymbols, spinDuration, callback) {
             const strip = document.getElementById(`reel${reelIdx}`);
-            const totalSpinSymbols = 15;
             strip.innerHTML = '';
 
             let lastSym = '';
@@ -541,10 +658,12 @@
             strip.style.transform = 'translateY(0px)';
             strip.classList.add('blur');
 
-            let tickInterval = setInterval(() => { playClickSound(); }, 70);
+            let tickMs = isFastSpeed ? 35 : 65;
+            let tickInterval = setInterval(() => { playClickSound(); }, tickMs);
 
-            setTimeout(() => {
-                strip.style.transition = `transform ${0.9 + (reelIdx * 0.25)}s cubic-bezier(0.12, 0.8, 0.3, 1.12)`;
+            // تفعيل التحريك في نفس الوقت لجميع البكرات
+            requestAnimationFrame(() => {
+                strip.style.transition = `transform ${spinDuration}s cubic-bezier(0.15, 0.85, 0.35, 1.05)`;
                 strip.style.transform = `translateY(${targetY}px)`;
 
                 setTimeout(() => {
@@ -552,24 +671,42 @@
                     strip.classList.remove('blur');
                     playStopSound();
                     if (callback) callback();
-                }, (0.9 + (reelIdx * 0.25)) * 1000);
-
-            }, delay);
+                }, spinDuration * 1000);
+            });
         }
 
         // ------------------ Mapping Backend Outcome to Symbols ------------------
         function mapOutcomeToSymbols(multiplier) {
             // الخسارة (0x)
             if (multiplier <= 0) {
-                const teaserRoll = Math.random();
-                // 35% احتمال ظهور شجرة مضاعف عالي (100x أو 500x) كعنصر تشويق غير مكمل بالخسارة
-                if (teaserRoll < 0.20) {
-                    return ['🍊', '🍉', { icon: '🌳', label: '100x' }];
-                } else if (teaserRoll < 0.35) {
+                const roll = Math.random();
+                
+                // 2% احتمال ظهور شجرة 500x نادرة جداً للتشويق
+                if (roll < 0.02) {
                     return ['🍇', '🔔', { icon: '🎄', label: '500x' }];
-                } else {
-                    // فواكه غير متشابهة
-                    return ['🍊', '🍋', '🍉'];
+                } 
+                // 3% احتمال ظهور شجرة 100x
+                else if (roll < 0.05) {
+                    return ['🍊', '🍉', { icon: '🌳', label: '100x' }];
+                } 
+                // 25% احتمال ظهور رمز 7️⃣ واحد لتشويق الخسارة
+                else if (roll < 0.30) {
+                    const remaining = ['🍊', '🍋', '🍉', '🍇', '🔔'];
+                    const f1 = remaining[Math.floor(Math.random() * remaining.length)];
+                    let f2 = remaining[Math.floor(Math.random() * remaining.length)];
+                    while(f2 === f1) {
+                        f2 = remaining[Math.floor(Math.random() * remaining.length)];
+                    }
+                    const result = ['7️⃣', f1, f2];
+                    return result.sort(() => Math.random() - 0.5);
+                } 
+                // 70% فواكه غير متشابهة وعادية
+                else {
+                    const pool = [...baseFruits];
+                    const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                    const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                    const f3 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                    return [f1, f2, f3];
                 }
             }
 
@@ -600,10 +737,40 @@
             const chosen = syms[Math.floor(Math.random() * syms.length)];
             
             if (Math.random() < 0.3) {
-                // شجرة 1x كمكمل رابح
                 return [chosen, chosen, { icon: '🌲', label: '1x' }];
             }
             return [chosen, chosen, chosen];
+        }
+
+        // ------------------ Balloons Celebration Trigger ------------------
+        function triggerBalloons() {
+            const container = document.getElementById('balloonContainer');
+            container.innerHTML = '';
+            
+            const colors = ['#ffd700', '#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#ff6b81', '#a55eea'];
+            const count = 22;
+
+            for (let i = 0; i < count; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const randomLeft = Math.random() * 92 + 4;
+                const randomDelay = Math.random() * 1.2;
+                const randomScale = 0.8 + Math.random() * 0.5;
+
+                balloon.style.backgroundColor = randomColor;
+                balloon.style.left = `${randomLeft}%`;
+                balloon.style.animationDelay = `${randomDelay}s`;
+                balloon.style.transform = `scale(${randomScale})`;
+                balloon.style.boxShadow = `inset -4px -4px 10px rgba(0,0,0,0.3), 0 0 12px ${randomColor}`;
+
+                container.appendChild(balloon);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 4500);
         }
 
         // ------------------ Spin Execution ------------------
@@ -623,7 +790,6 @@
             document.getElementById('statusMessage').style.color = 'var(--gold-bright)';
 
             try {
-                // الاتصال بـ API السيرفر app.py
                 const res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -637,12 +803,15 @@
                     return;
                 }
 
-                // تعيين الرموز بناءً على النتيجة القادمة من السيرفر
                 const resultSymbols = mapOutcomeToSymbols(data.multiplier || 0);
 
                 let finishedCount = 0;
-                for (let i = 0; i < 3; i++) {
-                    animateSingleReel(i + 1, resultSymbols[i], i * 130, () => {
+                const speedDuration = isFastSpeed ? 0.35 : 0.85;
+                const totalSpinSymbols = isFastSpeed ? 8 : 14;
+
+                // إطلاق الدوران للبكرات الثلاث معاً في نفس اللحظة
+                for (let i = 1; i <= 3; i++) {
+                    animateSingleReel(i, resultSymbols[i-1], totalSpinSymbols, speedDuration, () => {
                         finishedCount++;
                         if (finishedCount === 3) {
                             processResult(data);
@@ -665,6 +834,7 @@
 
             if (data.win_amount > 0) {
                 playWinSound();
+                triggerBalloons(); // 🎈 إطلاق البالونات عند الفوز
                 msgEl.style.color = '#4cd137';
                 msgEl.innerText = `🎉 مبروك! ربحت ${data.win_amount.toFixed(2)} NPS!`;
             } else {
