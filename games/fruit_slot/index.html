@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎰 لعبة السلوتس | GOLDEN GAME</title>
+    <title>🎰 لعبة السلوتس | GOLDEN GAME VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --gold-light: #fff0a5;
+            --gold-light: #fff5c0;
             --gold-bright: #ffd700;
             --gold-mid: #dfa837;
-            --gold-dark: #8c5a08;
+            --gold-dark: #7a4e05;
             --bg-burgundy: #2b020a;
             --card-bg: #180005;
         }
@@ -30,24 +30,23 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background: radial-gradient(circle at center, #4a0715 0%, #1a0005 70%, #0d0002 100%);
+            background: radial-gradient(circle at center, #520918 0%, #1a0005 70%, #080002 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        /* خلفية زخرفية مخملية */
         body::before {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(rgba(255, 215, 0, 0.08) 1px, transparent 0);
-            background-size: 24px 24px;
+            background-image: radial-gradient(rgba(255, 215, 0, 0.1) 1.5px, transparent 0);
+            background-size: 20px 20px;
             pointer-events: none;
         }
 
-        /* 🎈 احتفالية البالونات عند الفوز */
+        /* 🎈 احتفالية البالونات */
         .balloon-container {
             position: fixed;
             inset: 0;
@@ -59,10 +58,10 @@
         .balloon {
             position: absolute;
             bottom: -100px;
-            width: 36px;
-            height: 46px;
+            width: 38px;
+            height: 48px;
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-            opacity: 0.9;
+            opacity: 0.95;
             animation: floatUp 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
@@ -74,7 +73,7 @@
             transform: translateX(-50%);
             width: 2px;
             height: 14px;
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.8);
         }
 
         @keyframes floatUp {
@@ -84,7 +83,7 @@
 
         /* ------------------ Header ------------------ */
         .header {
-            background: linear-gradient(180deg, rgba(30, 1, 7, 0.95) 0%, rgba(15, 0, 3, 0.9) 100%);
+            background: linear-gradient(180deg, rgba(35, 2, 9, 0.98) 0%, rgba(12, 0, 3, 0.95) 100%);
             border-bottom: 2px solid var(--gold-mid);
             padding: 8px 14px;
             display: flex;
@@ -95,14 +94,14 @@
         }
 
         .jackpot-container {
-            background: linear-gradient(135deg, #4a3002 0%, #8c5a08 50%, #291a00 100%);
+            background: linear-gradient(135deg, #4a3002 0%, #a36b0c 50%, #291a00 100%);
             border: 2px solid var(--gold-bright);
             border-radius: 20px;
             padding: 4px 18px;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.5);
             margin-bottom: 6px;
         }
 
@@ -114,7 +113,7 @@
 
         .jackpot-amount {
             color: #fff;
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 900;
             text-shadow: 0 0 10px var(--gold-bright);
         }
@@ -152,10 +151,10 @@
 
         .slot-frame {
             position: relative;
-            background: linear-gradient(145deg, #bf8f30, #593e0b, #e6be65, #422d05);
+            background: linear-gradient(145deg, #e6be65, #593e0b, #bf8f30, #2b1d02);
             padding: 14px;
             border-radius: 35px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 15px rgba(255,235,170,0.5);
+            box-shadow: 0 12px 45px rgba(0,0,0,0.95), inset 0 0 18px rgba(255,240,180,0.6);
             border: 3px solid var(--gold-light);
             width: 100%;
             max-width: 390px;
@@ -169,18 +168,18 @@
             justify-content: space-between;
             gap: 8px;
             border: 2px solid var(--gold-mid);
-            box-shadow: inset 0 0 20px #000;
+            box-shadow: inset 0 0 25px #000;
         }
 
         .reel-window {
             flex: 1;
             height: 125px;
-            background: linear-gradient(180deg, #dcd1be 0%, #ffffff 48%, #ffffff 52%, #c2b49d 100%);
+            background: linear-gradient(180deg, #111 0%, #fff 45%, #fff 55%, #111 100%);
             border-radius: 14px;
             border: 3px solid #8c6827;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 8px 12px rgba(0,0,0,0.7), inset 0 -8px 12px rgba(0,0,0,0.7);
+            box-shadow: inset 0 12px 15px rgba(0,0,0,0.85), inset 0 -12px 15px rgba(0,0,0,0.85);
         }
 
         .reel-strip {
@@ -192,47 +191,64 @@
             align-items: center;
         }
 
+        /* 🌟 الرموز الحديثة الذهب والـ 3D */
         .reel-symbol {
             height: 125px;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 3.2rem;
-            color: #000;
+            font-size: 3.3rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            transition: transform 0.2s;
         }
 
-        /* 🌟 شجرة الجوكر والمضاعف المضيئة واللامعة */
+        .seven-symbol {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, #ffeb3b 0%, #ff9800 50%, #d50000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
+            animation: pulse7 1.5s infinite alternate;
+        }
+
+        @keyframes pulse7 {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* 🌟 شجرة الجوكر الذهبية الفاخرة */
         .tree-symbol {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             line-height: 1;
-            position: relative;
         }
 
         .tree-symbol .tree-icon {
-            font-size: 2.7rem;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 20px rgba(255, 223, 0, 0.6));
-            animation: treeGlow 1.8s infinite alternate ease-in-out;
+            font-size: 2.8rem;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1)) drop-shadow(0 0 25px rgba(255, 180, 0, 0.8));
+            animation: treeGlow 1.2s infinite alternate ease-in-out;
         }
 
         @keyframes treeGlow {
-            0% { transform: scale(0.96); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.7)); }
-            100% { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(255, 239, 150, 1)); }
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.08); }
         }
 
         .tree-symbol .tree-badge {
             font-size: 0.85rem;
-            background: linear-gradient(135deg, #fff3a1 0%, #ffd700 50%, #b8860b 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #ffd700 50%, #b8860b 100%);
             color: #000;
             font-weight: 900;
-            padding: 2px 10px;
-            border-radius: 10px;
+            padding: 2px 12px;
+            border-radius: 12px;
             margin-top: 2px;
-            border: 1px solid #fff;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
             position: relative;
             overflow: hidden;
         }
@@ -242,9 +258,9 @@
             position: absolute;
             top: -50%; left: -50%;
             width: 200%; height: 200%;
-            background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.85) 50%, transparent 70%);
+            background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.9) 50%, transparent 70%);
             transform: rotate(25deg);
-            animation: shimmer 2s infinite;
+            animation: shimmer 1.5s infinite;
         }
 
         @keyframes shimmer {
@@ -280,7 +296,7 @@
             letter-spacing: 3px;
         }
 
-        .blur { filter: blur(5px); }
+        .blur { filter: blur(6px); }
 
         .status-msg {
             margin-top: 10px;
@@ -372,7 +388,6 @@
             justify-content: center;
             gap: 2px;
             min-width: 90px;
-            transition: all 0.2s ease;
         }
 
         .btn-speed.fast {
@@ -405,7 +420,7 @@
 </head>
 <body>
 
-    <!-- 🎈 حاوية البالونات للأحتفال -->
+    <!-- 🎈 احتفالية الفوز -->
     <div class="balloon-container" id="balloonContainer"></div>
 
     <!-- 🏆 Header -->
@@ -439,7 +454,7 @@
 
             <div class="golden-banner">
                 <h2>لعبة السلوتس</h2>
-                <span>GOLDEN GAME</span>
+                <span>GOLDEN GAME VIP</span>
             </div>
         </div>
 
@@ -472,7 +487,7 @@
     </div>
 
     <script>
-        // ------------------ Audio Web Audio API ------------------
+        // ------------------ Audio Engine (Web Audio API) ------------------
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playClickSound() {
@@ -480,10 +495,10 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(160, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.03);
             } catch(e) {}
         }
 
@@ -492,10 +507,25 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.06);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        // 💥 صوت الارتطام الثقيل عند نزول شجرة التشويق
+        function playImpactSound() {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } catch(e) {}
         }
 
@@ -509,14 +539,14 @@
                         osc.frequency.value = freq;
                         osc.connect(gain); gain.connect(audioCtx.destination);
                         osc.start();
-                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-                        osc.stop(audioCtx.currentTime + 0.25);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                        osc.stop(audioCtx.currentTime + 0.3);
                     }, idx * 90);
                 });
             } catch(e) {}
         }
 
-        // ------------------ Param Setup ------------------
+        // ------------------ State & Params ------------------
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || '1000';
 
@@ -617,6 +647,8 @@
                         <span class="tree-icon">${symData.icon}</span>
                         <span class="tree-badge">${symData.label}</span>
                     </div>`;
+            } else if (symData === '7️⃣') {
+                div.innerHTML = `<span class="seven-symbol">7</span>`;
             } else {
                 div.innerText = symData;
             }
@@ -632,8 +664,8 @@
             }
         }
 
-        // ------------------ Reel Physics Animation (معاً فوراً) ------------------
-        function animateSingleReel(reelIdx, targetSymbol, totalSpinSymbols, spinDuration, callback) {
+        // ------------------ فيزياء دوران البكرات الميكانيكية ------------------
+        function animateSingleReel(reelIdx, targetSymbol, totalSpinSymbols, spinDuration, isTeaserDrop, callback) {
             const strip = document.getElementById(`reel${reelIdx}`);
             strip.innerHTML = '';
 
@@ -658,87 +690,94 @@
             strip.style.transform = 'translateY(0px)';
             strip.classList.add('blur');
 
-            let tickMs = isFastSpeed ? 35 : 65;
+            let tickMs = isFastSpeed ? 30 : 50;
             let tickInterval = setInterval(() => { playClickSound(); }, tickMs);
 
-            // تفعيل التحريك في نفس الوقت لجميع البكرات
             requestAnimationFrame(() => {
-                strip.style.transition = `transform ${spinDuration}s cubic-bezier(0.15, 0.85, 0.35, 1.05)`;
+                strip.style.transition = `transform ${spinDuration}s cubic-bezier(0.15, 0.85, 0.35, 1.15)`;
                 strip.style.transform = `translateY(${targetY}px)`;
 
                 setTimeout(() => {
                     clearInterval(tickInterval);
                     strip.classList.remove('blur');
-                    playStopSound();
+                    
+                    if (isTeaserDrop && reelIdx === 3) {
+                        playImpactSound();
+                    } else {
+                        playStopSound();
+                    }
+
                     if (callback) callback();
                 }, spinDuration * 1000);
             });
         }
 
-        // ------------------ Mapping Backend Outcome to Symbols ------------------
+        // ------------------ الخوارزمية الصارمة للربح والرموز ------------------
         function mapOutcomeToSymbols(multiplier) {
-            // الخسارة (0x)
+            let spinCount = parseInt(localStorage.getItem('slot_spin_counter') || '0') + 1;
+            localStorage.setItem('slot_spin_counter', spinCount);
+
+            let teaserInterval = parseInt(localStorage.getItem('next_teaser_interval') || '30');
+
+            // 1. الخسارة (0x)
             if (multiplier <= 0) {
-                const roll = Math.random();
-                
-                // 2% احتمال ظهور شجرة 500x نادرة جداً للتشويق
-                if (roll < 0.02) {
-                    return ['🍇', '🔔', { icon: '🎄', label: '500x' }];
-                } 
-                // 3% احتمال ظهور شجرة 100x
-                else if (roll < 0.05) {
-                    return ['🍊', '🍉', { icon: '🌳', label: '100x' }];
-                } 
-                // 25% احتمال ظهور رمز 7️⃣ واحد لتشويق الخسارة
-                else if (roll < 0.30) {
-                    const remaining = ['🍊', '🍋', '🍉', '🍇', '🔔'];
-                    const f1 = remaining[Math.floor(Math.random() * remaining.length)];
-                    let f2 = remaining[Math.floor(Math.random() * remaining.length)];
-                    while(f2 === f1) {
-                        f2 = remaining[Math.floor(Math.random() * remaining.length)];
-                    }
-                    const result = ['7️⃣', f1, f2];
-                    return result.sort(() => Math.random() - 0.5);
-                } 
-                // 70% فواكه غير متشابهة وعادية
-                else {
+                // شجرة التشويق (50x, 100x, 500x)
+                if (spinCount >= teaserInterval) {
+                    localStorage.setItem('slot_spin_counter', '0');
+                    localStorage.setItem('next_teaser_interval', Math.floor(Math.random() * 26) + 25);
+
+                    const teaserLabels = ['50x', '100x', '500x'];
+                    const chosenLabel = teaserLabels[Math.floor(Math.random() * teaserLabels.length)];
+                    
+                    const f1 = baseFruits[0];
+                    const f2 = baseFruits[1];
+                    return [f1, f2, { icon: '🎄', label: chosenLabel, isTeaser: true }];
+                }
+
+                // احتمال ظهور رقم 7 واحد في الجولات الخاسرة غير الفائزة لإضافة تشويق
+                const showSingleSeven = Math.random() < 0.25; 
+                if (showSingleSeven) {
                     const pool = [...baseFruits];
                     const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
                     const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                    const f3 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                    return [f1, f2, f3];
+                    const result = [f1, f2, '7️⃣'];
+                    return result.sort(() => Math.random() - 0.5); // توزيع عشوائي لمكان ظهور الـ 7
                 }
+
+                // خسارة عادية (فواكه غير متشابهة تماماً)
+                const pool = [...baseFruits];
+                const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                const f3 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                return [f1, f2, f3];
             }
 
-            // الربح الضخم جداً (500x) -> 777
+            // 2. الربح الضخم جداً (السبعات الملكية مع شجرة 500x) - ظهور مؤكد 100%
             if (multiplier >= 450) {
-                return ['7️⃣', '7️⃣', '7️⃣'];
+                return [{ icon: '🎄', label: '500x' }, '7️⃣', '7️⃣'];
             }
 
-            // ربح 5 ضعف رهان -> ثلاثية بطيخ أو عنب
+            // 3. ربح 5 ضعف الرهان (5x) -> ثلاثية عنب أو بطيخ حصراً
             if (multiplier >= 4.5 && multiplier <= 6) {
                 const sym = Math.random() > 0.5 ? '🍉' : '🍇';
                 return [sym, sym, sym];
             }
 
-            // ربح 3 ضعف رهان -> ثلاثية أجراس
+            // 4. ربح 3 أضعاف الرهان (3x) -> ثلاثية أجراس حصراً
             if (multiplier >= 2.5 && multiplier < 4.5) {
                 return ['🔔', '🔔', '🔔'];
             }
 
-            // ربح مضاعف شجرة (مثال: برتقال + برتقال + شجرة 2x)
-            if (multiplier >= 1.8 && multiplier < 2.5) {
-                const sym = Math.random() > 0.5 ? '🍊' : '🍋';
-                return [sym, sym, { icon: '🌳', label: '2x' }];
+            // 5. ربح شجرة المضاعف النادرة المكملة (1x, 2x, 3x)
+            if (multiplier === 2 || multiplier === 6) {
+                const baseFruit = baseFruits[Math.floor(Math.random() * 3)];
+                const multLabel = multiplier === 6 ? '3x' : '2x';
+                return [baseFruit, baseFruit, { icon: '🌳', label: multLabel }];
             }
 
-            // ربح عادي بنفس سعر الرهان (1x)
-            const syms = ['🍊', '🍋', '🍒'];
-            const chosen = syms[Math.floor(Math.random() * syms.length)];
-            
-            if (Math.random() < 0.3) {
-                return [chosen, chosen, { icon: '🌲', label: '1x' }];
-            }
+            // 6. ربح 1 ضعف الرهان (1x) -> برتقال، ليمون، أو كرز حصراً
+            const fruits1x = ['🍊', '🍋', '🍒'];
+            const chosen = fruits1x[Math.floor(Math.random() * fruits1x.length)];
             return [chosen, chosen, chosen];
         }
 
@@ -748,7 +787,7 @@
             container.innerHTML = '';
             
             const colors = ['#ffd700', '#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#ff6b81', '#a55eea'];
-            const count = 22;
+            const count = 25;
 
             for (let i = 0; i < count; i++) {
                 const balloon = document.createElement('div');
@@ -768,9 +807,7 @@
                 container.appendChild(balloon);
             }
 
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 4500);
+            setTimeout(() => { container.innerHTML = ''; }, 4500);
         }
 
         // ------------------ Spin Execution ------------------
@@ -786,6 +823,11 @@
 
             const spinBtn = document.getElementById('spinBtn');
             spinBtn.disabled = true;
+
+            // 1. الخصم المباشر لمبلغ الرهان من واجهة المستخدم
+            userBalance -= selectedBet;
+            document.getElementById('userBalance').innerText = userBalance.toFixed(2);
+
             document.getElementById('statusMessage').innerText = 'جاري دوران البكرات... 🎲';
             document.getElementById('statusMessage').style.color = 'var(--gold-bright)';
 
@@ -799,6 +841,9 @@
 
                 if (!data.success) {
                     alert(data.message || 'حدث خطأ بالاتصال');
+                    // إعادة الرصيد المخصوم في حال الفشل
+                    userBalance += selectedBet;
+                    document.getElementById('userBalance').innerText = userBalance.toFixed(2);
                     spinBtn.disabled = false;
                     return;
                 }
@@ -806,12 +851,16 @@
                 const resultSymbols = mapOutcomeToSymbols(data.multiplier || 0);
 
                 let finishedCount = 0;
-                const speedDuration = isFastSpeed ? 0.35 : 0.85;
-                const totalSpinSymbols = isFastSpeed ? 8 : 14;
+                const isTeaserDrop = typeof resultSymbols[2] === 'object' && resultSymbols[2].isTeaser;
 
-                // إطلاق الدوران للبكرات الثلاث معاً في نفس اللحظة
+                const baseDuration = isFastSpeed ? 0.3 : 0.7;
+                const stagger = isFastSpeed ? 0.15 : 0.35;
+
                 for (let i = 1; i <= 3; i++) {
-                    animateSingleReel(i, resultSymbols[i-1], totalSpinSymbols, speedDuration, () => {
+                    const duration = baseDuration + (i - 1) * stagger;
+                    const totalSpinSymbols = isFastSpeed ? (8 + i * 2) : (12 + i * 3);
+
+                    animateSingleReel(i, resultSymbols[i-1], totalSpinSymbols, duration, isTeaserDrop, () => {
                         finishedCount++;
                         if (finishedCount === 3) {
                             processResult(data);
@@ -820,13 +869,18 @@
                 }
 
             } catch(e) {
+                // استرجاع الرهان عند حدوث خلل بالسيرفر
+                userBalance += selectedBet;
+                document.getElementById('userBalance').innerText = userBalance.toFixed(2);
                 document.getElementById('statusMessage').innerText = '❌ خطأ في الاتصال بالسيرفر';
                 document.getElementById('statusMessage').style.color = '#ff5252';
                 spinBtn.disabled = false;
             }
         }
 
+        // ------------------ معالجة النتيجة بدقة ودون تكرار الرصيد ------------------
         function processResult(data) {
+            // تحديث الرصيد النهائي الدقيق المرجع مباشرة من خادم Game Engine
             userBalance = parseFloat(data.new_balance);
             document.getElementById('userBalance').innerText = userBalance.toFixed(2);
 
@@ -834,7 +888,7 @@
 
             if (data.win_amount > 0) {
                 playWinSound();
-                triggerBalloons(); // 🎈 إطلاق البالونات عند الفوز
+                triggerBalloons();
                 msgEl.style.color = '#4cd137';
                 msgEl.innerText = `🎉 مبروك! ربحت ${data.win_amount.toFixed(2)} NPS!`;
             } else {
