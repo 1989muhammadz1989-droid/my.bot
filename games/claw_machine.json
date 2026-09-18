@@ -1,0 +1,14 @@
+{
+  "id": "claw_machine",
+  "name": "آلة الرافعة الكبرى",
+  "icon": "🏗️",
+    "image": "cover.jpg",
+  "description": "التقط صندوق الكنز بواسطة الرافعة للحصول على أرباح ضخمة بعملة NPS!",
+  "default_algo": {
+    "loss_rate": 60.0,
+    "normal_rate": 25.0,
+    "medium_rate": 10.0,
+    "high_rate": 4.5,
+    "mega_rate": 0.5
+  }
+}
