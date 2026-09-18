@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة البرج | Tower Limbo</title>
+    <!-- خط القاهرة وأيقونات FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0d14;
+            --bg-card: rgba(18, 24, 38, 0.85);
+            --accent-gold: #ffb703;
+            --accent-cyan: #00f2fe;
+            --accent-green: #00e676;
+            --accent-red: #ff1744;
+            --text-main: #ffffff;
+            --text-sub: #8a99ad;
+            --border-glow: rgba(0, 242, 254, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #141c2e 0%, #07090e 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* خلفية سينمائية متحركة */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #00f2fe, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #ffb703, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.3;
+            animation: bgMove 20s linear infinite;
+        }
+
+        @keyframes bgMove {
+            from { background-position: 0 0; }
+            to { background-position: 200px 400px; }
+        }
+
+        /* الحاوية الرئيسية */
+        .game-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        /* شريط المعلومات العلوي */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(10, 13, 20, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        .balance-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glow);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .balance-box span {
+            color: var(--accent-gold);
+        }
+
+        /* منطقة البرج للتسلق */
+        .tower-viewport {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            padding: 20px;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .tower-viewport::-webkit-scrollbar {
+            width: 4px;
+        }
+        .tower-viewport::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 4px;
+        }
+
+        /* طبقة البرج */
+        .tower-floor {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .tower-floor.active {
+            background: rgba(0, 242, 254, 0.08);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            transform: scale(1.02);
+        }
+
+        .floor-multiplier {
+            min-width: 55px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-sub);
+            background: rgba(0,0,0,0.3);
+            padding: 6px 4px;
+            border-radius: 8px;
+        }
+
+        .tower-floor.active .floor-multiplier {
+            color: var(--accent-gold);
+        }
+
+        .tiles-container {
+            flex: 1;
+            display: grid;
+            gap: 8px;
+        }
+
+        /* المربعات الحجرية داخل كل طبقة */
+        .tile {
+            height: 45px;
+            background: linear-gradient(145deg, #1e2638, #151b28);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .tile:hover:not(.disabled) {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+        }
+
+        .tile.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* حالات فتح المربع */
+        .tile.safe {
+            background: linear-gradient(135deg, #00b09b, #96c93d) !important;
+            border-color: var(--accent-green) !important;
+            color: #fff;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tile.broken {
+            background: linear-gradient(135deg, #ff0844, #ffb199) !important;
+            border-color: var(--accent-red) !important;
+            color: #fff;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* لوحة التحكم السفلية */
+        .controls-panel {
+            background: rgba(10, 13, 20, 0.95);
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* تحديد مستوى الصعوبة */
+        .difficulty-selector {
+            display: flex;
+            gap: 6px;
+            background: rgba(0,0,0,0.4);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .diff-btn.active {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        /* إدخال الرهان */
+        .bet-control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px 8px;
+        }
+
+        .bet-btn {
+            width: 38px;
+            height: 38px;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .bet-btn:active {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .bet-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bet-input-wrapper label {
+            font-size: 10px;
+            color: var(--text-sub);
+        }
+
+        .bet-input {
+            width: 100px;
+            background: transparent;
+            border: none;
+            text-align: center;
+            color: var(--accent-gold);
+            font-size: 18px;
+            font-weight: 800;
+            outline: none;
+        }
+
+        .quick-bets {
+            display: flex;
+            gap: 6px;
+        }
+
+        .q-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-sub);
+            padding: 4px 0;
+            font-size: 11px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* أزرار الإجراء الرئيسية */
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn.start {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .action-btn.cashout {
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(255, 183, 3, 0.4);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* تنبيه الأرباح */
+        .toast {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--accent-gold);
+            border-radius: 16px;
+            padding: 20px 30px;
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(255, 183, 3, 0.5);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .toast-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--accent-gold);
+        }
+
+        .toast-amount {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent-green);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-particles"></div>
+
+    <div class="game-wrapper">
+        <!-- الشريط العلوي -->
+        <div class="header">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <div id="userName" style="font-size: 13px; font-weight: 700;">لاعب البرج</div>
+                    <div style="font-size: 10px; color: var(--text-sub);">المستوى الممتاز</div>
+                </div>
+            </div>
+            <div class="balance-box">
+                <i class="fa-solid fa-coins" style="color: var(--accent-gold);"></i>
+                <span id="balanceDisplay">0.00</span>
+                <small style="color: var(--text-sub); font-size: 11px;">nps</small>
+            </div>
+        </div>
+
+        <!-- ساحة البرج -->
+        <div class="tower-viewport" id="towerViewport">
+            <!-- سيتم توليد الطبقات عبر JS -->
+        </div>
+
+        <!-- لوحة التحكم -->
+        <div class="controls-panel">
+            <!-- تحديد الصعوبة -->
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setDifficulty('easy')">سهل (3/1)</button>
+                <button class="diff-btn" onclick="setDifficulty('medium')">متوسط (2/1)</button>
+                <button class="diff-btn" onclick="setDifficulty('hard')">صعب (3/2)</button>
+                <button class="diff-btn" onclick="setDifficulty('expert')">خبير (4/3)</button>
+            </div>
+
+            <!-- التحكم بمبلغ الرهان -->
+            <div class="bet-control-group">
+                <button class="bet-btn" onclick="adjustBet(-5)">-</button>
+                <div class="bet-input-wrapper">
+                    <label>مبلغ الرهان (nps)</label>
+                    <input type="number" id="betInput" class="bet-input" value="10" min="5" max="1000" step="5" onchange="validateBet()">
+                </div>
+                <button class="bet-btn" onclick="adjustBet(5)">+</button>
+            </div>
+
+            <!-- أزرار الاختصار -->
+            <div class="quick-bets">
+                <button class="q-btn" onclick="setBet(5)">أدنى (5)</button>
+                <button class="q-btn" onclick="multiplyBet(0.5)">½</button>
+                <button class="q-btn" onclick="multiplyBet(2)">2x</button>
+                <button class="q-btn" onclick="setBet(1000)">أقصى (1000)</button>
+            </div>
+
+            <!-- زر اللعب / السحب -->
+            <button id="mainActionBtn" class="action-btn start" onclick="handleMainAction()">
+                <i class="fa-solid fa-play"></i>
+                <span>بدء اللعبة</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- نافذة إعلان الفوز -->
+    <div class="toast" id="winToast">
+        <div class="toast-title">فوز رائع! 🎉</div>
+        <div class="toast-amount" id="winToastAmount">+0.00 nps</div>
+    </div>
+
+    <script>
+        // إعدادات ومستويات اللعبة
+        const DIFFICULTIES = {
+            easy:   { tiles: 3, traps: 1, baseMult: 1.45 },
+            medium: { tiles: 2, traps: 1, baseMult: 1.94 },
+            hard:   { tiles: 3, traps: 2, baseMult: 2.91 },
+            expert: { tiles: 4, traps: 3, baseMult: 3.88 }
+        };
+
+        const TOTAL_FLOORS = 9;
+        let currentDifficulty = 'easy';
+        let currentFloor = 0;
+        let isGameActive = false;
+        let currentBalance = 1000.00;
+        let currentBet = 10;
+        let currentMultiplier = 1.00;
+        let floorData = [];
+
+        // تشغيل مؤشرات الصوت المدمجة Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'step') {
+                osc.frequency.setValueAtTime(300 + (currentFloor * 80), audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'win') {
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'boom') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // تهيئة البيانات وجلب حساب المستخدم عند البدء
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchUserData();
+            buildTower();
+        });
+
+        function getUserId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('user_id') || urlParams.get('telegram_id') || "10001";
+        }
+
+        function fetchUserData() {
+            const uid = getUserId();
+            fetch(`/api/user/get?user_id=${uid}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        currentBalance = parseFloat(data.balance);
+                        document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
+                        if(data.full_name) document.getElementById('userName').innerText = data.full_name;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
+                });
+        }
+
+        // بناء مجسم البرج
+        function buildTower() {
+            const viewport = document.getElementById('towerViewport');
+            viewport.innerHTML = '';
+            floorData = [];
+            const diff = DIFFICULTIES[currentDifficulty];
+
+            for (let i = 0; i < TOTAL_FLOORS; i++) {
+                const mult = Math.pow(diff.baseMult, i + 1).toFixed(2);
+                const floorElem = document.createElement('div');
+                floorElem.className = `tower-floor ${i === 0 && isGameActive ? 'active' : ''}`;
+                floorElem.id = `floor-${i}`;
+
+                const multElem = document.createElement('div');
+                multElem.className = 'floor-multiplier';
+                multElem.innerText = `${mult}x`;
+
+                const tilesGrid = document.createElement('div');
+                tilesGrid.className = 'tiles-container';
+                tilesGrid.style.gridTemplateColumns = `repeat(${diff.tiles}, 1fr)`;
+
+                // إنشاء الفخاخ عشوائياً لكل طابق
+                let traps = Array(diff.tiles).fill(false);
+                let trapCount = 0;
+                while (trapCount < diff.traps) {
+                    let r = Math.floor(Math.random() * diff.tiles);
+                    if (!traps[r]) { traps[r] = true; trapCount++; }
+                }
+                floorData.push(traps);
+
+                for (let t = 0; t < diff.tiles; t++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile disabled';
+                    tile.dataset.floor = i;
+                    tile.dataset.index = t;
+                    tile.onclick = () => handleTileClick(i, t);
+                    tilesGrid.appendChild(tile);
+                }
+
+                floorElem.appendChild(multElem);
+                floorElem.appendChild(tilesGrid);
+                viewport.appendChild(floorElem);
+            }
+        }
+
+        function setDifficulty(diff) {
+            if (isGameActive) return;
+            currentDifficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            buildTower();
+        }
+
+        function adjustBet(val) {
+            if (isGameActive) return;
+            let input = document.getElementById('betInput');
+            let nVal = parseInt(input.value || 0) + val;
+            setBet(nVal);
+        }
+
+        function multiplyBet(factor) {
+            if (isGameActive) return;
+            let input = document.getElementById('betInput');
+            setBet(Math.round(parseInt(input.value || 0) * factor));
+        }
+
+        function setBet(val) {
+            if (isGameActive) return;
+            let input = document.getElementById('betInput');
+            if (val < 5) val = 5;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            currentBet = val;
+        }
+
+        function validateBet() {
+            let input = document.getElementById('betInput');
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 5) val = 5;
+            if (val > 1000) val = 1000;
+            input.value = val;
+            currentBet = val;
+        }
+
+        // بدء الدورة / السحب
+        function handleMainAction() {
+            if (!isGameActive) {
+                startGame();
+            } else {
+                cashout();
+            }
+        }
+
+        function startGame() {
+            validateBet();
+            if (currentBalance < currentBet) {
+                alert('رصيدك غير كافٍ لتنفيذ الرهان!');
+                return;
+            }
+
+            // خصم الرهان محلياً مؤقتاً لحين التأكيد
+            currentBalance -= currentBet;
+            document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
+
+            isGameActive = true;
+            currentFloor = 0;
+            currentMultiplier = 1.00;
+
+            buildTower();
+            updateFloorStates();
+
+            // تحديث زر التحكم إلى "سحب الأرباح"
+            const actionBtn = document.getElementById('mainActionBtn');
+            actionBtn.className = 'action-btn cashout';
+            actionBtn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>سحب (${currentBet.toFixed(2)} nps)</span>`;
+
+            // تعطيل عناصر التحكم أثناء اللعب
+            document.querySelectorAll('.diff-btn, .bet-btn, .q-btn, .bet-input').forEach(el => el.disabled = true);
+        }
+
+        function updateFloorStates() {
+            for (let i = 0; i < TOTAL_FLOORS; i++) {
+                const floorElem = document.getElementById(`floor-${i}`);
+                const tiles = floorElem.querySelectorAll('.tile');
+
+                if (i === currentFloor) {
+                    floorElem.classList.add('active');
+                    tiles.forEach(t => t.classList.remove('disabled'));
+                    // التمرير إلى الطبقة النشطة تلقائياً
+                    floorElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    floorElem.classList.remove('active');
+                    tiles.forEach(t => t.classList.add('disabled'));
+                }
+            }
+        }
+
+        function handleTileClick(floorIndex, tileIndex) {
+            if (!isGameActive || floorIndex !== currentFloor) return;
+
+            const isTrap = floorData[floorIndex][tileIndex];
+            const floorElem = document.getElementById(`floor-${floorIndex}`);
+            const tileElem = floorElem.querySelectorAll('.tile')[tileIndex];
+
+            if (isTrap) {
+                // خسارة
+                tileElem.classList.add('broken');
+                tileElem.innerHTML = '<i class="fa-solid fa-skull-crossbones"></i>';
+                playSound('boom');
+                gameOver(false);
+            } else {
+                // صعود آمن
+                tileElem.classList.add('safe');
+                tileElem.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+                playSound('step');
+
+                const diff = DIFFICULTIES[currentDifficulty];
+                currentMultiplier = Math.pow(diff.baseMult, currentFloor + 1);
+
+                currentFloor++;
+
+                if (currentFloor >= TOTAL_FLOORS) {
+                    // الوصول لقمة البرج
+                    cashout();
+                } else {
+                    updateFloorStates();
+                    const winVal = (currentBet * currentMultiplier).toFixed(2);
+                    const actionBtn = document.getElementById('mainActionBtn');
+                    actionBtn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>سحب (${winVal} nps)</span>`;
+                }
+            }
+        }
+
+        function cashout() {
+            if (!isGameActive || currentFloor === 0) return;
+
+            const winAmount = parseFloat((currentBet * currentMultiplier).toFixed(2));
+            currentBalance += winAmount;
+            document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
+            playSound('win');
+
+            // إرسال النتيجة إلى السيرفر لتحديث الرصيد في قاعدة البيانات
+            syncGameWithServer(currentBet, winAmount, currentMultiplier);
+
+            showToast('فوز رائع! 🎉', `+${winAmount.toFixed(2)} nps`);
+            gameOver(true);
+        }
+
+        function gameOver(isWin) {
+            isGameActive = false;
+
+            // كشف كل الفخاخ في الطبقة الحالية
+            if (!isWin && currentFloor < TOTAL_FLOORS) {
+                const floorElem = document.getElementById(`floor-${currentFloor}`);
+                const tiles = floorElem.querySelectorAll('.tile');
+                floorData[currentFloor].forEach((hasTrap, idx) => {
+                    if (hasTrap) {
+                        tiles[idx].classList.add('broken');
+                        tiles[idx].innerHTML = '<i class="fa-solid fa-bomb"></i>';
+                    }
+                });
+                syncGameWithServer(currentBet, 0, 0);
+            }
+
+            // إعادة زر الحركة للوضع الابتدائي
+            const actionBtn = document.getElementById('mainActionBtn');
+            actionBtn.className = 'action-btn start';
+            actionBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>بدء اللعبة</span>`;
+
+            // إرجاع عناصر التحكم
+            document.querySelectorAll('.diff-btn, .bet-btn, .q-btn, .bet-input').forEach(el => el.disabled = false);
+        }
+
+        function syncGameWithServer(bet, win, mult) {
+            const uid = getUserId();
+            fetch('/api/play', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: uid,
+                    game_id: 'tower',
+                    bet_amount: bet,
+                    win_amount: win,
+                    multiplier: mult
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success && data.new_balance !== undefined) {
+                    currentBalance = parseFloat(data.new_balance);
+                    document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
+                }
+            })
+            .catch(err => console.log('Sync Error:', err));
+        }
+
+        function showToast(title, amount) {
+            const toast = document.getElementById('winToast');
+            document.querySelector('.toast-title').innerText = title;
+            document.getElementById('winToastAmount').innerText = amount;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
