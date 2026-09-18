@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة رمي السهم - الحديقة</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 600px;
+      background: #000;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    canvas {
+      width: 100%;
+      height: 480px;
+      display: block;
+    }
+    .ui-panel {
+      height: 120px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 2px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 15px;
+    }
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .bet-btn {
+      background: #334155;
+      color: #fff;
+      border: none;
+      width: 45px;
+      height: 45px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .bet-btn:hover {
+      background: #475569;
+    }
+    .bet-input {
+      width: 80px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: #facc15;
+      font-size: 18px;
+      font-weight: bold;
+      outline: none;
+    }
+    .play-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: none;
+      padding: 12px 35px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+      transition: transform 0.1s, background 0.2s;
+    }
+    .play-btn:active {
+      transform: scale(0.96);
+    }
+    .play-btn:disabled {
+      background: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .status-toast {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      display: none;
+      z-index: 10;
+      animation: fadeIn 0.3s ease;
+    }
+    .toast-win {
+      background: rgba(34, 197, 94, 0.9);
+      color: #fff;
+    }
+    .toast-loss {
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <div id="statusToast" class="status-toast"></div>
+    <canvas id="gameCanvas" width="800" height="480"></canvas>
+    
+    <div class="ui-panel">
+      <div class="stat-box">
+        <span class="stat-label">رصيد الحساب</span>
+        <span class="stat-value" id="balanceDisplay">0.00 nps</span>
+      </div>
+
+      <div class="bet-controls">
+        <button class="bet-btn" onclick="adjustBet(-5)">-</button>
+        <input type="text" id="betAmount" class="bet-input" value="5" readonly>
+        <button class="bet-btn" onclick="adjustBet(5)">+</button>
+      </div>
+
+      <button id="shootBtn" class="play-btn" onclick="startShoot()">راهن</button>
+    </div>
+  </div>
+
+  <script>
+    // 1. محرك المؤثرات الصوتية الحية (Web Audio API)
+    const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playShootSound() {
+      if (AudioCtx.state === 'suspended') AudioCtx.resume();
+      const osc = AudioCtx.createOscillator();
+      const gain = AudioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, AudioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.5, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(AudioCtx.destination);
+      osc.start();
+      osc.stop(AudioCtx.currentTime + 0.15);
+    }
+
+    function playAirSound() {
+      if (AudioCtx.state === 'suspended') AudioCtx.resume();
+      const bufferSize = AudioCtx.sampleRate * 0.4;
+      const buffer = AudioCtx.createBuffer(1, bufferSize, AudioCtx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const whiteNoise = AudioCtx.createBufferSource();
+      whiteNoise.buffer = buffer;
+      const filter = AudioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(800, AudioCtx.currentTime);
+      filter.frequency.linearRampToValueAtTime(300, AudioCtx.currentTime + 0.4);
+      const gain = AudioCtx.createGain();
+      gain.gain.setValueAtTime(0.15, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.4);
+      whiteNoise.connect(filter);
+      filter.connect(gain);
+      gain.connect(AudioCtx.destination);
+      whiteNoise.start();
+    }
+
+    function playHitSound() {
+      if (AudioCtx.state === 'suspended') AudioCtx.resume();
+      const osc = AudioCtx.createOscillator();
+      const gain = AudioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(150, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(30, AudioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.8, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(AudioCtx.destination);
+      osc.start();
+      osc.stop(AudioCtx.currentTime + 0.1);
+    }
+
+    // 2. إعدادات اللعبة والعناصر
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || '1000';
+
+    let userBalance = 0;
+    let betAmount = 5;
+    let isPlaying = false;
+
+    // موقع شجرة الهدف وموقع السهم
+    const targetPos = { x: 580, y: 180, radius: 45 };
+    const archerPos = { x: 120, y: 380 };
+
+    let arrow = {
+      x: archerPos.x,
+      y: archerPos.y,
+      vx: 0,
+      vy: 0,
+      scale: 1,
+      angle: 0,
+      active: false,
+      targetX: 0,
+      targetY: 0
+    };
+
+    // جلب معلومات المستخدم عند البداية
+    async function loadUserData() {
+      try {
+        const res = await fetch(`/api/user/get?user_id=${userId}`);
+        const data = await res.json();
+        if (data.success) {
+          userBalance = data.balance;
+          document.getElementById('balanceDisplay').innerText = `${userBalance.toFixed(2)} nps`;
+        }
+      } catch (e) {
+        console.error("خطأ جلب بيانات المستخدم", e);
+      }
+    }
+    loadUserData();
+
+    // التحكم بمبلغ الرهان
+    function adjustBet(delta) {
+      if (isPlaying) return;
+      let newBet = betAmount + delta;
+      if (newBet >= 5 && newBet <= 1000) {
+        betAmount = newBet;
+        document.getElementById('betAmount').value = betAmount;
+      }
+    }
+
+    // رسم الحديقة الواقعية والهدف والشجرة
+    function drawGardenScene() {
+      // 1. السماء
+      let skyGrad = ctx.createLinearGradient(0, 0, 0, 300);
+      skyGrad.addColorStop(0, '#38bdf8');
+      skyGrad.addColorStop(1, '#bae6fd');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, canvas.width, 300);
+
+      // 2. العشب والحديقة
+      let grassGrad = ctx.createLinearGradient(0, 300, 0, canvas.height);
+      grassGrad.addColorStop(0, '#15803d');
+      grassGrad.addColorStop(1, '#166534');
+      ctx.fillStyle = grassGrad;
+      ctx.fillRect(0, 300, canvas.width, 180);
+
+      // 3. الشجرة
+      ctx.fillStyle = '#54381e';
+      ctx.fillRect(570, 150, 40, 220); // جذع الشجرة
+
+      // أغصان وأوراق الشجرة الواقعية
+      ctx.fillStyle = '#15803d';
+      ctx.beginPath();
+      ctx.arc(590, 110, 70, 0, Math.PI * 2);
+      ctx.arc(550, 130, 50, 0, Math.PI * 2);
+      ctx.arc(630, 130, 50, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 4. لوحة رمي السهم المعلقة على الشجرة
+      ctx.save();
+      ctx.translate(targetPos.x, targetPos.y);
+
+      // دوائر الهدف
+      const rings = [
+        { r: targetPos.radius, color: '#f87171' }, // خارجي أحمر
+        { r: targetPos.radius * 0.7, color: '#ffffff' }, // أبيض
+        { r: targetPos.radius * 0.4, color: '#60a5fa' }, // أزرق
+        { r: targetPos.radius * 0.2, color: '#facc15' }  // منتصف (Bullseye)
+      ];
+
+      rings.forEach(ring => {
+        ctx.beginPath();
+        ctx.arc(0, 0, ring.r, 0, Math.PI * 2);
+        ctx.fillStyle = ring.color;
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#334155';
+        ctx.stroke();
+      });
+
+      ctx.restore();
+    }
+
+    // رسم السهم
+    function drawArrow() {
+      ctx.save();
+      ctx.translate(arrow.x, arrow.y);
+      ctx.rotate(arrow.angle);
+      ctx.scale(arrow.scale, arrow.scale);
+
+      // جسم السهم الخشبي
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-25, -2, 50, 4);
+
+      // رأس السهم المعدني
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(25, -5);
+      ctx.lineTo(35, 0);
+      ctx.lineTo(25, 5);
+      ctx.fill();
+
+      // ريش السهم الخلفي
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(-25, -2);
+      ctx.lineTo(-32, -7);
+      ctx.lineTo(-28, 0);
+      ctx.lineTo(-32, 7);
+      ctx.lineTo(-25, 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // بدء العملية والرهان
+    async function startShoot() {
+      if (isPlaying) return;
+      if (userBalance < betAmount) {
+        showToast("رصيدك غير كافٍ للرهان!", "loss");
+        return;
+      }
+
+      isPlaying = true;
+      document.getElementById('shootBtn').disabled = true;
+
+      try {
+        // إرسال الطلب للسيرفر للخصم وحساب النتيجة
+        const response = await fetch('/api/play', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            game_id: 'archery',
+            bet_amount: betAmount
+          })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          showToast(data.message || "حدث خطأ أثناء الرهان", "loss");
+          isPlaying = false;
+          document.getElementById('shootBtn').disabled = false;
+          return;
+        }
+
+        userBalance = data.new_balance;
+        document.getElementById('balanceDisplay').innerText = `${userBalance.toFixed(2)} nps`;
+
+        // تحديث إحداثيات السهم بناءً على نتيجة الخوارزمية (ربح أم خسارة)
+        const isWin = data.multiplier > 0;
+        
+        // إذا ربح: يصيب منتصف الهدف ببراعة (المركز الأصفر)
+        // إذا خسر: انحراف طبيعي وغير ملحوظ خارج المركز (في الحافة أو الشجرة)
+        if (isWin) {
+          arrow.targetX = targetPos.x + (Math.random() * 6 - 3);
+          arrow.targetY = targetPos.y + (Math.random() * 6 - 3);
+        } else {
+          // خسارة غير ملحوظة: انحراف خفيف يظهر كأنه خطأ لاعب
+          const offsetAngle = Math.random() * Math.PI * 2;
+          const offsetDist = 22 + Math.random() * 18; 
+          arrow.targetX = targetPos.x + Math.cos(offsetAngle) * offsetDist;
+          arrow.targetY = targetPos.y + Math.sin(offsetAngle) * offsetDist;
+        }
+
+        // إطلاق أصوات وتحريك السهم
+        playShootSound();
+        setTimeout(playAirSound, 100);
+
+        animateArrow(data);
+
+      } catch (e) {
+        console.error(e);
+        isPlaying = false;
+        document.getElementById('shootBtn').disabled = false;
+      }
+    }
+
+    // تحريك السهم بنظام فيزياء قوس انحناء مسار واقعي
+    function animateArrow(gameData) {
+      let progress = 0;
+      const startX = archerPos.x;
+      const startY = archerPos.y;
+      const endX = arrow.targetX;
+      const endY = arrow.targetY;
+
+      const duration = 40; // عدد الفريمات
+
+      function step() {
+        progress++;
+        let t = progress / duration;
+
+        // حساب المسار المنحني (Parabolic Flight)
+        arrow.x = startX + (endX - startX) * t;
+        let directY = startY + (endY - startY) * t;
+        let arc = -60 * Math.sin(t * Math.PI); // انحناء طيران السهم في الهواء
+        arrow.y = directY + arc;
+
+        // ميزان الحجم والزاوية أثناء الطيران
+        arrow.scale = 1 - (t * 0.35); // يصغر حجمه كلما ابتعد في الحديقة
+        let nextT = (progress + 1) / duration;
+        let nextX = startX + (endX - startX) * nextT;
+        let nextY = (startY + (endY - startY) * nextT) + (-60 * Math.sin(nextT * Math.PI));
+        
+        arrow.angle = Math.atan2(nextY - arrow.y, nextX - arrow.x);
+
+        render();
+
+        if (progress < duration) {
+          requestAnimationFrame(step);
+        } else {
+          // اصطدام السهم بالهدف
+          playHitSound();
+
+          // إظهار النتيجة وإعادة التعيين تلقائياً
+          setTimeout(() => {
+            if (gameData.multiplier > 0) {
+              showToast(`مبروك! أصبت المنتصف وربحت ${gameData.win_amount} nps`, "win");
+            } else {
+              showToast("جولة خسارة! لم تصب المنتصف", "loss");
+            }
+
+            // إعادة تعيين الجولة تلقائياً
+            setTimeout(resetGame, 2000);
+          }, 150);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    function resetGame() {
+      arrow.x = archerPos.x;
+      arrow.y = archerPos.y;
+      arrow.angle = 0;
+      arrow.scale = 1;
+      isPlaying = false;
+      document.getElementById('shootBtn').disabled = false;
+      render();
+    }
+
+    function showToast(msg, type) {
+      const toast = document.getElementById('statusToast');
+      toast.innerText = msg;
+      toast.className = `status-toast toast-${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2500);
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawGardenScene();
+      drawArrow();
+    }
+
+    // التشغيل الأول للرسم
+    render();
+  </script>
+</body>
+</html>
