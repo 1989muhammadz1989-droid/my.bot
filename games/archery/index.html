@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لعبة رمي السهم - الحديقة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>لعبة رمي السهم - الحديقة الملكية</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,7 +13,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
-      background: #0f172a;
+      background: #090d16;
       color: #fff;
       display: flex;
       flex-direction: column;
@@ -25,120 +25,130 @@
     .game-container {
       position: relative;
       width: 100%;
-      max-width: 800px;
-      height: 600px;
+      max-width: 850px;
+      height: 640px;
       background: #000;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      border: 1px solid #1e293b;
     }
     canvas {
       width: 100%;
-      height: 480px;
+      height: 510px;
       display: block;
     }
     .ui-panel {
-      height: 120px;
-      background: rgba(15, 23, 42, 0.95);
-      border-top: 2px solid #334155;
+      height: 130px;
+      background: linear-gradient(180deg, #0f172a 0%, #070a12 100%);
+      border-top: 2px solid #1e293b;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
-      gap: 15px;
+      padding: 0 25px;
+      gap: 20px;
+      z-index: 5;
     }
     .stat-box {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
     .stat-label {
       font-size: 13px;
       color: #94a3b8;
     }
     .stat-value {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
       color: #38bdf8;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
     }
     .bet-controls {
       display: flex;
       align-items: center;
       background: #1e293b;
-      border: 1px solid #475569;
-      border-radius: 12px;
+      border: 1px solid #334155;
+      border-radius: 14px;
       overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
     .bet-btn {
-      background: #334155;
+      background: linear-gradient(135deg, #334155, #1e293b);
       color: #fff;
       border: none;
-      width: 45px;
-      height: 45px;
+      width: 48px;
+      height: 48px;
       font-size: 22px;
       font-weight: bold;
       cursor: pointer;
       transition: background 0.2s;
     }
-    .bet-btn:hover {
+    .bet-btn:active {
       background: #475569;
     }
     .bet-input {
-      width: 80px;
+      width: 90px;
       text-align: center;
       background: transparent;
       border: none;
       color: #facc15;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       outline: none;
     }
     .play-btn {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: linear-gradient(135deg, #22c55e, #15803d);
       color: #fff;
       border: none;
-      padding: 12px 35px;
-      font-size: 20px;
-      font-weight: bold;
-      border-radius: 12px;
+      padding: 14px 40px;
+      font-size: 21px;
+      font-weight: 900;
+      border-radius: 14px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-      transition: transform 0.1s, background 0.2s;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+      transition: transform 0.1s, filter 0.2s;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
     .play-btn:active {
       transform: scale(0.96);
     }
     .play-btn:disabled {
-      background: #64748b;
+      background: #334155;
+      color: #64748b;
       cursor: not-allowed;
       box-shadow: none;
     }
     .status-toast {
       position: absolute;
-      top: 20px;
+      top: 25px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 10px 25px;
+      padding: 12px 30px;
       border-radius: 30px;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: bold;
       display: none;
       z-index: 10;
-      animation: fadeIn 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .toast-win {
-      background: rgba(34, 197, 94, 0.9);
+      background: rgba(34, 197, 94, 0.95);
       color: #fff;
+      border: 1px solid #4ade80;
     }
     .toast-loss {
-      background: rgba(239, 68, 68, 0.9);
+      background: rgba(239, 68, 68, 0.95);
       color: #fff;
+      border: 1px solid #f87171;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -10px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
+      from { opacity: 0; transform: translate(-50%, -15px) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, 0) scale(1); }
     }
   </style>
 </head>
@@ -146,7 +156,7 @@
 
   <div class="game-container">
     <div id="statusToast" class="status-toast"></div>
-    <canvas id="gameCanvas" width="800" height="480"></canvas>
+    <canvas id="gameCanvas" width="850" height="510"></canvas>
     
     <div class="ui-panel">
       <div class="stat-box">
@@ -160,65 +170,64 @@
         <button class="bet-btn" onclick="adjustBet(5)">+</button>
       </div>
 
-      <button id="shootBtn" class="play-btn" onclick="startShoot()">راهن</button>
+      <button id="shootBtn" class="play-btn" onclick="startShoot()">سدد السهم 🎯</button>
     </div>
   </div>
 
   <script>
-    // 1. محرك المؤثرات الصوتية الحية (Web Audio API)
+    // 1. محرك الصوت المطور (Web Audio API)
     const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playShootSound() {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
+      // صوت إطلاق وتوتر وتر القوس
       const osc = AudioCtx.createOscillator();
       const gain = AudioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, AudioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(80, AudioCtx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.5, AudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.15);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(60, AudioCtx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.7, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.18);
       osc.connect(gain);
       gain.connect(AudioCtx.destination);
       osc.start();
-      osc.stop(AudioCtx.currentTime + 0.15);
+      osc.stop(AudioCtx.currentTime + 0.18);
     }
 
     function playAirSound() {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
-      const bufferSize = AudioCtx.sampleRate * 0.4;
+      const bufferSize = AudioCtx.sampleRate * 0.35;
       const buffer = AudioCtx.createBuffer(1, bufferSize, AudioCtx.sampleRate);
       const output = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
       const whiteNoise = AudioCtx.createBufferSource();
       whiteNoise.buffer = buffer;
       const filter = AudioCtx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(800, AudioCtx.currentTime);
-      filter.frequency.linearRampToValueAtTime(300, AudioCtx.currentTime + 0.4);
+      filter.frequency.setValueAtTime(900, AudioCtx.currentTime);
+      filter.frequency.linearRampToValueAtTime(400, AudioCtx.currentTime + 0.35);
       const gain = AudioCtx.createGain();
-      gain.gain.setValueAtTime(0.15, AudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.35);
       whiteNoise.connect(filter);
       filter.connect(gain);
       gain.connect(AudioCtx.destination);
       whiteNoise.start();
     }
 
-    function playHitSound() {
+    function playHitSound(isBullseye) {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
       const osc = AudioCtx.createOscillator();
       const gain = AudioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(150, AudioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(30, AudioCtx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.8, AudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.1);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(isBullseye ? 520 : 220, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, AudioCtx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.9, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.12);
       osc.connect(gain);
       gain.connect(AudioCtx.destination);
       osc.start();
-      osc.stop(AudioCtx.currentTime + 0.1);
+      osc.stop(AudioCtx.currentTime + 0.12);
     }
 
     // 2. إعدادات اللعبة والعناصر
@@ -231,23 +240,22 @@
     let betAmount = 5;
     let isPlaying = false;
 
-    // موقع شجرة الهدف وموقع السهم
-    const targetPos = { x: 580, y: 180, radius: 45 };
-    const archerPos = { x: 120, y: 380 };
+    // إحداثيات الهدف في منتصف الشاشة والمنظور الأمامي
+    const targetPos = { x: canvas.width / 2, y: 190, radius: 65 };
+    const bowPos = { x: canvas.width / 2, y: canvas.height - 20 };
 
     let arrow = {
-      x: archerPos.x,
-      y: archerPos.y,
-      vx: 0,
-      vy: 0,
+      x: bowPos.x,
+      y: bowPos.y - 40,
       scale: 1,
       angle: 0,
-      active: false,
       targetX: 0,
-      targetY: 0
+      targetY: 0,
+      inFlight: false,
+      stringPull: 0
     };
 
-    // جلب معلومات المستخدم عند البداية
+    // جلب معلومات المستخدم
     async function loadUserData() {
       try {
         const res = await fetch(`/api/user/get?user_id=${userId}`);
@@ -262,7 +270,6 @@
     }
     loadUserData();
 
-    // التحكم بمبلغ الرهان
     function adjustBet(delta) {
       if (isPlaying) return;
       let newBet = betAmount + delta;
@@ -272,44 +279,95 @@
       }
     }
 
-    // رسم الحديقة الواقعية والهدف والشجرة
-    function drawGardenScene() {
-      // 1. السماء
-      let skyGrad = ctx.createLinearGradient(0, 0, 0, 300);
-      skyGrad.addColorStop(0, '#38bdf8');
+    // 3. رسم البيئة والحديقة بلمسات واقعية ثلاثية الأبعاد
+    function draw3DScene() {
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // السماء والشمس (Gradient Sunset/Day)
+      let skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+      skyGrad.addColorStop(0, '#0284c7');
+      skyGrad.addColorStop(0.6, '#38bdf8');
       skyGrad.addColorStop(1, '#bae6fd');
       ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, canvas.width, 300);
+      ctx.fillRect(0, 0, w, h * 0.55);
 
-      // 2. العشب والحديقة
-      let grassGrad = ctx.createLinearGradient(0, 300, 0, canvas.height);
+      // توهج أشيّة الشمس في الأفق
+      let sunGlow = ctx.createRadialGradient(w/2, 160, 10, w/2, 160, 250);
+      sunGlow.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+      sunGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = sunGlow;
+      ctx.fillRect(0, 0, w, h * 0.55);
+
+      // الأشجار الخلفية في المدى البعيد
+      ctx.fillStyle = '#166534';
+      for (let i = 0; i < w; i += 45) {
+        ctx.beginPath();
+        ctx.arc(i + 20, h * 0.53 - 10, 35, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // الأرضية والعشب مع تدرج منظور العمق
+      let grassGrad = ctx.createLinearGradient(0, h * 0.5, 0, h);
       grassGrad.addColorStop(0, '#15803d');
-      grassGrad.addColorStop(1, '#166534');
+      grassGrad.addColorStop(0.4, '#16a34a');
+      grassGrad.addColorStop(1, '#14532d');
       ctx.fillStyle = grassGrad;
-      ctx.fillRect(0, 300, canvas.width, 180);
+      ctx.fillRect(0, h * 0.5, w, h * 0.5);
 
-      // 3. الشجرة
-      ctx.fillStyle = '#54381e';
-      ctx.fillRect(570, 150, 40, 220); // جذع الشجرة
+      // خطوط نسيج العشب (Depth Lines)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 2;
+      for (let i = -200; i < w + 200; i += 80) {
+        ctx.beginPath();
+        ctx.moveTo(w / 2, h * 0.5);
+        ctx.lineTo(i * 1.5, h);
+        ctx.stroke();
+      }
 
-      // أغصان وأوراق الشجرة الواقعية
-      ctx.fillStyle = '#15803d';
+      // حامل لوحة الهدف الخشبي (Wood Stand Frame)
+      ctx.fillStyle = '#451a03';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 10;
+      // أرجل الحامل
       ctx.beginPath();
-      ctx.arc(590, 110, 70, 0, Math.PI * 2);
-      ctx.arc(550, 130, 50, 0, Math.PI * 2);
-      ctx.arc(630, 130, 50, 0, Math.PI * 2);
+      ctx.moveTo(targetPos.x - 30, targetPos.y);
+      ctx.lineTo(targetPos.x - 60, h * 0.58);
+      ctx.lineTo(targetPos.x - 45, h * 0.58);
+      ctx.lineTo(targetPos.x - 20, targetPos.y);
       ctx.fill();
 
-      // 4. لوحة رمي السهم المعلقة على الشجرة
+      ctx.beginPath();
+      ctx.moveTo(targetPos.x + 30, targetPos.y);
+      ctx.lineTo(targetPos.x + 60, h * 0.58);
+      ctx.lineTo(targetPos.x + 45, h * 0.58);
+      ctx.lineTo(targetPos.x + 20, targetPos.y);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+
+      // رسم لوحة الهدف الواقعية (Target Board)
+      drawTargetBoard();
+    }
+
+    // رسم لوحة الإصابة الاحترافية الدائرية
+    function drawTargetBoard() {
       ctx.save();
       ctx.translate(targetPos.x, targetPos.y);
 
-      // دوائر الهدف
+      // إطار الهدف الخشبي الخارجي
+      ctx.beginPath();
+      ctx.arc(0, 0, targetPos.radius + 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#78350f';
+      ctx.fill();
+
+      // حلقات الهدف الدولية الرسمية (Archery Target Rings)
       const rings = [
-        { r: targetPos.radius, color: '#f87171' }, // خارجي أحمر
-        { r: targetPos.radius * 0.7, color: '#ffffff' }, // أبيض
-        { r: targetPos.radius * 0.4, color: '#60a5fa' }, // أزرق
-        { r: targetPos.radius * 0.2, color: '#facc15' }  // منتصف (Bullseye)
+        { r: targetPos.radius, color: '#f8fafc' },        // أبيض خارجي
+        { r: targetPos.radius * 0.8, color: '#0f172a' },  // أسود
+        { r: targetPos.radius * 0.6, color: '#3b82f6' },  // أزرق
+        { r: targetPos.radius * 0.4, color: '#ef4444' },  // أحمر
+        { r: targetPos.radius * 0.2, color: '#eab308' }   // أصفر ذهبي (Bullseye)
       ];
 
       rings.forEach(ring => {
@@ -317,47 +375,98 @@
         ctx.arc(0, 0, ring.r, 0, Math.PI * 2);
         ctx.fillStyle = ring.color;
         ctx.fill();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
         ctx.stroke();
       });
 
+      // نقطة المنتصف الدقيقة +
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-4, 0); ctx.lineTo(4, 0);
+      ctx.moveTo(0, -4); ctx.lineTo(0, 4);
+      ctx.stroke();
+
       ctx.restore();
     }
 
-    // رسم السهم
-    function drawArrow() {
+    // رسم قوس اللاعب واليدين في منتصف أسفل الشاشة (First-Person Bow & Hands)
+    function drawFirstPersonBow() {
+      if (arrow.inFlight) return; // عند الإطلاق يختفي القوس مؤقتاً لتسهيل تتبع السهم
+
       ctx.save();
-      ctx.translate(arrow.x, arrow.y);
-      ctx.rotate(arrow.angle);
-      ctx.scale(arrow.scale, arrow.scale);
+      ctx.translate(bowPos.x, bowPos.y);
+
+      // ذراعي اللاعب (Skin Tones)
+      ctx.fillStyle = '#d97706';
+      // اليد اليسرى الماسكة للقوس
+      ctx.beginPath();
+      ctx.ellipse(-15, -70, 18, 35, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // جسم القوس الخشبي (Bow Curved Riser)
+      ctx.strokeStyle = '#54381e';
+      ctx.lineWidth = 12;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, -50, 110, Math.PI * 1.15, Math.PI * 1.85);
+      ctx.stroke();
+
+      // تفاصيل الذهب والتغليف على القوس
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // وتر القوس (Bowstring)
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-78, -120);
+      ctx.lineTo(0, -30 + arrow.stringPull); // نقطة سحب الوتر
+      ctx.lineTo(78, -120);
+      ctx.stroke();
+
+      // السهم الجاهز للإطلاق في يد اللاعب
+      drawArrowGraphic(0, -65 + arrow.stringPull, 1.1, -Math.PI / 2);
+
+      ctx.restore();
+    }
+
+    // رسم السهم المجسم
+    function drawArrowGraphic(x, y, scale, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.scale(scale, scale);
 
       // جسم السهم الخشبي
-      ctx.fillStyle = '#78350f';
-      ctx.fillRect(-25, -2, 50, 4);
+      ctx.fillStyle = '#a16207';
+      ctx.fillRect(-3, -40, 6, 80);
 
-      // رأس السهم المعدني
-      ctx.fillStyle = '#94a3b8';
+      // رأس السهم المعدني المصقول
+      ctx.fillStyle = '#e2e8f0';
       ctx.beginPath();
-      ctx.moveTo(25, -5);
-      ctx.lineTo(35, 0);
-      ctx.lineTo(25, 5);
+      ctx.moveTo(-6, -40);
+      ctx.lineTo(0, -58);
+      ctx.lineTo(6, -40);
+      ctx.closePath();
       ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-      // ريش السهم الخلفي
-      ctx.fillStyle = '#ef4444';
+      // ريش السهم الخلفي (Fletching)
+      ctx.fillStyle = '#dc2626';
       ctx.beginPath();
-      ctx.moveTo(-25, -2);
-      ctx.lineTo(-32, -7);
-      ctx.lineTo(-28, 0);
-      ctx.lineTo(-32, 7);
-      ctx.lineTo(-25, 2);
+      ctx.moveTo(-3, 25); ctx.lineTo(-12, 38); ctx.lineTo(-3, 35);
+      ctx.moveTo(3, 25); ctx.lineTo(12, 38); ctx.lineTo(3, 35);
       ctx.fill();
 
       ctx.restore();
     }
 
-    // بدء العملية والرهان
+    // 4. تنفيذ التسديد والربط مع السيرفر
     async function startShoot() {
       if (isPlaying) return;
       if (userBalance < betAmount) {
@@ -368,8 +477,12 @@
       isPlaying = true;
       document.getElementById('shootBtn').disabled = true;
 
+      // تأثير انكماش الوتر استعداداً للإطلاق
+      arrow.stringPull = 25;
+      render();
+
       try {
-        // إرسال الطلب للسيرفر للخصم وحساب النتيجة
+        // إرسال طلب الرهان للسيرفر (نفس الـ API والمنطق المستقل لكل جولة)
         const response = await fetch('/api/play', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -385,88 +498,95 @@
         if (!data.success) {
           showToast(data.message || "حدث خطأ أثناء الرهان", "loss");
           isPlaying = false;
+          arrow.stringPull = 0;
           document.getElementById('shootBtn').disabled = false;
+          render();
           return;
         }
 
         userBalance = data.new_balance;
         document.getElementById('balanceDisplay').innerText = `${userBalance.toFixed(2)} nps`;
 
-        // تحديث إحداثيات السهم بناءً على نتيجة الخوارزمية (ربح أم خسارة)
+        // حساب مكان الإصابة الدقيق بناءً على الخوارزمية
         const isWin = data.multiplier > 0;
         
-        // إذا ربح: يصيب منتصف الهدف ببراعة (المركز الأصفر)
-        // إذا خسر: انحراف طبيعي وغير ملحوظ خارج المركز (في الحافة أو الشجرة)
         if (isWin) {
-          arrow.targetX = targetPos.x + (Math.random() * 6 - 3);
-          arrow.targetY = targetPos.y + (Math.random() * 6 - 3);
+          // إصابة دقيقة ومتقنة في منتصف الدائرة الذهبية (Bullseye)
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * (targetPos.radius * 0.18);
+          arrow.targetX = targetPos.x + Math.cos(angle) * dist;
+          arrow.targetY = targetPos.y + Math.sin(angle) * dist;
         } else {
-          // خسارة غير ملحوظة: انحراف خفيف يظهر كأنه خطأ لاعب
-          const offsetAngle = Math.random() * Math.PI * 2;
-          const offsetDist = 22 + Math.random() * 18; 
-          arrow.targetX = targetPos.x + Math.cos(offsetAngle) * offsetDist;
-          arrow.targetY = targetPos.y + Math.sin(offsetAngle) * offsetDist;
+          // خسارة غير ملحوظة: انحراف طبيعي جداً كأنه خطأ لاعب في التصويب (في الحلقة الزرقاء أو البيضاء)
+          const angle = Math.random() * Math.PI * 2;
+          const dist = targetPos.radius * 0.45 + Math.random() * (targetPos.radius * 0.38);
+          arrow.targetX = targetPos.x + Math.cos(angle) * dist;
+          arrow.targetY = targetPos.y + Math.sin(angle) * dist;
         }
 
-        // إطلاق أصوات وتحريك السهم
-        playShootSound();
-        setTimeout(playAirSound, 100);
-
-        animateArrow(data);
+        // إطلاق القوس
+        setTimeout(() => {
+          arrow.stringPull = 0;
+          arrow.inFlight = true;
+          playShootSound();
+          setTimeout(playAirSound, 80);
+          animateArrowFlight(data);
+        }, 120);
 
       } catch (e) {
         console.error(e);
         isPlaying = false;
+        arrow.stringPull = 0;
         document.getElementById('shootBtn').disabled = false;
+        render();
       }
     }
 
-    // تحريك السهم بنظام فيزياء قوس انحناء مسار واقعي
-    function animateArrow(gameData) {
+    // تحريك السهم من القوس نحو الهدف المنظوري ثلاثي الأبعاد
+    function animateArrowFlight(gameData) {
       let progress = 0;
-      const startX = archerPos.x;
-      const startY = archerPos.y;
+      const duration = 30; // فريمات الطيران
+
+      const startX = bowPos.x;
+      const startY = bowPos.y - 65;
       const endX = arrow.targetX;
       const endY = arrow.targetY;
-
-      const duration = 40; // عدد الفريمات
 
       function step() {
         progress++;
         let t = progress / duration;
 
-        // حساب المسار المنحني (Parabolic Flight)
+        // الطيران المنظوري (Perspective Flight)
         arrow.x = startX + (endX - startX) * t;
-        let directY = startY + (endY - startY) * t;
-        let arc = -60 * Math.sin(t * Math.PI); // انحناء طيران السهم في الهواء
-        arrow.y = directY + arc;
+        let linearY = startY + (endY - startY) * t;
+        let arc = -45 * Math.sin(t * Math.PI); // انحناء قوسي خفيف للطيران
+        arrow.y = linearY + arc;
 
-        // ميزان الحجم والزاوية أثناء الطيران
-        arrow.scale = 1 - (t * 0.35); // يصغر حجمه كلما ابتعد في الحديقة
-        let nextT = (progress + 1) / duration;
-        let nextX = startX + (endX - startX) * nextT;
-        let nextY = (startY + (endY - startY) * nextT) + (-60 * Math.sin(nextT * Math.PI));
-        
-        arrow.angle = Math.atan2(nextY - arrow.y, nextX - arrow.x);
+        // انخفاض حجم السهم تدريجياً ليظهر أنه يبتعد في المدى
+        arrow.scale = 1.1 - (t * 0.75);
 
         render();
+
+        // رسم السهم أثناء الطيران مباشرة
+        drawArrowGraphic(arrow.x, arrow.y, arrow.scale, -Math.PI / 2);
 
         if (progress < duration) {
           requestAnimationFrame(step);
         } else {
-          // اصطدام السهم بالهدف
-          playHitSound();
+          // ثبات السهم في الهدف عند الاصطدام
+          const isWin = gameData.multiplier > 0;
+          playHitSound(isWin);
 
-          // إظهار النتيجة وإعادة التعيين تلقائياً
+          // إظهار النتائج بشكل أنيق
           setTimeout(() => {
-            if (gameData.multiplier > 0) {
+            if (isWin) {
               showToast(`مبروك! أصبت المنتصف وربحت ${gameData.win_amount} nps`, "win");
             } else {
               showToast("جولة خسارة! لم تصب المنتصف", "loss");
             }
 
-            // إعادة تعيين الجولة تلقائياً
-            setTimeout(resetGame, 2000);
+            // إعادة التعيين تلقائياً للجولة التالية
+            setTimeout(resetGame, 2200);
           }, 150);
         }
       }
@@ -475,10 +595,10 @@
     }
 
     function resetGame() {
-      arrow.x = archerPos.x;
-      arrow.y = archerPos.y;
-      arrow.angle = 0;
+      arrow.x = bowPos.x;
+      arrow.y = bowPos.y - 40;
       arrow.scale = 1;
+      arrow.inFlight = false;
       isPlaying = false;
       document.getElementById('shootBtn').disabled = false;
       render();
@@ -491,16 +611,22 @@
       toast.style.display = 'block';
       setTimeout(() => {
         toast.style.display = 'none';
-      }, 2500);
+      }, 2600);
     }
 
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawGardenScene();
-      drawArrow();
+      draw3DScene();
+      
+      // إذا كان السهم استقر في الهدف بعد الطيران، نقوم برسمه ثابتاً في لوحة الإصابة
+      if (arrow.inFlight && !isPlaying) {
+        drawArrowGraphic(arrow.targetX, arrow.targetY, 0.35, -Math.PI / 2);
+      }
+
+      drawFirstPersonBow();
     }
 
-    // التشغيل الأول للرسم
+    // التشغيل المبدئي للعبة
     render();
   </script>
 </body>
