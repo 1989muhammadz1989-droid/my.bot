@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>صالة البولينج الملكية - GOLDEN GAME 3D</title>
+  <title>صالة البولينج الملكية VIP - GOLDEN GAME 3D</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,7 +13,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
-      background: #050811;
+      background: #02040a;
       color: #fff;
       overflow: hidden;
       display: flex;
@@ -25,31 +25,33 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 24px;
-      background: rgba(10, 15, 30, 0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(217, 119, 6, 0.3);
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(217, 119, 6, 0.4);
       z-index: 10;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     .brand {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
-      background: linear-gradient(135deg, #fbbf24, #d97706);
+      background: linear-gradient(135deg, #ffe58f, #f59e0b, #d97706);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 1px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
     }
     .balance-box {
-      background: rgba(30, 41, 59, 0.8);
-      padding: 8px 18px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 20px;
       border-radius: 20px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      border: 1px solid rgba(56, 189, 248, 0.5);
       font-size: 16px;
       font-weight: bold;
       color: #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
     }
     #canvas-container {
       flex: 1;
@@ -67,33 +69,33 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 18px 20px;
-      background: rgba(10, 15, 30, 0.9);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 20px;
+      background: rgba(7, 11, 22, 0.92);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       z-index: 10;
     }
     .bet-control {
       display: flex;
       align-items: center;
-      gap: 20px;
-      background: rgba(30, 41, 59, 0.9);
-      padding: 6px 16px;
+      gap: 15px;
+      background: rgba(15, 23, 42, 0.95);
+      padding: 6px 18px;
       border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
     }
     .btn-step {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       border: none;
       background: linear-gradient(135deg, #38bdf8, #0284c7);
       color: #fff;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -103,39 +105,68 @@
       box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
     }
     .btn-step:active {
-      transform: scale(0.92);
+      transform: scale(0.9);
     }
     .bet-display {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: bold;
-      min-width: 110px;
+      min-width: 120px;
       text-align: center;
       color: #f8fafc;
     }
+    .quick-bets {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-quick {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-quick:hover {
+      background: rgba(51, 65, 85, 1);
+      color: #fbbf24;
+      border-color: #fbbf24;
+    }
     .btn-play {
       width: 100%;
-      max-width: 340px;
-      padding: 15px;
+      max-width: 360px;
+      padding: 14px;
       border-radius: 30px;
       border: none;
-      background: linear-gradient(135deg, #22c55e, #15803d);
+      background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
       color: #fff;
       font-size: 20px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 4px 25px rgba(34, 197, 94, 0.45);
       transition: all 0.2s ease-in-out;
       letter-spacing: 0.5px;
     }
     .btn-play:hover:not(:disabled) {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
+      filter: brightness(1.15);
+      transform: translateY(-2px);
     }
     .btn-play:disabled {
-      background: #475569;
+      background: #334155;
       box-shadow: none;
       cursor: not-allowed;
-      opacity: 0.7;
+      opacity: 0.6;
+    }
+    .payout-badge {
+      font-size: 12px;
+      color: #fbbf24;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 2px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
     }
     #status-msg {
       position: absolute;
@@ -144,26 +175,26 @@
       transform: translate(-50%, -50%);
       font-size: 28px;
       font-weight: 900;
-      padding: 14px 28px;
-      border-radius: 16px;
+      padding: 16px 32px;
+      border-radius: 20px;
       text-align: center;
       pointer-events: none;
       opacity: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 20;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(12px);
     }
     .msg-win {
-      background: rgba(34, 197, 94, 0.9);
+      background: rgba(22, 163, 74, 0.92);
       color: #fff;
-      box-shadow: 0 0 30px rgba(34, 197, 94, 0.8);
-      border: 1px solid #86efac;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.9);
+      border: 2px solid #86efac;
     }
     .msg-loss {
-      background: rgba(239, 68, 68, 0.9);
+      background: rgba(220, 38, 38, 0.92);
       color: #fff;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
-      border: 1px solid #fca5a5;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.9);
+      border: 2px solid #fca5a5;
     }
   </style>
 
@@ -173,7 +204,7 @@
 <body>
 
   <div id="header">
-    <div class="brand">🎳 GOLDEN GAME</div>
+    <div class="brand">🎳 VIP GOLDEN BOWLING</div>
     <div class="balance-box">الرصيد: <span id="user-balance">0</span> nps</div>
   </div>
 
@@ -182,17 +213,28 @@
   </div>
 
   <div id="controls">
+    <div class="payout-badge">العائد عند الإصابة الكاملة: 2× قيمة الرهان</div>
+    
     <div class="bet-control">
       <button class="btn-step" id="btn-minus">-</button>
       <div class="bet-display">الرهان: <span id="bet-amount">5</span> nps</div>
       <button class="btn-step" id="btn-plus">+</button>
     </div>
+
+    <div class="quick-bets">
+      <button class="btn-quick" onclick="setBet(5)">5</button>
+      <button class="btn-quick" onclick="setBet(10)">10</button>
+      <button class="btn-quick" onclick="setBet(50)">50</button>
+      <button class="btn-quick" onclick="setBet(100)">100</button>
+      <button class="btn-quick" onclick="setMaxBet()">الحد الأقصى</button>
+    </div>
+
     <button class="btn-play" id="btn-bet">راهن وارمي (5 nps)</button>
   </div>
 
   <script>
     // ----------------------------------------------------
-    // 1. إدارة البيانات والبيئة
+    // 1. إدارة الحساب والحالة والبيانات
     // ----------------------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || "123456";
@@ -203,12 +245,12 @@
     const maxBet = 1000;
     let isRolling = false;
 
-    // الصوتيات الديناميكية Web Audio API
+    // محرك الصوت المطور باستخدام Web Audio API
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playRollSound() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const bufferSize = audioCtx.sampleRate * 2;
+      const bufferSize = audioCtx.sampleRate * 2.5;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
@@ -218,11 +260,11 @@
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(180, audioCtx.currentTime);
 
       const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.2);
+      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.4);
 
       whiteNoise.connect(filter);
       filter.connect(gain);
@@ -230,21 +272,44 @@
       whiteNoise.start();
     }
 
-    function playHitSound() {
+    function playHitSound(isStrike) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      // صوت اصطدام الخشب بالأحجار
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.4);
+      osc.frequency.setValueAtTime(360, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
 
       gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.4);
+      osc.stop(audioCtx.currentTime + 0.5);
+
+      // نغمة انتصار عند تحقيق الفوز
+      if (isStrike) {
+        setTimeout(() => {
+          const winOsc = audioCtx.createOscillator();
+          const winGain = audioCtx.createGain();
+          winOsc.type = 'sine';
+          winOsc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+          winOsc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
+          winOsc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3); // G5
+          winOsc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.45); // C6
+
+          winGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+          winGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+
+          winOsc.connect(winGain);
+          winGain.connect(audioCtx.destination);
+          winOsc.start();
+          winOsc.stop(audioCtx.currentTime + 0.8);
+        }, 100);
+      }
     }
 
     function fetchUserData() {
@@ -260,7 +325,7 @@
     }
 
     // ----------------------------------------------------
-    // 2. محرك الجرافيكس والتكسشرات المصنعة (Procedural Textures)
+    // 2. محرك الجرافيكس والتكسشرات المتقدمة
     // ----------------------------------------------------
     function createWoodLaneTexture() {
       const canvas = document.createElement('canvas');
@@ -268,31 +333,70 @@
       canvas.height = 2048;
       const ctx = canvas.getContext('2d');
 
-      // خلفية خشبية فاخرة
-      ctx.fillStyle = '#b45309';
+      // خشب القيقب الأصفر الفاخر
+      ctx.fillStyle = '#d97706';
       ctx.fillRect(0, 0, 1024, 2048);
 
-      // رسم ألياف الخشب
+      // ألواح الخشب المصقولة
       for (let i = 0; i < 1024; i += 16) {
-        ctx.fillStyle = (i / 16) % 2 === 0 ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
+        ctx.fillStyle = (i / 16) % 2 === 0 ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
         ctx.fillRect(i, 0, 8, 2048);
       }
 
       // خط الرمي (Foul Line)
       ctx.fillStyle = '#ef4444';
-      ctx.fillRect(0, 1950, 1024, 20);
+      ctx.fillRect(0, 1940, 1024, 25);
 
-      // أسهم التوجيه
+      // أسهم التوجيه الاحترافية
       ctx.fillStyle = '#451a03';
       for (let i = 0; i < 7; i++) {
         const x = 128 + i * 128;
         ctx.beginPath();
-        ctx.moveTo(x, 1400);
-        ctx.lineTo(x - 20, 1460);
-        ctx.lineTo(x + 20, 1460);
+        ctx.moveTo(x, 1380);
+        ctx.lineTo(x - 22, 1450);
+        ctx.lineTo(x + 22, 1450);
         ctx.closePath();
         ctx.fill();
       }
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    function createPinTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 256, 256);
+
+      // الحزامان الأحمران الشهيران على أحجار البولينج
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(0, 60, 256, 22);
+      ctx.fillRect(0, 95, 256, 16);
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    function createBallTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createRadialGradient(256, 256, 50, 256, 256, 256);
+      grad.addColorStop(0, '#f59e0b');
+      grad.addColorStop(0.5, '#b45309');
+      grad.addColorStop(1, '#451a03');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // ثقوب الكرة الثلاثية
+      ctx.fillStyle = '#1e1b18';
+      ctx.beginPath(); ctx.arc(220, 200, 18, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(280, 200, 18, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(250, 260, 20, 0, Math.PI * 2); ctx.fill();
 
       return new THREE.CanvasTexture(canvas);
     }
@@ -303,26 +407,23 @@
       canvas.height = 512;
       const ctx = canvas.getContext('2d');
 
-      // خلفية الشاشة
-      ctx.fillStyle = '#050b14';
+      ctx.fillStyle = '#030712';
       ctx.fillRect(0, 0, 1024, 512);
 
-      // إطار إيضائي
       ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 16;
-      ctx.strokeRect(10, 10, 1004, 492);
+      ctx.lineWidth = 14;
+      ctx.strokeRect(12, 12, 1000, 488);
 
-      // نص GOLDEN GAME Neon
       ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 25;
-      ctx.font = '900 82px "Segoe UI", sans-serif';
+      ctx.shadowBlur = 30;
+      ctx.font = '900 86px "Segoe UI", sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
-      ctx.fillText('GOLDEN GAME', 512, 230);
+      ctx.fillText('GOLDEN BOWLING', 512, 220);
 
-      ctx.font = '700 36px "Segoe UI", sans-serif';
+      ctx.font = '700 40px "Segoe UI", sans-serif';
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText('VIP BOWLING CLUB', 512, 320);
+      ctx.fillText('WIN MULTIPLIER: 2X', 512, 320);
 
       return new THREE.CanvasTexture(canvas);
     }
@@ -332,11 +433,10 @@
     // ----------------------------------------------------
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x040711);
-    scene.fog = new THREE.FogExp2(0x040711, 0.035);
+    scene.background = new THREE.Color(0x02040a);
+    scene.fog = new THREE.FogExp2(0x02040a, 0.03);
 
-    // منظور الكاميرا (ثابت - First Person Perspective)
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
     const FIXED_CAM_POS = new THREE.Vector3(0, 1.45, 3.2);
     camera.position.copy(FIXED_CAM_POS);
     camera.lookAt(0, 0.2, -13);
@@ -347,49 +447,44 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
     // الإضاءة الاحترافية
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xc7d2fe, 0.6);
     scene.add(ambientLight);
 
-    // كشافات مسار الممر
-    const spotLight = new THREE.SpotLight(0xfff1f2, 1.8);
-    spotLight.position.set(0, 8, 2);
+    const spotLight = new THREE.SpotLight(0xffedd5, 2.2);
+    spotLight.position.set(0, 9, 2);
     spotLight.target.position.set(0, 0, -10);
     spotLight.angle = Math.PI / 4;
-    spotLight.penumbra = 0.5;
+    spotLight.penumbra = 0.4;
     spotLight.castShadow = true;
     spotLight.shadow.mapSize.width = 2048;
     spotLight.shadow.mapSize.height = 2048;
     scene.add(spotLight);
 
-    // إضاءة نيون جانبية للممر
-    const blueNeonLeft = new THREE.PointLight(0x0284c7, 1.2, 15);
-    blueNeonLeft.position.set(-1.8, 0.5, -6);
+    // أضواء النيون الممر الجانبية
+    const blueNeonLeft = new THREE.PointLight(0x0284c7, 1.5, 16);
+    blueNeonLeft.position.set(-1.8, 0.6, -6);
     scene.add(blueNeonLeft);
 
-    const blueNeonRight = new THREE.PointLight(0x0284c7, 1.2, 15);
-    blueNeonRight.position.set(1.8, 0.5, -6);
+    const blueNeonRight = new THREE.PointLight(0x0284c7, 1.5, 16);
+    blueNeonRight.position.set(1.8, 0.6, -6);
     scene.add(blueNeonRight);
 
-    // إضاءة أحجار البولينج
-    const pinSpot = new THREE.SpotLight(0xfef08a, 2.5);
-    pinSpot.position.set(0, 5, -11);
+    const pinSpot = new THREE.SpotLight(0xfef08a, 3.0);
+    pinSpot.position.set(0, 6, -11);
     pinSpot.target.position.set(0, 0, -13);
     scene.add(pinSpot);
 
-    // ممر البولينج (Lane)
+    // ممر البولينج المصقول
     const laneTex = createWoodLaneTexture();
-    laneTex.wrapS = THREE.RepeatWrapping;
-    laneTex.wrapT = THREE.RepeatWrapping;
-
     const laneGeo = new THREE.BoxGeometry(2.1, 0.1, 17);
     const laneMat = new THREE.MeshStandardMaterial({
       map: laneTex,
-      roughness: 0.12,
-      metalness: 0.1
+      roughness: 0.08,
+      metalness: 0.15
     });
     const lane = new THREE.Mesh(laneGeo, laneMat);
     lane.position.set(0, -0.05, -5.5);
@@ -397,60 +492,48 @@
     scene.add(lane);
 
     // المزاريب (Gutters)
-    const gutterMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.8 });
+    const gutterMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.4, metalness: 0.8 });
     const gutterGeo = new THREE.CylinderGeometry(0.2, 0.2, 17, 16, 1, false, 0, Math.PI);
     
     const leftGutter = new THREE.Mesh(gutterGeo, gutterMat);
-    leftGutter.rotation.x = Math.PI / 2;
-    leftGutter.rotation.z = Math.PI;
+    leftGutter.rotation.x = Math.PI / 2; leftGutter.rotation.z = Math.PI;
     leftGutter.position.set(-1.25, -0.08, -5.5);
     scene.add(leftGutter);
 
     const rightGutter = new THREE.Mesh(gutterGeo, gutterMat);
-    rightGutter.rotation.x = Math.PI / 2;
-    rightGutter.rotation.z = Math.PI;
+    rightGutter.rotation.x = Math.PI / 2; rightGutter.rotation.z = Math.PI;
     rightGutter.position.set(1.25, -0.08, -5.5);
     scene.add(rightGutter);
 
-    // جدران الصالة الجانبية
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.8 });
-    const wallLeft = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4, 20), wallMat);
-    wallLeft.position.set(-2.5, 1.8, -5);
-    scene.add(wallLeft);
-
-    const wallRight = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4, 20), wallMat);
-    wallRight.position.set(2.5, 1.8, -5);
-    scene.add(wallRight);
-
-    // شاشة GOLDEN GAME الضخمة فوق الأحجار
+    // الشاشة النيون الضخمة
     const screenTex = createScreenTexture();
-    const screenGeo = new THREE.BoxGeometry(4.2, 2.1, 0.2);
-    const screenMat = new THREE.MeshStandardMaterial({
-      map: screenTex,
-      emissiveMap: screenTex,
-      emissive: new THREE.Color(0xffffff),
-      emissiveIntensity: 0.8,
-      roughness: 0.2
-    });
-    const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-    screenMesh.position.set(0, 3.2, -13.8);
+    const screenMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(4.4, 2.2, 0.2),
+      new THREE.MeshStandardMaterial({
+        map: screenTex,
+        emissiveMap: screenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.9,
+        roughness: 0.1
+      })
+    );
+    screenMesh.position.set(0, 3.3, -13.8);
     scene.add(screenMesh);
 
-    // كرة البولينج الاحترافية
+    // كرة البولينج الرخامية الذهبية
+    const ballTex = createBallTexture();
     const ballGeo = new THREE.SphereGeometry(0.22, 64, 64);
     const ballMat = new THREE.MeshStandardMaterial({
-      color: 0xd97706,
+      map: ballTex,
       roughness: 0.05,
-      metalness: 0.9,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1
+      metalness: 0.85,
     });
     const ball = new THREE.Mesh(ballGeo, ballMat);
     ball.castShadow = true;
     scene.add(ball);
 
     // سهم التوجيه
-    const arrowGeo = new THREE.ConeGeometry(0.08, 0.4, 16);
+    const arrowGeo = new THREE.ConeGeometry(0.08, 0.45, 16);
     const arrowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
     arrow.rotation.x = -Math.PI / 2;
@@ -460,12 +543,19 @@
     let arrowAngle = 0;
     let arrowSpeed = 0.035;
 
-    // إنشاء المجسم الدقيق لأحجار البولينج (Realistic Pin Lathe)
+    // الذراع الآلي لتنظيف الممر (Pin Sweeper Machine)
+    const sweeperGeo = new THREE.BoxGeometry(2.3, 0.15, 0.15);
+    const sweeperMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.2 });
+    const sweeper = new THREE.Mesh(sweeperGeo, sweeperMat);
+    sweeper.position.set(0, 1.2, -12);
+    scene.add(sweeper);
+
+    // مجسم الأحجار (Pins)
     function createPinGeometry() {
       const points = [];
       points.push(new THREE.Vector2(0, 0));
       points.push(new THREE.Vector2(0.07, 0.01));
-      points.push(new THREE.Vector2(0.09, 0.08));
+      points.push(new THREE.Vector2(0.095, 0.08));
       points.push(new THREE.Vector2(0.1, 0.18));
       points.push(new THREE.Vector2(0.07, 0.32));
       points.push(new THREE.Vector2(0.045, 0.42));
@@ -476,9 +566,10 @@
     }
 
     const pinGeo = createPinGeometry();
+    const pinTex = createPinTexture();
     const pinMat = new THREE.MeshStandardMaterial({
-      color: 0xfffffa,
-      roughness: 0.15,
+      map: pinTex,
+      roughness: 0.1,
       metalness: 0.05
     });
 
@@ -513,18 +604,55 @@
       camera.position.copy(FIXED_CAM_POS);
       arrow.visible = true;
       arrow.position.set(0, 0.05, 1.2);
+      sweeper.position.set(0, 1.2, -12);
+    }
+
+    // نظام المفرقعات والشرارات عند الفوز (Particle System)
+    const particleCount = 120;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    const particleVelocities = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      particlePositions[i * 3] = 0;
+      particlePositions[i * 3 + 1] = -10;
+      particlePositions[i * 3 + 2] = 0;
+      particleVelocities.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 0.2,
+        Math.random() * 0.25 + 0.1,
+        (Math.random() - 0.5) * 0.2
+      ));
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({ color: 0xfbbf24, size: 0.08, transparent: true, opacity: 0.9 });
+    const particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    function triggerConfetti() {
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 1.5;
+        positions[i * 3 + 1] = 0.5;
+        positions[i * 3 + 2] = -12.5;
+        particleVelocities[i].set(
+          (Math.random() - 0.5) * 0.18,
+          Math.random() * 0.22 + 0.08,
+          (Math.random() - 0.5) * 0.18
+        );
+      }
+      particleGeo.attributes.position.needsUpdate = true;
     }
 
     initPins();
     resetBallAndCamera();
 
     // ----------------------------------------------------
-    // 4. حلقة التحريك (Render Loop)
+    // 4. حلقة التحريك والفيزياء (Animation Loop)
     // ----------------------------------------------------
     function animate() {
       requestAnimationFrame(animate);
 
-      // تحريك سهم الاتجاه في وضع الانتظار
+      // تحريك سهم الاتجاه
       if (!isRolling) {
         arrowAngle += arrowSpeed;
         if (arrowAngle > 0.45 || arrowAngle < -0.45) arrowSpeed = -arrowSpeed;
@@ -532,9 +660,9 @@
         arrow.rotation.z = -arrowAngle;
       }
 
-      // تحريك الأحجار التي سقطت بفيزياء سريعة
+      // تحريك الأحجار التي سقطت
       pins.forEach(p => {
-        if (p.isFallen && p.mesh.position.y > -0.5) {
+        if (p.isFallen && p.mesh.position.y > -0.6) {
           p.mesh.position.x += p.vx;
           p.mesh.position.z += p.vz;
           p.mesh.rotation.x += p.rotX;
@@ -543,6 +671,18 @@
         }
       });
 
+      // تحريك شرارات الاحتفال
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        if (positions[i * 3 + 1] > -5) {
+          positions[i * 3] += particleVelocities[i].x;
+          positions[i * 3 + 1] += particleVelocities[i].y;
+          positions[i * 3 + 2] += particleVelocities[i].z;
+          particleVelocities[i].y -= 0.008; // الجاذبية
+        }
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
       renderer.render(scene, camera);
     }
     animate();
@@ -550,6 +690,23 @@
     // ----------------------------------------------------
     // 5. إدارة الأزرار والرهانات مع السيرفر
     // ----------------------------------------------------
+    function setBet(amount) {
+      if (isRolling) return;
+      if (amount <= currentBalance && amount >= minBet && amount <= maxBet) {
+        betAmount = amount;
+        updateBetUI();
+      }
+    }
+
+    function setMaxBet() {
+      if (isRolling) return;
+      let maxPossible = Math.min(currentBalance, maxBet);
+      if (maxPossible >= minBet) {
+        betAmount = maxPossible;
+        updateBetUI();
+      }
+    }
+
     document.getElementById('btn-plus').addEventListener('click', () => {
       if (isRolling) return;
       if (betAmount + 5 <= maxBet && betAmount + 5 <= currentBalance) {
@@ -602,16 +759,16 @@
           return;
         }
 
-        // تحديث الرصيد مباشرة
+        // تحديث الرصيد مباشرة من استجابة السيرفر
         currentBalance = data.new_balance;
         document.getElementById('user-balance').innerText = currentBalance;
 
-        // تنفيذ الرمية بفيزياء سينمائية
+        // حساب هل الجولة فائزة
         const isWin = data.win_amount > 0;
         rollBall(isWin, data.win_amount);
       })
       .catch(err => {
-        console.error(err);
+        console.error("خطأ الاتصال بالباك إند:", err);
         isRolling = false;
         document.getElementById('btn-bet').disabled = false;
         arrow.visible = true;
@@ -621,20 +778,23 @@
     function rollBall(isWin, winAmount) {
       playRollSound();
 
-      let targetX = isWin ? 0 : (Math.random() > 0.5 ? 0.4 : -0.4);
+      let targetX = isWin ? 0 : (Math.random() > 0.5 ? 0.38 : -0.38);
       let progress = 0;
 
       const rollInterval = setInterval(() => {
         progress += 0.022;
         ball.position.z = THREE.MathUtils.lerp(1.8, -12, progress);
         ball.position.x = THREE.MathUtils.lerp(0, targetX, progress);
-        ball.rotation.x -= 0.25;
-
-        // الكاميرا تبقى ثابتة في موقعها (First Person)
+        ball.rotation.x -= 0.28;
 
         if (progress >= 1) {
           clearInterval(rollInterval);
-          playHitSound();
+          playHitSound(isWin);
+          
+          // اهتزاز سينمائي للكاميرا عند الاصطدام
+          camera.position.y += 0.08;
+          setTimeout(() => camera.position.copy(FIXED_CAM_POS), 80);
+
           handleImpact(isWin, winAmount);
         }
       }, 16);
@@ -642,14 +802,15 @@
 
     function handleImpact(isWin, winAmount) {
       if (isWin) {
-        // سقوط كامل الأحجار (Strike)
+        // سقوط كامل الأحجار (STRIKE)
         pins.forEach(pin => {
           pin.isFallen = true;
-          pin.vx = (Math.random() - 0.5) * 0.12;
-          pin.vz = -Math.random() * 0.15;
-          pin.rotX = Math.random() * 0.2;
-          pin.rotZ = Math.random() * 0.2;
+          pin.vx = (Math.random() - 0.5) * 0.14;
+          pin.vz = -Math.random() * 0.18;
+          pin.rotX = Math.random() * 0.25;
+          pin.rotZ = Math.random() * 0.25;
         });
+        triggerConfetti();
         showStatus(`STRIKE! مبروك فزت بـ ${winAmount} nps`, "msg-win");
       } else {
         // سقوط جزئي للأحجار (جولة خاسرة)
@@ -664,8 +825,24 @@
         showStatus("جولة خاسرة! لم تسقط كافة الأحجار", "msg-loss");
       }
 
+      // تحريك ذراع التنظيف الآلي
+      setTimeout(() => {
+        let sweepProgress = 0;
+        const sweepInterval = setInterval(() => {
+          sweepProgress += 0.05;
+          if (sweepProgress <= 0.5) {
+            sweeper.position.y = THREE.MathUtils.lerp(1.2, 0.15, sweepProgress * 2);
+          } else {
+            sweeper.position.z = THREE.MathUtils.lerp(-12, -13.5, (sweepProgress - 0.5) * 2);
+          }
+          if (sweepProgress >= 1) {
+            clearInterval(sweepInterval);
+          }
+        }, 20);
+      }, 1200);
+
       fetchUserData();
-      setTimeout(resetRound, 3200);
+      setTimeout(resetRound, 3400);
     }
 
     function showStatus(text, className) {
@@ -673,7 +850,7 @@
       msg.innerText = text;
       msg.className = className;
       msg.style.opacity = '1';
-      setTimeout(() => { msg.style.opacity = '0'; }, 2800);
+      setTimeout(() => { msg.style.opacity = '0'; }, 3000);
     }
 
     function resetRound() {
@@ -683,10 +860,10 @@
       document.getElementById('btn-bet').disabled = false;
     }
 
-    // جلب البيانات الأولية
+    // جلب بيانات الحساب المبدئية
     fetchUserData();
 
-    // استجابة تغيير حجم الشاشة
+    // الاستجابة لمرونة الشاشات
     window.addEventListener('resize', () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
