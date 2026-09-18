@@ -1,0 +1,14 @@
+{
+  "id": "plinko",
+  "name": "بلينكو NPS",
+  "description": "لعبة بلينكو الفاخرة - اسقط الكرة واحصل على مضاعفات تصل إلى 500x",
+  "icon": "/games/plinko/icon.png",
+    "image": "cover.jpg",
+  "default_algo": {
+    "loss_rate": 60.0,
+    "normal_rate": 25.0,
+    "medium_rate": 10.0,
+    "high_rate": 4.5,
+    "mega_rate": 0.5
+  }
+}
