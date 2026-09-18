@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ضربات جزاء - فرفوش</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #0f172a;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+        }
+        /* Top Header */
+        .header {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            z-index: 10;
+        }
+        .balance-box {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #3b82f6;
+            font-weight: bold;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .title {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #f59e0b;
+        }
+
+        /* Game Arena Canvas */
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 55vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Controls Area */
+        .controls {
+            width: 100%;
+            max-width: 500px;
+            background: #1e293b;
+            padding: 15px 20px;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10;
+        }
+        .bet-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            padding: 8px 15px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+        .btn-step {
+            width: 40px;
+            height: 40px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .btn-step:active {
+            transform: scale(0.92);
+            background: #1d4ed8;
+        }
+        .bet-display {
+            text-align: center;
+        }
+        .bet-amount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #f1f5f9;
+        }
+        .bet-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        
+        .shoot-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .shoot-btn:disabled {
+            background: #475569;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Aim Target Selector */
+        .target-hint {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: -4px;
+        }
+        .aim-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .aim-btn {
+            background: #334155;
+            border: 2px solid transparent;
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .aim-btn.selected {
+            border-color: #22c55e;
+            background: #1e293b;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        /* Result Modal Overlay */
+        .modal {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #38bdf8;
+            padding: 20px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .modal.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .modal-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .win { color: #22c55e; }
+        .loss { color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">⚽ تسديدات فرفوش</div>
+        <div class="balance-box">
+            <span id="userBalance">0.00</span>
+            <small>NPS</small>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="modal" id="resultModal">
+            <div id="modalTitle" class="modal-title"></div>
+            <div id="modalSub" style="font-size: 0.9rem; color: #cbd5e1;"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="target-hint">حدد زاوية التسديد:</div>
+        <div class="aim-grid">
+            <button class="aim-btn" onclick="setAim('top-left')">يسار علوي</button>
+            <button class="aim-btn selected" onclick="setAim('center')">الوسط</button>
+            <button class="aim-btn" onclick="setAim('top-right')">يمين علوي</button>
+            <button class="aim-btn" onclick="setAim('bottom-left')">يسار سفلي</button>
+            <button class="aim-btn" onclick="setAim('bottom-center')">أسفل الوسط</button>
+            <button class="aim-btn" onclick="setAim('bottom-right')">يمين سفلي</button>
+        </div>
+
+        <div class="bet-selector">
+            <button class="btn-step" onclick="changeBet(-5)">-</button>
+            <div class="bet-display">
+                <div class="bet-amount"><span id="betAmount">5</span> NPS</div>
+                <div class="bet-label">مبلغ الرهان (الربح: 2x)</div>
+            </div>
+            <button class="btn-step" onclick="changeBet(5)">+</button>
+        </div>
+
+        <button class="shoot-btn" id="shootBtn" onclick="playGame()">سدد الآن 🚀</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) tg.expand();
+
+        let userId = new URLSearchParams(window.location.search).get('user_id') || 
+                     tg?.initDataUnsafe?.user?.id || 123456;
+
+        let currentBet = 5;
+        let userBalance = 0;
+        let selectedAim = 'center';
+        let isAnimating = false;
+
+        // Target coordinates relative to goal center
+        const aimCoords = {
+            'top-left': { x: -110, y: -80 },
+            'center': { x: 0, y: -50 },
+            'top-right': { x: 110, y: -80 },
+            'bottom-left': { x: -110, y: 0 },
+            'bottom-center': { x: 0, y: 10 },
+            'bottom-right': { x: 110, y: 0 }
+        };
+
+        // Synthesized Audio Generator (No external files needed)
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playKick() {
+                this.init();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            },
+            playSwoosh() {
+                this.init();
+                let bufferSize = this.ctx.sampleRate * 0.2;
+                let buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                let noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                let filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(400, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.2);
+                let gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            },
+            playGoal() {
+                this.init();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(600, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            },
+            playSave() {
+                this.init();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+        };
+
+        // Canvas & Physics Animation Engine
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let ball = { x: 0, y: 140, z: 1, scale: 1 };
+        let keeper = { x: 0, y: -40, targetX: 0, targetY: -40, state: 'idle' };
+
+        function drawField() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height * 0.65;
+
+            // Grass Pitch Perspective
+            let grad = ctx.createLinearGradient(0, cy - 100, 0, canvas.height);
+            grad.addColorStop(0, '#15803d');
+            grad.addColorStop(1, '#166534');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(0, cy - 100);
+            ctx.lineTo(canvas.width, cy - 100);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+
+            // Goal Net & Frame
+            const gx = cx - 150;
+            const gy = cy - 140;
+            const gw = 300;
+            const gh = 120;
+
+            // Net Mesh
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.lineWidth = 1;
+            for (let x = gx; x <= gx + gw; x += 15) {
+                ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x, gy + gh); ctx.stroke();
+            }
+            for (let y = gy; y <= gy + gh; y += 12) {
+                ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx + gw, y); ctx.stroke();
+            }
+
+            // Goal Posts
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(gx, gy, gw, gh);
+
+            // Penalty Spot
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx, cy + 100, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw Keeper "فرفوش"
+            drawKeeper(cx + keeper.x, gy + gh - 20 + keeper.y);
+
+            // Draw Football
+            drawBall(cx + ball.x, cy + ball.y, ball.scale);
+        }
+
+        // Draw "فرفوش" (The Angry Cat Goalkeeper with Black Cap)
+        function drawKeeper(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Body (Hoodie)
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(0, 10, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Head (Grey Cat Fur)
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.arc(0, -15, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(-16, -25); ctx.lineTo(-24, -40); ctx.lineTo(-8, -30);
+            ctx.moveTo(16, -25); ctx.lineTo(24, -40); ctx.lineTo(8, -30);
+            ctx.fill();
+
+            // Black Cap labeled "فرفوش"
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(0, -22, 21, Math.PI, 0);
+            ctx.fill();
+            // Cap Visor
+            ctx.fillRect(-22, -22, 44, 6);
+
+            // Cap Text "فرفوش"
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 9px Tahoma';
+            ctx.textAlign = 'center';
+            ctx.fillText('فرفوش', 0, -26);
+
+            // Angry Eyes
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(-7, -14, 4, 0, Math.PI * 2);
+            ctx.arc(7, -14, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyebrows (Angry slant)
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-12, -20); ctx.lineTo(-3, -16);
+            ctx.moveTo(12, -20); ctx.lineTo(3, -16);
+            ctx.stroke();
+
+            // Gloves
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(-24, 0, 8, 0, Math.PI * 2);
+            ctx.arc(24, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawBall(x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(0, 15, 14 * scale, 6 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ball Base
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(0, 0, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Ball Patterns
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Idle Keeper Movement
+        let idleTimer = 0;
+        function animate() {
+            if (!isAnimating) {
+                idleTimer += 0.05;
+                keeper.x = Math.sin(idleTimer) * 15;
+            }
+            drawField();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Game API Integration & Execution
+        async function fetchUserData() {
+            try {
+                let res = await fetch(`/api/user/get?user_id=${userId}`);
+                let data = await res.json();
+                if (data.success) {
+                    userBalance = data.balance;
+                    document.getElementById('userBalance').innerText = userBalance.toFixed(2);
+                }
+            } catch(e) { console.error(e); }
+        }
+        fetchUserData();
+
+        function setAim(aim) {
+            if (isAnimating) return;
+            selectedAim = aim;
+            document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function changeBet(delta) {
+            if (isAnimating) return;
+            currentBet = Math.min(1000, Math.max(5, currentBet + delta));
+            document.getElementById('betAmount').innerText = currentBet;
+        }
+
+        async function playGame() {
+            if (isAnimating) return;
+            if (userBalance < currentBet) {
+                alert("رصيدك غير كافٍ للعب!");
+                return;
+            }
+
+            isAnimating = true;
+            document.getElementById('shootBtn').disabled = true;
+            document.getElementById('resultModal').classList.remove('show');
+
+            try {
+                let res = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        game_id: 'penalty',
+                        bet_amount: currentBet
+                    })
+                });
+                let data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "حدث خطأ أثناء اللعب");
+                    isAnimating = false;
+                    document.getElementById('shootBtn').disabled = false;
+                    return;
+                }
+
+                // Balance immediately updated locally
+                userBalance = data.new_balance;
+                document.getElementById('userBalance').innerText = userBalance.toFixed(2);
+
+                const isWin = data.win_amount > 0;
+                const targetPos = aimCoords[selectedAim];
+
+                // Play Kick Sound
+                AudioFX.playKick();
+                AudioFX.playSwoosh();
+
+                // Keeper Dive Logic
+                if (isWin) {
+                    // Keeper dives to OPPOSITE direction (Player Scores!)
+                    keeper.targetX = -targetPos.x * 0.8;
+                    keeper.targetY = targetPos.y;
+                } else {
+                    // Keeper dives EXACTLY to the ball position (Block / Save!)
+                    keeper.targetX = targetPos.x;
+                    keeper.targetY = targetPos.y;
+                }
+
+                // Animate Shot Phase
+                let startTime = performance.now();
+                const duration = 600; // ms
+
+                function animateShot(now) {
+                    let elapsed = now - startTime;
+                    let progress = Math.min(elapsed / duration, 1);
+
+                    // Ball trajectory
+                    ball.x = targetPos.x * progress;
+                    ball.y = 140 + (targetPos.y - 140) * progress;
+                    ball.scale = 1 - (progress * 0.45);
+
+                    // Keeper dive animation
+                    keeper.x += (keeper.targetX - keeper.x) * 0.12;
+                    keeper.y += (keeper.targetY - keeper.y) * 0.12;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateShot);
+                    } else {
+                        // Impact sound & outcome
+                        if (isWin) {
+                            AudioFX.playGoal();
+                            showModal("هدف! 🎉", `ربحت ${data.win_amount} NPS`, "win");
+                        } else {
+                            AudioFX.playSave();
+                            showModal("تصدي رائع! ❌", "تصدر الحارس فرفوش للكرة", "loss");
+                        }
+
+                        // Reset position after 2 seconds
+                        setTimeout(resetRound, 2000);
+                    }
+                }
+
+                requestAnimationFrame(animateShot);
+
+            } catch(e) {
+                console.error(e);
+                isAnimating = false;
+                document.getElementById('shootBtn').disabled = false;
+            }
+        }
+
+        function showModal(title, sub, type) {
+            const modal = document.getElementById('resultModal');
+            const mTitle = document.getElementById('modalTitle');
+            const mSub = document.getElementById('modalSub');
+
+            mTitle.innerText = title;
+            mTitle.className = `modal-title ${type}`;
+            mSub.innerText = sub;
+            modal.classList.add('show');
+        }
+
+        function resetRound() {
+            ball = { x: 0, y: 140, z: 1, scale: 1 };
+            keeper = { x: 0, y: -40, targetX: 0, targetY: -40, state: 'idle' };
+            document.getElementById('resultModal').classList.remove('show');
+            document.getElementById('shootBtn').disabled = false;
+            isAnimating = false;
+        }
+    </script>
+</body>
+</html>
