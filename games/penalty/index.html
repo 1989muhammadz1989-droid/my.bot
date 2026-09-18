@@ -14,7 +14,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: #0f172a;
+            background: #090d16;
             color: #fff;
             overflow: hidden;
             display: flex;
@@ -27,28 +27,32 @@
         .header {
             width: 100%;
             padding: 12px 20px;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #334155;
+            border-bottom: 2px solid #1e293b;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             z-index: 10;
         }
         .balance-box {
-            background: #1e293b;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
             padding: 8px 16px;
             border-radius: 20px;
-            border: 1px solid #3b82f6;
+            border: 1px solid #38bdf8;
             font-weight: bold;
             color: #38bdf8;
             display: flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
         }
         .title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 900;
             color: #f59e0b;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         /* Game Arena Canvas */
@@ -56,10 +60,11 @@
             position: relative;
             width: 100%;
             max-width: 500px;
-            height: 55vh;
+            height: 56vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            background: #050811;
         }
         canvas {
             width: 100%;
@@ -71,11 +76,12 @@
         .controls {
             width: 100%;
             max-width: 500px;
-            background: #1e293b;
+            background: #111827;
             padding: 15px 20px;
             border-top-left-radius: 25px;
             border-top-right-radius: 25px;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+            border-top: 1px solid #1f2937;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -85,26 +91,26 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0f172a;
+            background: #0b0f19;
             padding: 8px 15px;
             border-radius: 15px;
-            border: 1px solid #334155;
+            border: 1px solid #1f2937;
         }
         .btn-step {
-            width: 40px;
-            height: 40px;
-            background: #2563eb;
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 1.4rem;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
             transition: 0.1s;
         }
         .btn-step:active {
             transform: scale(0.92);
-            background: #1d4ed8;
         }
         .bet-display {
             text-align: center;
@@ -122,19 +128,24 @@
         .shoot-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: linear-gradient(135deg, #22c55e, #15803d);
             color: white;
             border: none;
             border-radius: 15px;
             font-size: 1.3rem;
             font-weight: 900;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
             cursor: pointer;
             transition: 0.2s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .shoot-btn:active {
+            transform: scale(0.98);
         }
         .shoot-btn:disabled {
-            background: #475569;
+            background: #374151;
             box-shadow: none;
+            color: #9ca3af;
             cursor: not-allowed;
         }
 
@@ -142,7 +153,7 @@
         .target-hint {
             text-align: center;
             font-size: 0.85rem;
-            color: #cbd5e1;
+            color: #9ca3af;
             margin-bottom: -4px;
         }
         .aim-grid {
@@ -151,47 +162,50 @@
             gap: 8px;
         }
         .aim-btn {
-            background: #334155;
+            background: #1f2937;
             border: 2px solid transparent;
-            color: white;
-            padding: 8px;
+            color: #d1d5db;
+            padding: 9px 4px;
             border-radius: 10px;
             font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
             text-align: center;
+            transition: 0.2s;
         }
         .aim-btn.selected {
             border-color: #22c55e;
-            background: #1e293b;
+            background: #111827;
             color: #22c55e;
-            font-weight: bold;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
         }
 
         /* Result Modal Overlay */
         .modal {
             position: absolute;
-            top: 40%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(15, 23, 42, 0.96);
             border: 2px solid #38bdf8;
-            padding: 20px 30px;
+            padding: 22px 35px;
             border-radius: 20px;
             text-align: center;
-            transition: 0.3s ease;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
             z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
         .modal.show {
             transform: translate(-50%, -50%) scale(1);
         }
         .modal-title {
-            font-size: 1.6rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 1.7rem;
+            font-weight: 900;
+            margin-bottom: 6px;
         }
-        .win { color: #22c55e; }
-        .loss { color: #ef4444; }
+        .win { color: #22c55e; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+        .loss { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
     </style>
 </head>
 <body>
@@ -208,26 +222,26 @@
         <canvas id="gameCanvas"></canvas>
         <div class="modal" id="resultModal">
             <div id="modalTitle" class="modal-title"></div>
-            <div id="modalSub" style="font-size: 0.9rem; color: #cbd5e1;"></div>
+            <div id="modalSub" style="font-size: 0.95rem; color: #cbd5e1;"></div>
         </div>
     </div>
 
     <div class="controls">
-        <div class="target-hint">حدد زاوية التسديد:</div>
+        <div class="target-hint">اختر زاوية التسديد:</div>
         <div class="aim-grid">
-            <button class="aim-btn" onclick="setAim('top-left')">يسار علوي</button>
-            <button class="aim-btn selected" onclick="setAim('center')">الوسط</button>
-            <button class="aim-btn" onclick="setAim('top-right')">يمين علوي</button>
-            <button class="aim-btn" onclick="setAim('bottom-left')">يسار سفلي</button>
-            <button class="aim-btn" onclick="setAim('bottom-center')">أسفل الوسط</button>
-            <button class="aim-btn" onclick="setAim('bottom-right')">يمين سفلي</button>
+            <button class="aim-btn" onclick="setAim(event, 'top-left')">يسار علوي</button>
+            <button class="aim-btn selected" onclick="setAim(event, 'center')">الوسط</button>
+            <button class="aim-btn" onclick="setAim(event, 'top-right')">يمين علوي</button>
+            <button class="aim-btn" onclick="setAim(event, 'bottom-left')">يسار سفلي</button>
+            <button class="aim-btn" onclick="setAim(event, 'bottom-center')">أسفل الوسط</button>
+            <button class="aim-btn" onclick="setAim(event, 'bottom-right')">يمين سفلي</button>
         </div>
 
         <div class="bet-selector">
             <button class="btn-step" onclick="changeBet(-5)">-</button>
             <div class="bet-display">
                 <div class="bet-amount"><span id="betAmount">5</span> NPS</div>
-                <div class="bet-label">مبلغ الرهان (الربح: 2x)</div>
+                <div class="bet-label">مبلغ الرهان (مضاعف الربح: 2x)</div>
             </div>
             <button class="btn-step" onclick="changeBet(5)">+</button>
         </div>
@@ -247,17 +261,17 @@
         let selectedAim = 'center';
         let isAnimating = false;
 
-        // Target coordinates relative to goal center
+        // Target coordinates relative to goal area
         const aimCoords = {
-            'top-left': { x: -110, y: -80 },
+            'top-left': { x: -115, y: -85 },
             'center': { x: 0, y: -50 },
-            'top-right': { x: 110, y: -80 },
-            'bottom-left': { x: -110, y: 0 },
-            'bottom-center': { x: 0, y: 10 },
-            'bottom-right': { x: 110, y: 0 }
+            'top-right': { x: 115, y: -85 },
+            'bottom-left': { x: -115, y: -5 },
+            'bottom-center': { x: 0, y: 5 },
+            'bottom-right': { x: 115, y: -5 }
         };
 
-        // Synthesized Audio Generator (No external files needed)
+        // Synthesized Audio Generator
         const AudioFX = {
             ctx: null,
             init() {
@@ -268,7 +282,7 @@
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.setValueAtTime(130, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.15);
                 gain.gain.setValueAtTime(1, this.ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
@@ -302,200 +316,443 @@
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(600, this.ctx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(350, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(700, this.ctx.currentTime + 0.35);
                 gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.4);
+                osc.stop(this.ctx.currentTime + 0.45);
             },
             playSave() {
                 this.init();
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+                osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(35, this.ctx.currentTime + 0.3);
                 gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
+                osc.stop(this.ctx.currentTime + 0.3);
             }
         };
 
-        // Canvas & Physics Animation Engine
+        // Canvas & Realistic Visuals Engine
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Crowd points generation
+        let crowdSeats = [];
+        function initCrowd() {
+            crowdSeats = [];
+            const colors = ['#ef4444', '#3b82f6', '#eab308', '#ffffff', '#a855f7', '#22c55e', '#f97316'];
+            for (let r = 0; r < 6; r++) {
+                for (let i = 0; i < 65; i++) {
+                    crowdSeats.push({
+                        xRatio: i / 65,
+                        yRow: r,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+        }
+
         function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            initCrowd();
         }
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        setTimeout(resizeCanvas, 50);
 
-        let ball = { x: 0, y: 140, z: 1, scale: 1 };
-        let keeper = { x: 0, y: -40, targetX: 0, targetY: -40, state: 'idle' };
+        let ball = { x: 0, y: 140, scale: 1, rotation: 0 };
+        let keeper = { x: 0, y: -35, targetX: 0, targetY: -35, angle: 0, targetAngle: 0 };
 
-        function drawField() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const cx = canvas.width / 2;
-            const cy = canvas.height * 0.65;
+        function drawStadiumBackground(cx, cy) {
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
 
-            // Grass Pitch Perspective
-            let grad = ctx.createLinearGradient(0, cy - 100, 0, canvas.height);
-            grad.addColorStop(0, '#15803d');
-            grad.addColorStop(1, '#166534');
+            // Night Sky / Stadium Upper Gradient
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, cy - 110);
+            skyGrad.addColorStop(0, '#030712');
+            skyGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, width, cy - 110);
+
+            // Stadium Lights (Floodlights) Glow
+            drawLightSpot(width * 0.12, 30, 90, 'rgba(56, 189, 248, 0.25)');
+            drawLightSpot(width * 0.88, 30, 90, 'rgba(56, 189, 248, 0.25)');
+
+            // Crowd Stand Behind Goal
+            const standTop = cy - 165;
+            const standHeight = 60;
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(0, standTop, width, standHeight);
+
+            // Fans/Crowd Animation
+            let time = Date.now() * 0.003;
+            crowdSeats.forEach(seat => {
+                let sx = seat.xRatio * width;
+                let sy = standTop + (seat.yRow * 9) + Math.sin(time + seat.phase) * 1.5;
+                ctx.fillStyle = seat.color;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // LED Advertising Boards
+            const adY = cy - 110;
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, adY, width, 18);
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, adY, width, 18);
+
+            // LED Text Scrolling simulation
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = '900 10px Tahoma';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚡ FARFOOSH PENALTY LEAGUE ⚡ WIN NPS ⚡ FARFOOSH PENALTY LEAGUE ⚡', width / 2, adY + 13);
+        }
+
+        function drawLightSpot(x, y, radius, color) {
+            let grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            grad.addColorStop(0, color);
+            grad.addColorStop(1, 'transparent');
             ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.moveTo(0, cy - 100);
-            ctx.lineTo(canvas.width, cy - 100);
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
             ctx.fill();
+        }
 
-            // Goal Net & Frame
-            const gx = cx - 150;
-            const gy = cy - 140;
-            const gw = 300;
-            const gh = 120;
+        function drawPitch(cx, cy) {
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
 
-            // Net Mesh
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-            ctx.lineWidth = 1;
-            for (let x = gx; x <= gx + gw; x += 15) {
-                ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x, gy + gh); ctx.stroke();
+            // Pitch 3D Perspective Grass Strips
+            const pitchTop = cy - 92;
+            const pitchHeight = height - pitchTop;
+            const strips = 8;
+
+            for (let i = 0; i < strips; i++) {
+                let y1 = pitchTop + (i / strips) * pitchHeight;
+                let y2 = pitchTop + ((i + 1) / strips) * pitchHeight;
+                ctx.fillStyle = (i % 2 === 0) ? '#15803d' : '#166534';
+                ctx.beginPath();
+                ctx.moveTo(0, y1);
+                ctx.lineTo(width, y1);
+                ctx.lineTo(width, y2);
+                ctx.lineTo(0, y2);
+                ctx.fill();
             }
-            for (let y = gy; y <= gy + gh; y += 12) {
-                ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx + gw, y); ctx.stroke();
-            }
 
-            // Goal Posts
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 8;
-            ctx.strokeRect(gx, gy, gw, gh);
+            // White Pitch Lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 2.5;
+
+            // Penalty Area Box Lines
+            const boxTopWidth = 270;
+            const boxBottomWidth = 360;
+            ctx.beginPath();
+            ctx.moveTo(cx - boxTopWidth / 2, pitchTop);
+            ctx.lineTo(cx + boxTopWidth / 2, pitchTop);
+            ctx.lineTo(cx + boxBottomWidth / 2, pitchTop + 130);
+            ctx.lineTo(cx - boxBottomWidth / 2, pitchTop + 130);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Goal Line
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(cx - 160, pitchTop);
+            ctx.lineTo(cx + 160, pitchTop);
+            ctx.stroke();
 
             // Penalty Spot
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(cx, cy + 100, 6, 0, Math.PI * 2);
+            ctx.arc(cx, cy + 140, 5, 0, Math.PI * 2);
             ctx.fill();
-
-            // Draw Keeper "فرفوش"
-            drawKeeper(cx + keeper.x, gy + gh - 20 + keeper.y);
-
-            // Draw Football
-            drawBall(cx + ball.x, cy + ball.y, ball.scale);
         }
 
-        // Draw "فرفوش" (The Angry Cat Goalkeeper with Black Cap)
-        function drawKeeper(x, y) {
-            ctx.save();
-            ctx.translate(x, y);
+        function drawGoal(cx, cy) {
+            const gx = cx - 145;
+            const gy = cy - 135;
+            const gw = 290;
+            const gh = 125;
+            const depth = 25;
 
-            // Body (Hoodie)
-            ctx.fillStyle = '#1e293b';
+            // Net Mesh Depth Backing
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.fillRect(gx + depth/2, gy - depth/2, gw - depth, gh);
+
+            // Realistic 3D Net Pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.lineWidth = 0.8;
+
+            // Grid lines
+            for (let x = gx; x <= gx + gw; x += 12) {
+                ctx.beginPath();
+                ctx.moveTo(x, gy);
+                ctx.lineTo(x, gy + gh);
+                ctx.stroke();
+            }
+            for (let y = gy; y <= gy + gh; y += 10) {
+                ctx.beginPath();
+                ctx.moveTo(gx, y);
+                ctx.lineTo(gx + gw, y);
+                ctx.stroke();
+            }
+
+            // Realistic Goal Frame (Posts & Crossbar)
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Shadow under posts
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+
             ctx.beginPath();
-            ctx.arc(0, 10, 22, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Head (Grey Cat Fur)
-            ctx.fillStyle = '#94a3b8';
-            ctx.beginPath();
-            ctx.arc(0, -15, 20, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Ears
-            ctx.beginPath();
-            ctx.moveTo(-16, -25); ctx.lineTo(-24, -40); ctx.lineTo(-8, -30);
-            ctx.moveTo(16, -25); ctx.lineTo(24, -40); ctx.lineTo(8, -30);
-            ctx.fill();
-
-            // Black Cap labeled "فرفوش"
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath();
-            ctx.arc(0, -22, 21, Math.PI, 0);
-            ctx.fill();
-            // Cap Visor
-            ctx.fillRect(-22, -22, 44, 6);
-
-            // Cap Text "فرفوش"
-            ctx.fillStyle = '#f59e0b';
-            ctx.font = 'bold 9px Tahoma';
-            ctx.textAlign = 'center';
-            ctx.fillText('فرفوش', 0, -26);
-
-            // Angry Eyes
-            ctx.fillStyle = '#f59e0b';
-            ctx.beginPath();
-            ctx.arc(-7, -14, 4, 0, Math.PI * 2);
-            ctx.arc(7, -14, 4, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyebrows (Angry slant)
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(-12, -20); ctx.lineTo(-3, -16);
-            ctx.moveTo(12, -20); ctx.lineTo(3, -16);
+            ctx.moveTo(gx, gy + gh);
+            ctx.lineTo(gx, gy);
+            ctx.lineTo(gx + gw, gy);
+            ctx.lineTo(gx + gw, gy + gh);
             ctx.stroke();
 
-            // Gloves
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath();
-            ctx.arc(-24, 0, 8, 0, Math.PI * 2);
-            ctx.arc(24, 0, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore();
+            ctx.shadowBlur = 0; // Reset Shadow
         }
 
-        function drawBall(x, y, scale) {
+        // Draw Highly Detailed Cat "فرفوش"
+        function drawFarfoosh(x, y, angle) {
             ctx.save();
             ctx.translate(x, y);
-            ctx.scale(scale, scale);
+            ctx.rotate(angle);
 
-            // Shadow
+            // Body Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.ellipse(0, 15, 14 * scale, 6 * scale, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 32, 22, 7, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Ball Base
-            ctx.fillStyle = '#ffffff';
+            // Keeper Torso / Jersey (3D Gradient)
+            let jerseyGrad = ctx.createLinearGradient(-18, -10, 18, 30);
+            jerseyGrad.addColorStop(0, '#1e293b');
+            jerseyGrad.addColorStop(0.5, '#0f172a');
+            jerseyGrad.addColorStop(1, '#020617');
+            ctx.fillStyle = jerseyGrad;
             ctx.beginPath();
-            ctx.arc(0, 0, 14, 0, Math.PI * 2);
+            ctx.roundRect(-20, -5, 40, 36, 12);
             ctx.fill();
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 1.5;
+
+            // Gold Trim on Jersey
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Ball Patterns
-            ctx.fillStyle = '#0f172a';
+            // Cat Head
+            let headGrad = ctx.createRadialGradient(-4, -22, 3, 0, -20, 22);
+            headGrad.addColorStop(0, '#cbd5e1');
+            headGrad.addColorStop(0.7, '#64748b');
+            headGrad.addColorStop(1, '#334155');
+
+            ctx.fillStyle = headGrad;
             ctx.beginPath();
-            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.arc(0, -20, 21, 0, Math.PI * 2);
             ctx.fill();
+
+            // Cat Ears (Outer & Inner Pink)
+            // Left Ear
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.moveTo(-15, -30); ctx.lineTo(-26, -46); ctx.lineTo(-7, -37);
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            ctx.moveTo(-14, -32); ctx.lineTo(-22, -43); ctx.lineTo(-8, -36);
+            ctx.closePath(); ctx.fill();
+
+            // Right Ear
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.moveTo(15, -30); ctx.lineTo(26, -46); ctx.lineTo(7, -37);
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            ctx.moveTo(14, -32); ctx.lineTo(22, -43); ctx.lineTo(8, -36);
+            ctx.closePath(); ctx.fill();
+
+            // Whiskers
+            ctx.strokeStyle = '#f8fafc';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            // Left whiskers
+            ctx.moveTo(-10, -14); ctx.lineTo(-28, -18);
+            ctx.moveTo(-10, -11); ctx.lineTo(-29, -11);
+            // Right whiskers
+            ctx.moveTo(10, -14); ctx.lineTo(28, -18);
+            ctx.moveTo(10, -11); ctx.lineTo(29, -11);
+            ctx.stroke();
+
+            // Signature Black Cap
+            ctx.fillStyle = '#090d16';
+            ctx.beginPath();
+            ctx.arc(0, -26, 21.5, Math.PI, 0);
+            ctx.fill();
+            // Cap Visor
+            ctx.fillStyle = '#020617';
+            ctx.beginPath();
+            ctx.roundRect(-24, -26, 48, 7, 3);
+            ctx.fill();
+
+            // Golden Badge with Text "فرفوش"
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = '900 9px Tahoma';
+            ctx.textAlign = 'center';
+            ctx.fillText('فرفوش', 0, -31);
+
+            // Angry Glowing Eyes
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.ellipse(-8, -19, 5, 6, 0, 0, Math.PI * 2);
+            ctx.ellipse(8, -19, 5, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Slit Pupils
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.ellipse(-8, -19, 1.5, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(8, -19, 1.5, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Angry Eyebrows
+            ctx.strokeStyle = '#020617';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-14, -26); ctx.lineTo(-3, -22);
+            ctx.moveTo(14, -26); ctx.lineTo(3, -22);
+            ctx.stroke();
+
+            // Cat Nose & Snout
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            ctx.polygon = ctx.arc(0, -13, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Goalkeeper Padded Gloves
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(-27, 2, 9, 0, Math.PI * 2);
+            ctx.arc(27, 2, 9, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glove details
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(-30, -1, 6, 6);
+            ctx.fillRect(24, -1, 6, 6);
 
             ctx.restore();
         }
 
-        // Idle Keeper Movement
+        // Draw 3D Realistic Football
+        function drawBall(x, y, scale, rotation) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            ctx.scale(scale, scale);
+
+            const r = 15;
+
+            // Ground Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.beginPath();
+            ctx.ellipse(0, r + 4, r * scale, (r * 0.35) * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ball Base Sphere (Gradient Shading)
+            let ballGrad = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.1, 0, 0, r);
+            ballGrad.addColorStop(0, '#ffffff');
+            ballGrad.addColorStop(0.7, '#e2e8f0');
+            ballGrad.addColorStop(1, '#94a3b8');
+
+            ctx.fillStyle = ballGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Football Pentagons Pattern
+            ctx.fillStyle = '#0f172a';
+            
+            // Center Pentagon
+            drawPentagon(0, 0, 5);
+            // Surrounding Patches
+            for (let i = 0; i < 5; i++) {
+                let ang = (i * Math.PI * 2 / 5);
+                let px = Math.cos(ang) * 10;
+                let py = Math.sin(ang) * 10;
+                drawPentagon(px, py, 3.5);
+            }
+
+            ctx.restore();
+        }
+
+        function drawPentagon(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                let angle = (i * Math.PI * 2 / 5) - Math.PI / 2;
+                let px = x + Math.cos(angle) * radius;
+                let py = y + Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function renderField() {
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
+            const cx = width / 2;
+            const cy = height * 0.62;
+
+            ctx.clearRect(0, 0, width, height);
+
+            drawStadiumBackground(cx, cy);
+            drawPitch(cx, cy);
+            drawGoal(cx, cy);
+
+            // Draw Goalkeeper "فرفوش"
+            drawFarfoosh(cx + keeper.x, cy + keeper.y, keeper.angle);
+
+            // Draw Football
+            drawBall(cx + ball.x, cy + ball.y, ball.scale, ball.rotation);
+        }
+
+        // Main Animation Loop
         let idleTimer = 0;
         function animate() {
             if (!isAnimating) {
-                idleTimer += 0.05;
-                keeper.x = Math.sin(idleTimer) * 15;
+                idleTimer += 0.04;
+                keeper.x = Math.sin(idleTimer) * 18;
+                keeper.y = -35 + Math.cos(idleTimer * 2) * 2;
             }
-            drawField();
+            renderField();
             requestAnimationFrame(animate);
         }
         animate();
 
-        // Game API Integration & Execution
+        // API Integration & Game Execution
         async function fetchUserData() {
             try {
                 let res = await fetch(`/api/user/get?user_id=${userId}`);
@@ -508,11 +765,11 @@
         }
         fetchUserData();
 
-        function setAim(aim) {
+        function setAim(e, aim) {
             if (isAnimating) return;
             selectedAim = aim;
             document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('selected'));
-            event.target.classList.add('selected');
+            e.target.classList.add('selected');
         }
 
         function changeBet(delta) {
@@ -533,6 +790,7 @@
             document.getElementById('resultModal').classList.remove('show');
 
             try {
+                // Call Play API (Strictly isolated round logic)
                 let res = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -551,49 +809,53 @@
                     return;
                 }
 
-                // Balance immediately updated locally
+                // Balance updated directly based on backend API verdict
                 userBalance = data.new_balance;
                 document.getElementById('userBalance').innerText = userBalance.toFixed(2);
 
                 const isWin = data.win_amount > 0;
                 const targetPos = aimCoords[selectedAim];
 
-                // Play Kick Sound
                 AudioFX.playKick();
                 AudioFX.playSwoosh();
 
-                // Keeper Dive Logic
+                // Keeper Target Logic
                 if (isWin) {
-                    // Keeper dives to OPPOSITE direction (Player Scores!)
-                    keeper.targetX = -targetPos.x * 0.8;
-                    keeper.targetY = targetPos.y;
+                    // Keeper dives to WRONG side
+                    keeper.targetX = -targetPos.x * 0.85;
+                    keeper.targetY = targetPos.y - 10;
+                    keeper.targetAngle = (keeper.targetX > 0) ? 0.6 : -0.6;
                 } else {
-                    // Keeper dives EXACTLY to the ball position (Block / Save!)
+                    // Keeper dives to EXACT target (Save)
                     keeper.targetX = targetPos.x;
                     keeper.targetY = targetPos.y;
+                    keeper.targetAngle = (keeper.targetX > 0) ? 0.7 : -0.7;
                 }
 
-                // Animate Shot Phase
                 let startTime = performance.now();
-                const duration = 600; // ms
+                const duration = 650; // ms
 
                 function animateShot(now) {
                     let elapsed = now - startTime;
                     let progress = Math.min(elapsed / duration, 1);
 
-                    // Ball trajectory
+                    // Smooth Ball Arc trajectory
                     ball.x = targetPos.x * progress;
-                    ball.y = 140 + (targetPos.y - 140) * progress;
-                    ball.scale = 1 - (progress * 0.45);
+                    let startY = 140;
+                    let arcY = Math.sin(progress * Math.PI) * -30;
+                    ball.y = startY + (targetPos.y - startY) * progress + arcY;
+                    ball.scale = 1 - (progress * 0.48);
+                    ball.rotation += 0.25;
 
-                    // Keeper dive animation
-                    keeper.x += (keeper.targetX - keeper.x) * 0.12;
-                    keeper.y += (keeper.targetY - keeper.y) * 0.12;
+                    // Smooth Keeper Dive
+                    keeper.x += (keeper.targetX - keeper.x) * 0.14;
+                    keeper.y += (keeper.targetY - keeper.y) * 0.14;
+                    keeper.angle += (keeper.targetAngle - keeper.angle) * 0.14;
 
                     if (progress < 1) {
                         requestAnimationFrame(animateShot);
                     } else {
-                        // Impact sound & outcome
+                        // Impact Outcome
                         if (isWin) {
                             AudioFX.playGoal();
                             showModal("هدف! 🎉", `ربحت ${data.win_amount} NPS`, "win");
@@ -602,8 +864,7 @@
                             showModal("تصدي رائع! ❌", "تصدر الحارس فرفوش للكرة", "loss");
                         }
 
-                        // Reset position after 2 seconds
-                        setTimeout(resetRound, 2000);
+                        setTimeout(resetRound, 2200);
                     }
                 }
 
@@ -628,8 +889,8 @@
         }
 
         function resetRound() {
-            ball = { x: 0, y: 140, z: 1, scale: 1 };
-            keeper = { x: 0, y: -40, targetX: 0, targetY: -40, state: 'idle' };
+            ball = { x: 0, y: 140, scale: 1, rotation: 0 };
+            keeper = { x: 0, y: -35, targetX: 0, targetY: -35, angle: 0, targetAngle: 0 };
             document.getElementById('resultModal').classList.remove('show');
             document.getElementById('shootBtn').disabled = false;
             isAnimating = false;
