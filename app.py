@@ -5,6 +5,7 @@ import sqlite3
 import random
 import threading
 import logging
+import sys
 from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -140,17 +141,43 @@ def load_games():
 # ----------------------------------------------------
 # 3. الصفحات الرئيسية والتشغيل الديناميكي للالعاب الحية
 # ----------------------------------------------------
-@app.route("/")
+@app.route("/", methods=["GET", "HEAD"])
 def index():
-    return render_template("index.html")
+    index_file = os.path.join(app.template_folder, "index.html")
+    if os.path.exists(index_file):
+        try:
+            return render_template("index.html")
+        except Exception as e:
+            logger.error(f"خطأ في عرض index.html: {e}")
+            return "Bot & Web Server are running!", 200
+    return "Bot & Web Server are running!", 200
 
-@app.route("/games")
+@app.route("/health", methods=["GET", "HEAD"])
+@app.route("/ping", methods=["GET", "HEAD"])
+def health_check():
+    return jsonify({"status": "ok", "message": "Bot & Web Server are running!"}), 200
+
+@app.route("/games", methods=["GET", "HEAD"])
 def games_page():
-    return render_template("games.html")
+    games_file = os.path.join(app.template_folder, "games.html")
+    if os.path.exists(games_file):
+        try:
+            return render_template("games.html")
+        except Exception as e:
+            logger.error(f"خطأ في عرض games.html: {e}")
+            return "Games Page", 200
+    return "Games Page", 200
 
-@app.route("/wheel")
+@app.route("/wheel", methods=["GET", "HEAD"])
 def wheel_page():
-    return render_template("wheel.html")
+    wheel_file = os.path.join(app.template_folder, "wheel.html")
+    if os.path.exists(wheel_file):
+        try:
+            return render_template("wheel.html")
+        except Exception as e:
+            logger.error(f"خطأ في عرض wheel.html: {e}")
+            return "Wheel Page", 200
+    return "Wheel Page", 200
 
 # مسار تشغيل الألعاب الحية التفاعلية تلقائياً عبر ID اللعبة
 @app.route("/play/<game_id>")
@@ -166,7 +193,14 @@ def play_live_game(game_id):
         return send_from_directory(GAMES_DIR, f"{game_id}.html")
         
     # 3. العودة للصفحة الرئيسية بحال عدم وجود ملف خاص باللعبة
-    return render_template("index.html", game_id=game_id)
+    index_file = os.path.join(app.template_folder, "index.html")
+    if os.path.exists(index_file):
+        try:
+            return render_template("index.html", game_id=game_id)
+        except Exception as e:
+            logger.error(f"خطأ في عرض index.html: {e}")
+            return f"Game {game_id}", 200
+    return f"Game {game_id}", 200
 
 # خدمة الملفات الثابتة للألعاب (الخلفيات الحية، الأصوات، الصور، والـ JS)
 @app.route("/games/<path:filename>")
@@ -459,7 +493,8 @@ def start_bot_thread():
     bot_file = "bot-2.py" if os.path.exists("bot-2.py") else "bot.py"
     if os.path.exists(bot_file):
         logger.info(f"بدء تشغيل ملف البوت ({bot_file}) في مسار خلفي...")
-        os.system(f"python {bot_file}")
+        python_cmd = sys.executable or "python"
+        os.system(f"{python_cmd} {bot_file}")
 
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     threading.Thread(target=start_bot_thread, daemon=True).start()
