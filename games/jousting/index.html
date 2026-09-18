@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مبارزة الفرسان - Jousting Knight</title>
+    <title>مبارزة الفرسان - Jousting Knight Live</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +15,7 @@
             padding: 0;
         }
         body {
-            background-color: #0d0907;
+            background-color: #080504;
             color: #fff;
             font-family: 'Cairo', sans-serif;
             overflow: hidden;
@@ -31,13 +31,13 @@
         .top-bar {
             width: 100%;
             max-width: 600px;
-            padding: 12px 20px;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(180deg, rgba(20, 15, 10, 0.95) 0%, rgba(10, 8, 5, 0.8) 100%);
-            border-bottom: 2px solid #b8860b;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            background: linear-gradient(180deg, rgba(20, 14, 8, 0.98) 0%, rgba(10, 7, 4, 0.9) 100%);
+            border-bottom: 2px solid #d4af37;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
             z-index: 10;
         }
         .user-info {
@@ -46,34 +46,35 @@
             gap: 10px;
         }
         .user-avatar {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 2px solid #e2b13c;
-            background: #2a1f18;
+            border: 2px solid #ffd700;
+            background: radial-gradient(circle, #3a2818 0%, #150d07 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
         }
         .user-name {
             font-size: 14px;
             font-weight: 800;
-            color: #e2b13c;
+            color: #f3cf7a;
             max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .balance-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border: 1.5px solid #d4af37;
             border-radius: 20px;
-            padding: 6px 16px;
+            padding: 5px 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: inset 0 0 8px rgba(212, 175, 55, 0.3);
+            gap: 6px;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.25), 0 0 10px rgba(0,0,0,0.5);
         }
         .balance-label {
             font-size: 11px;
@@ -87,8 +88,47 @@
         }
         .currency {
             color: #ffd700;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* Live Round Status Bar */
+        .live-status-bar {
+            position: absolute;
+            top: 65px;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 10, 5, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            padding: 6px 18px;
+            border-radius: 30px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff3333;
+            box-shadow: 0 0 10px #ff3333;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+        .live-text {
             font-size: 13px;
             font-weight: 800;
+            color: #fff;
+        }
+        .timer-val {
+            font-family: 'Cinzel', monospace;
+            color: #ffd700;
+            font-size: 16px;
+            font-weight: 900;
         }
 
         /* Canvas Stage */
@@ -101,7 +141,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background: #110e0c;
+            background: #000;
         }
         canvas {
             width: 100%;
@@ -112,84 +152,88 @@
         /* Overlay Alerts */
         .result-overlay {
             position: absolute;
-            top: 30%;
+            top: 40%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
+            transform: translate(-50%, -50%) scale(0.6);
             opacity: 0;
             pointer-events: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center;
             z-index: 20;
+            width: 85%;
+            max-width: 380px;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(10, 7, 5, 0.92);
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 15px rgba(255, 215, 0, 0.2);
         }
         .result-overlay.active {
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
         }
         .result-title {
-            font-size: 38px;
+            font-size: 28px;
             font-weight: 900;
-            text-shadow: 0 0 20px #000, 0 0 10px #000;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         .result-win {
             color: #4ef037;
-            text-shadow: 0 0 25px rgba(78, 240, 55, 0.8);
+            text-shadow: 0 0 20px rgba(78, 240, 55, 0.8);
         }
         .result-loss {
             color: #ff3333;
-            text-shadow: 0 0 25px rgba(255, 51, 51, 0.8);
+            text-shadow: 0 0 20px rgba(255, 51, 51, 0.8);
         }
         .result-sub {
             font-size: 22px;
+            font-weight: 900;
             color: #fff;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 18px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-            display: inline-block;
+            font-family: 'Cinzel', monospace;
+            margin-top: 8px;
         }
 
         /* Control Panel */
         .control-panel {
             width: 100%;
             max-width: 600px;
-            background: linear-gradient(0deg, rgba(15,11,8,0.98) 0%, rgba(30,22,15,0.9) 100%);
-            border-top: 2px solid #b8860b;
-            padding: 15px 20px 25px 20px;
+            background: linear-gradient(0deg, rgba(12, 8, 5, 0.98) 0%, rgba(28, 18, 11, 0.92) 100%);
+            border-top: 2px solid #d4af37;
+            padding: 12px 18px 20px 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
+            gap: 10px;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.95);
             z-index: 10;
         }
         .bet-control-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #554125;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #664d27;
             border-radius: 14px;
-            padding: 6px 10px;
+            padding: 4px 8px;
         }
         .bet-btn {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
             border: 1px solid #d4af37;
-            background: linear-gradient(180deg, #4a381f 0%, #241a0d 100%);
+            background: linear-gradient(180deg, #523f22 0%, #291e0f 100%);
             color: #ffd700;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.1s;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.5);
         }
         .bet-btn:active {
             transform: scale(0.92);
-            background: #241a0d;
+            background: #291e0f;
         }
         .bet-display {
             display: flex;
@@ -197,7 +241,7 @@
             align-items: center;
         }
         .bet-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #aaa;
         }
         .bet-value-box {
@@ -206,7 +250,7 @@
             gap: 6px;
         }
         .bet-amount {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 900;
             color: #ffffff;
             font-family: 'Cinzel', monospace;
@@ -226,7 +270,7 @@
             font-size: 12px;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
         .q-btn:active, .q-btn.active {
             background: #d4af37;
@@ -234,33 +278,39 @@
             border-color: #fff;
         }
 
-        /* Play Button */
+        /* Action / Bet Button */
         .action-btn {
             width: 100%;
-            height: 54px;
+            height: 52px;
             border-radius: 14px;
             border: 2px solid #ffe89c;
-            background: linear-gradient(180deg, #d4af37 0%, #8a640f 100%);
-            color: #1a0f00;
-            font-size: 22px;
+            background: linear-gradient(180deg, #e5be49 0%, #8d620e 100%);
+            color: #120900;
+            font-size: 20px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4), inset 0 2px 4px rgba(255,255,255,0.6);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4), inset 0 2px 4px rgba(255,255,255,0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
         }
         .action-btn:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+        .action-btn.joined {
+            background: linear-gradient(180deg, #38ef7d 0%, #11998e 100%);
+            color: #03200b;
+            border-color: #a8ffb2;
+            box-shadow: 0 5px 20px rgba(56, 239, 125, 0.4);
         }
         .action-btn:disabled {
-            background: #443c32;
-            border-color: #665c50;
-            color: #887d70;
+            background: #383028;
+            border-color: #554a3e;
+            color: #776c5e;
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
@@ -282,12 +332,19 @@
         </div>
     </div>
 
+    <!-- Live Timer Indicator -->
+    <div class="live-status-bar">
+        <div class="live-dot"></div>
+        <span class="live-text" id="liveStatusText">الجولة القادمة تبدأ خلال:</span>
+        <span class="timer-val" id="timerVal">5ث</span>
+    </div>
+
     <!-- Animation Stage -->
     <div class="stage-container">
         <canvas id="gameCanvas"></canvas>
         <div class="result-overlay" id="resultOverlay">
-            <div class="result-title" id="resultTitle">فوز ساحق!</div>
-            <div class="result-sub" id="resultSub">+200 NPS</div>
+            <div class="result-title" id="resultTitle">انتصار ملحمي!</div>
+            <div class="result-sub" id="resultSub">+20.00 NPS</div>
         </div>
     </div>
 
@@ -296,7 +353,7 @@
         <div class="bet-control-row">
             <button class="bet-btn" onclick="changeBet(-5)">-</button>
             <div class="bet-display">
-                <span class="bet-label">قيمة الرهان</span>
+                <span class="bet-label">قيمة الرهان (الربح المتوقع: <span id="winEst" style="color:#4ef037">20</span> NPS)</span>
                 <div class="bet-value-box">
                     <span class="bet-amount" id="betAmount">10</span>
                     <span class="currency">NPS</span>
@@ -314,36 +371,42 @@
             <button class="q-btn" onclick="setBet(1000)">1000</button>
         </div>
 
-        <button class="action-btn" id="playBtn" onclick="startJoust()">
-            <span>انطلاق المبارزة</span> ⚔️
+        <button class="action-btn" id="playBtn" onclick="toggleBetInRound()">
+            <span>تأكيد الرهان للجولة ⚔️</span>
         </button>
     </div>
 
 <script>
-    // URL Params & User Setup
+    // URL Params & Telegram User Initialization
     const urlParams = new URLSearchParams(window.location.search);
     let userId = urlParams.get('user_id') || urlParams.get('telegram_id');
     
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
         userId = userId || window.Telegram.WebApp.initDataUnsafe.user.id;
     }
-    if (!userId) userId = "1000"; // المعرف الافتراضي للتجربة
+    if (!userId) userId = "1000";
 
     let currentBalance = 0.00;
     let betAmount = 10;
     const minBet = 5;
     const maxBet = 1000;
-    let isPlaying = false;
+    
+    // Round States: 'COUNTDOWN', 'CHARGING', 'IMPACT', 'RESULT'
+    let roundState = 'COUNTDOWN';
+    let countdownTime = 5; // 5 Seconds Live Loop
+    let countdownInterval = null;
+    let isBetPlacedForNextRound = false;
+    let currentRoundData = null;
 
-    // Canvas Engine Setup
+    // Canvas & Render Engine Setup
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     let width, height;
 
     function resizeCanvas() {
         const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
+        canvas.width = rect.width * (window.devicePixelRatio || 1);
+        canvas.height = rect.height * (window.devicePixelRatio || 1);
         width = canvas.width;
         height = canvas.height;
     }
@@ -360,55 +423,58 @@
 
     function playGallopSound() {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(25, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.08);
+        } catch(e) {}
     }
 
-    function playImpactSound(isWin) {
+    function playImpactSound() {
         if (!audioCtx) return;
-        // Crash Noise
-        const bufferSize = audioCtx.sampleRate * 0.5;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
+        try {
+            const bufferSize = audioCtx.sampleRate * 0.4;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
 
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
 
-        const gain = audioCtx.createGain();
-        gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
 
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-        noise.start();
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
+        } catch(e) {}
     }
 
-    // Game Animation Logic
-    let gameState = 'IDLE'; // IDLE, CHARGING, IMPACT, RESULT
-    let progress = 0;
+    // Animation & Physics Variables
+    let chargeProgress = 0;
     let particles = [];
+    let cameraShake = { x: 0, y: 0, intensity: 0 };
     let isWinRound = false;
 
-    // Knight Positions & Properties
-    let playerKnight = { x: 0, y: 0, color: '#3b82f6', lanceAngle: 0, fallen: false, fallAngle: 0 };
-    let enemyKnight = { x: 0, y: 0, color: '#ef4444', lanceAngle: 0, fallen: false, fallAngle: 0 };
+    // Knight Sprites Data
+    let playerKnight = { x: 0, y: 0, color: '#3b82f6', banner: '#2563eb', fallen: false, fallAngle: 0, lanceAngle: 0 };
+    let enemyKnight = { x: 0, y: 0, color: '#ef4444', banner: '#dc2626', fallen: false, fallAngle: 0, lanceAngle: 0 };
 
     function fetchUserData() {
         fetch(`/api/user/get?user_id=${userId}`)
@@ -423,186 +489,295 @@
     }
 
     function changeBet(delta) {
-        if (isPlaying) return;
+        if (isBetPlacedForNextRound && roundState === 'COUNTDOWN') return;
         betAmount = Math.max(minBet, Math.min(maxBet, betAmount + delta));
-        document.getElementById('betAmount').innerText = betAmount;
+        updateBetUI();
     }
 
     function setBet(val) {
-        if (isPlaying) return;
+        if (isBetPlacedForNextRound && roundState === 'COUNTDOWN') return;
         betAmount = Math.max(minBet, Math.min(maxBet, val));
-        document.getElementById('betAmount').innerText = betAmount;
+        updateBetUI();
     }
 
-    // Particle Effect Engine
+    function updateBetUI() {
+        document.getElementById('betAmount').innerText = betAmount;
+        document.getElementById('winEst').innerText = (betAmount * 2);
+    }
+
+    function toggleBetInRound() {
+        initAudio();
+        if (roundState !== 'COUNTDOWN') return;
+
+        if (!isBetPlacedForNextRound) {
+            if (currentBalance < betAmount) {
+                alert('رصيدك غير كافٍ لإجراء الرهان!');
+                return;
+            }
+            isBetPlacedForNextRound = true;
+            const btn = document.getElementById('playBtn');
+            btn.classList.add('joined');
+            btn.innerHTML = `<span>تم تأكيد الرهان (${betAmount} NPS) ✔️</span>`;
+        } else {
+            isBetPlacedForNextRound = false;
+            const btn = document.getElementById('playBtn');
+            btn.classList.remove('joined');
+            btn.innerHTML = `<span>تأكيد الرهان للجولة ⚔️</span>`;
+        }
+    }
+
+    // Particle Engines (Dust, Sparks, Splinters)
     function createDust(x, y) {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 3; i++) {
             particles.push({
-                x: x,
+                x: x + (Math.random() - 0.5) * 10,
                 y: y,
-                vx: (Math.random() - 0.5) * 4,
-                vy: -Math.random() * 3,
+                vx: (Math.random() - 0.5) * 3,
+                vy: -Math.random() * 2 - 1,
                 size: Math.random() * 8 + 4,
-                color: 'rgba(180, 150, 100, ' + (Math.random() * 0.5 + 0.3) + ')',
-                life: 1
+                color: `rgba(${160 + Math.random()*40}, ${120 + Math.random()*30}, 80, ${Math.random() * 0.4 + 0.3})`,
+                life: 1,
+                type: 'DUST'
             });
         }
     }
 
-    function createSparks(x, y) {
-        for (let i = 0; i < 30; i++) {
+    function createSparksAndDebris(x, y) {
+        // High density sparks
+        for (let i = 0; i < 40; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 12 + 4;
+            const speed = Math.random() * 16 + 5;
             particles.push({
                 x: x,
                 y: y,
                 vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
+                vy: Math.sin(angle) * speed - 2,
                 size: Math.random() * 4 + 2,
-                color: Math.random() > 0.3 ? '#ffd700' : '#ffffff',
-                life: 1
+                color: Math.random() > 0.2 ? '#ffd700' : '#ffffff',
+                life: 1,
+                type: 'SPARK'
+            });
+        }
+        // Wooden Lance Splinters
+        for (let i = 0; i < 15; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 14,
+                vy: (Math.random() - 0.5) * 12 - 4,
+                size: Math.random() * 6 + 3,
+                color: '#8b5a2b',
+                life: 1,
+                type: 'SPLINTER'
             });
         }
     }
 
-    // Draw Medieval Background
+    // Advanced Graphic Engine Drawing
     function drawBackground() {
-        // Sky Gradient
-        let skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.65);
-        skyGrad.addColorStop(0, '#1c130c');
-        skyGrad.addColorStop(0.5, '#4a2c11');
-        skyGrad.addColorStop(1, '#8c501c');
+        // Sky Gradient with Warm Sunset Horizon
+        let skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.62);
+        skyGrad.addColorStop(0, '#0a0508');
+        skyGrad.addColorStop(0.4, '#261109');
+        skyGrad.addColorStop(0.75, '#6e2f10');
+        skyGrad.addColorStop(1, '#cb6b27');
         ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, width, height * 0.65);
+        ctx.fillRect(0, 0, width, height * 0.62);
 
-        // Sun / Light
-        let sunGrad = ctx.createRadialGradient(width * 0.5, height * 0.3, 10, width * 0.5, height * 0.3, 120);
-        sunGrad.addColorStop(0, 'rgba(255, 220, 150, 0.4)');
-        sunGrad.addColorStop(1, 'rgba(255, 220, 150, 0)');
+        // Volumetric Sun Light Rays
+        let sunX = width * 0.5;
+        let sunY = height * 0.35;
+        let sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, width * 0.6);
+        sunGrad.addColorStop(0, 'rgba(255, 230, 160, 0.45)');
+        sunGrad.addColorStop(0.5, 'rgba(255, 150, 50, 0.15)');
+        sunGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = sunGrad;
         ctx.fillRect(0, 0, width, height);
 
-        // Castle Silhouette
-        ctx.fillStyle = '#170f08';
+        // Parallax Mountains Silhouette
+        ctx.fillStyle = '#170905';
         ctx.beginPath();
-        ctx.rect(width * 0.1, height * 0.45, 80, 80);
-        ctx.rect(width * 0.12, height * 0.40, 20, 20);
-        ctx.rect(width * 0.16, height * 0.40, 20, 20);
-        ctx.rect(width * 0.7, height * 0.42, 110, 100);
-        ctx.rect(width * 0.72, height * 0.36, 25, 25);
-        ctx.rect(width * 0.8, height * 0.36, 25, 25);
+        ctx.moveTo(0, height * 0.62);
+        ctx.lineTo(width * 0.15, height * 0.48);
+        ctx.lineTo(width * 0.35, height * 0.55);
+        ctx.lineTo(width * 0.6, height * 0.45);
+        ctx.lineTo(width * 0.85, height * 0.56);
+        ctx.lineTo(width, height * 0.5);
+        ctx.lineTo(width, height * 0.62);
+        ctx.closePath();
         ctx.fill();
 
-        // Arena Ground
-        let groundGrad = ctx.createLinearGradient(0, height * 0.65, 0, height);
-        groundGrad.addColorStop(0, '#3a2512');
-        groundGrad.addColorStop(0.2, '#5c3a1d');
-        groundGrad.addColorStop(1, '#221408');
-        ctx.fillStyle = groundGrad;
-        ctx.fillRect(0, height * 0.65, width, height * 0.35);
+        // Majestic Gothic Castle Towers
+        ctx.fillStyle = '#110603';
+        // Left Tower
+        ctx.fillRect(width * 0.08, height * 0.38, width * 0.12, height * 0.24);
+        ctx.fillRect(width * 0.06, height * 0.35, width * 0.16, height * 0.03);
+        // Right Grand Castle
+        ctx.fillRect(width * 0.72, height * 0.32, width * 0.18, height * 0.30);
+        ctx.fillRect(width * 0.70, height * 0.29, width * 0.22, height * 0.03);
+        ctx.fillRect(width * 0.78, height * 0.22, width * 0.06, height * 0.07);
 
-        // Fence / Banner Line
-        ctx.strokeStyle = '#2b1a0d';
-        ctx.lineWidth = 6 * window.devicePixelRatio;
+        // Arena Dirt Ground
+        let groundGrad = ctx.createLinearGradient(0, height * 0.62, 0, height);
+        groundGrad.addColorStop(0, '#3a1f0d');
+        groundGrad.addColorStop(0.2, '#5e3417');
+        groundGrad.addColorStop(0.7, '#2e180a');
+        groundGrad.addColorStop(1, '#120803');
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, height * 0.62, width, height * 0.38);
+
+        // Arena Fence Rail & Royal Banners
+        ctx.strokeStyle = '#221107';
+        ctx.lineWidth = 5 * (window.devicePixelRatio || 1);
         ctx.beginPath();
-        ctx.moveTo(0, height * 0.66);
-        ctx.lineTo(width, height * 0.66);
+        ctx.moveTo(0, height * 0.63);
+        ctx.lineTo(width, height * 0.63);
         ctx.stroke();
 
-        // Medieval Flags
-        for (let i = 40; i < width; i += 120) {
-            ctx.fillStyle = (i / 120) % 2 === 0 ? '#b81d1d' : '#1d52b8';
+        // Waving Tournament Flags
+        const flagSpacing = width / 8;
+        for (let i = 0; i <= width + 20; i += flagSpacing) {
+            ctx.fillStyle = ((i / flagSpacing) % 2 === 0) ? '#8b0000' : '#1a365d';
             ctx.beginPath();
-            ctx.moveTo(i, height * 0.66);
-            ctx.lineTo(i + 25, height * 0.66);
-            ctx.lineTo(i + 12.5, height * 0.71);
+            ctx.moveTo(i, height * 0.63);
+            ctx.lineTo(i + 22, height * 0.63);
+            ctx.lineTo(i + 11 + Math.sin(Date.now() * 0.005 + i) * 3, height * 0.68);
             ctx.closePath();
             ctx.fill();
+
+            // Flag Posts
+            ctx.strokeStyle = '#523a22';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(i, height * 0.62);
+            ctx.lineTo(i, height * 0.69);
+            ctx.stroke();
         }
+
+        // Perspective Track Lines
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, height * 0.82);
+        ctx.lineTo(width, height * 0.82);
+        ctx.stroke();
     }
 
-    // Render Knight Character
+    // High-Detail Knight Render Engine
     function drawKnight(k, isPlayer) {
         ctx.save();
-        ctx.translate(k.x, k.y);
+        ctx.translate(k.x + cameraShake.x, k.y + cameraShake.y);
 
         if (k.fallen) {
             ctx.rotate(k.fallAngle);
         }
 
-        const scale = (height / 500) * 0.8;
+        const scale = (height / 450) * 0.85;
         ctx.scale(isPlayer ? scale : -scale, scale);
 
-        const bob = (gameState === 'CHARGING' && !k.fallen) ? Math.sin(Date.now() * 0.03) * 6 : 0;
+        const bob = (roundState === 'CHARGING' && !k.fallen) ? Math.sin(Date.now() * 0.035) * 7 : 0;
 
-        // Horse Body
-        ctx.fillStyle = isPlayer ? '#2b1b17' : '#4a4441';
+        // Horse Caparison / Armored Body
+        ctx.fillStyle = isPlayer ? '#1e293b' : '#3f0f12';
         ctx.beginPath();
-        ctx.ellipse(0, 0 + bob, 45, 25, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 2 + bob, 52, 28, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Horse Head & Neck
+        // Metallic Horse Armor Accent
+        let armorGrad = ctx.createLinearGradient(-30, -20, 30, 20);
+        armorGrad.addColorStop(0, '#e2e8f0');
+        armorGrad.addColorStop(0.5, '#64748b');
+        armorGrad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = armorGrad;
+        ctx.fillRect(-20, -12 + bob, 40, 14);
+
+        // Horse Neck & Head
+        ctx.fillStyle = isPlayer ? '#1e293b' : '#3f0f12';
         ctx.beginPath();
-        ctx.moveTo(25, -10 + bob);
-        ctx.lineTo(40, -35 + bob);
-        ctx.lineTo(50, -25 + bob);
-        ctx.lineTo(35, 5 + bob);
+        ctx.moveTo(28, -8 + bob);
+        ctx.lineTo(46, -38 + bob);
+        ctx.lineTo(58, -26 + bob);
+        ctx.lineTo(38, 8 + bob);
         ctx.closePath();
         ctx.fill();
 
-        // Horse Legs
-        ctx.strokeStyle = isPlayer ? '#1c110e' : '#2d2928';
-        ctx.lineWidth = 7;
-        const legAnim = (gameState === 'CHARGING' && !k.fallen) ? Math.sin(Date.now() * 0.04) * 20 : 0;
+        // Horse Legs with Jointed Gallop Motion
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 8;
+        const legAnim = (roundState === 'CHARGING' && !k.fallen) ? Math.sin(Date.now() * 0.045) * 24 : 0;
         
         ctx.beginPath();
-        ctx.moveTo(-25, 15); ctx.lineTo(-30 + legAnim, 45);
-        ctx.moveTo(-10, 15); ctx.lineTo(-5 - legAnim, 45);
-        ctx.moveTo(15, 15);  ctx.lineTo(20 + legAnim, 45);
-        ctx.moveTo(30, 15);  ctx.lineTo(25 - legAnim, 45);
+        ctx.moveTo(-30, 16); ctx.lineTo(-36 + legAnim, 48);
+        ctx.moveTo(-12, 16); ctx.lineTo(-6 - legAnim, 48);
+        ctx.moveTo(18, 16);  ctx.lineTo(24 + legAnim, 48);
+        ctx.moveTo(34, 16);  ctx.lineTo(28 - legAnim, 48);
         ctx.stroke();
 
-        // Rider / Knight Armor
-        ctx.fillStyle = '#a8b2b9'; // Metallic Armor
-        ctx.fillRect(-10, -45 + bob, 22, 30); // Torso
+        // Knight Plate Armor (Silver Metallic Shading)
+        let plateGrad = ctx.createLinearGradient(-15, -50, 15, -10);
+        plateGrad.addColorStop(0, '#ffffff');
+        plateGrad.addColorStop(0.4, '#94a3b8');
+        plateGrad.addColorStop(1, '#334155');
+        ctx.fillStyle = plateGrad;
+        ctx.fillRect(-12, -48 + bob, 26, 32);
 
         // Helmet
-        ctx.fillStyle = '#d1d5db';
+        ctx.fillStyle = '#cbd5e1';
         ctx.beginPath();
-        ctx.arc(0, -52 + bob, 12, 0, Math.PI * 2);
+        ctx.arc(1, -56 + bob, 14, 0, Math.PI * 2);
         ctx.fill();
 
-        // Helmet Plume/Feather
+        // Visor Slot
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(6, -58 + bob, 8, 4);
+
+        // Feathery Plume on Helmet
         ctx.fillStyle = k.color;
         ctx.beginPath();
-        ctx.moveTo(-4, -64 + bob);
-        ctx.quadraticCurveTo(-15, -75 + bob, -25, -60 + bob);
-        ctx.quadraticCurveTo(-10, -60 + bob, 0, -62 + bob);
+        ctx.moveTo(-2, -68 + bob);
+        ctx.quadraticCurveTo(-18, -82 + bob, -30, -66 + bob);
+        ctx.quadraticCurveTo(-12, -64 + bob, 2, -66 + bob);
         ctx.fill();
 
-        // Shield
+        // Waving Mantle / Cape
+        ctx.fillStyle = k.banner;
+        ctx.beginPath();
+        const capeWave = Math.sin(Date.now() * 0.02) * 8;
+        ctx.moveTo(-12, -48 + bob);
+        ctx.quadraticCurveTo(-35, -45 + bob + capeWave, -48, -30 + bob);
+        ctx.quadraticCurveTo(-30, -25 + bob, -12, -28 + bob);
+        ctx.closePath();
+        ctx.fill();
+
+        // Heraldic Shield
         ctx.fillStyle = k.color;
         ctx.beginPath();
-        ctx.moveTo(5, -42 + bob);
-        ctx.lineTo(20, -42 + bob);
-        ctx.lineTo(12, -22 + bob);
+        ctx.moveTo(6, -44 + bob);
+        ctx.lineTo(24, -44 + bob);
+        ctx.lineTo(15, -20 + bob);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Jousting Lance (Richer Metallic Lance)
+        // Jousting Lance with Metal Guard & Tip
         ctx.save();
-        ctx.translate(5, -35 + bob);
+        ctx.translate(6, -36 + bob);
         ctx.rotate(k.lanceAngle);
-        ctx.fillStyle = '#855829';
-        ctx.fillRect(-15, -4, 110, 6);
-        ctx.fillStyle = '#d1d5db';
+        
+        // Wooden Shaft
+        ctx.fillStyle = '#6c431d';
+        ctx.fillRect(-18, -4, 120, 7);
+        // Vamplate (Hand Guard)
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(5, -12, 8, 22);
+        // Steel Tip
+        ctx.fillStyle = '#f8fafc';
         ctx.beginPath();
-        ctx.moveTo(95, -6);
-        ctx.lineTo(120, -1);
-        ctx.lineTo(95, 4);
+        ctx.moveTo(102, -7);
+        ctx.lineTo(130, -0.5);
+        ctx.lineTo(102, 6);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
@@ -610,45 +785,57 @@
         ctx.restore();
     }
 
-    // Main Game Loop
+    // Main Game Render Loop
     function render() {
         ctx.clearRect(0, 0, width, height);
+
+        // Apply Camera Shake Decay
+        if (cameraShake.intensity > 0) {
+            cameraShake.x = (Math.random() - 0.5) * cameraShake.intensity;
+            cameraShake.y = (Math.random() - 0.5) * cameraShake.intensity;
+            cameraShake.intensity *= 0.88;
+            if (cameraShake.intensity < 0.5) cameraShake.intensity = 0;
+        } else {
+            cameraShake.x = 0;
+            cameraShake.y = 0;
+        }
 
         drawBackground();
 
         const groundY = height * 0.78;
 
-        if (gameState === 'IDLE') {
+        if (roundState === 'COUNTDOWN') {
             playerKnight.x = width * 0.18;
             playerKnight.y = groundY;
-            playerKnight.lanceAngle = 0;
+            playerKnight.lanceAngle = -0.05;
             playerKnight.fallen = false;
 
             enemyKnight.x = width * 0.82;
             enemyKnight.y = groundY;
-            enemyKnight.lanceAngle = 0;
+            enemyKnight.lanceAngle = -0.05;
             enemyKnight.fallen = false;
         } 
-        else if (gameState === 'CHARGING') {
-            progress += 0.012;
+        else if (roundState === 'CHARGING') {
+            chargeProgress += 0.014;
 
-            playerKnight.x = width * 0.18 + (width * 0.27) * progress;
-            enemyKnight.x = width * 0.82 - (width * 0.27) * progress;
+            playerKnight.x = width * 0.18 + (width * 0.27) * chargeProgress;
+            enemyKnight.x = width * 0.82 - (width * 0.27) * chargeProgress;
 
-            // Lance Aiming Motion
-            playerKnight.lanceAngle = Math.sin(progress * Math.PI) * -0.12;
-            enemyKnight.lanceAngle = Math.sin(progress * Math.PI) * -0.12;
+            // Lance Motion Alignment
+            playerKnight.lanceAngle = Math.sin(chargeProgress * Math.PI) * -0.14;
+            enemyKnight.lanceAngle = Math.sin(chargeProgress * Math.PI) * -0.14;
 
-            if (Math.random() > 0.4) {
-                createDust(playerKnight.x, groundY + 20);
-                createDust(enemyKnight.x, groundY + 20);
-                if (Math.random() > 0.7) playGallopSound();
+            if (Math.random() > 0.3) {
+                createDust(playerKnight.x, groundY + 15);
+                createDust(enemyKnight.x, groundY + 15);
+                if (Math.random() > 0.75) playGallopSound();
             }
 
-            if (progress >= 1) {
-                gameState = 'IMPACT';
-                createSparks(width * 0.5, groundY - 30);
-                playImpactSound(isWinRound);
+            if (chargeProgress >= 1) {
+                roundState = 'IMPACT';
+                cameraShake.intensity = 25; // Impact Screen Shake
+                createSparksAndDebris(width * 0.5, groundY - 35);
+                playImpactSound();
 
                 if (isWinRound) {
                     enemyKnight.fallen = true;
@@ -657,102 +844,135 @@
                 }
             }
         } 
-        else if (gameState === 'IMPACT' || gameState === 'RESULT') {
+        else if (roundState === 'IMPACT' || roundState === 'RESULT') {
             if (playerKnight.fallen && playerKnight.fallAngle < Math.PI / 2) {
-                playerKnight.fallAngle += 0.1;
-                playerKnight.x -= 2;
+                playerKnight.fallAngle += 0.12;
+                playerKnight.x -= 2.5;
             }
             if (enemyKnight.fallen && enemyKnight.fallAngle > -Math.PI / 2) {
-                enemyKnight.fallAngle -= 0.1;
-                enemyKnight.x += 2;
+                enemyKnight.fallAngle -= 0.12;
+                enemyKnight.x += 2.5;
             }
         }
 
-        // Render Knights
+        // Draw Knights
         drawKnight(playerKnight, true);
         drawKnight(enemyKnight, false);
 
-        // Render Particles
+        // Render & Update Particles
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
             p.x += p.vx;
             p.y += p.vy;
-            p.life -= 0.025;
+            p.life -= 0.03;
+
             ctx.fillStyle = p.color;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, Math.max(0.5, p.size * p.life), 0, Math.PI * 2);
             ctx.fill();
+
             if (p.life <= 0) particles.splice(i, 1);
         }
 
         requestAnimationFrame(render);
     }
 
-    // Trigger Game Round
-    function startJoust() {
-        initAudio();
-        if (isPlaying) return;
+    // 5-Second Live Loop Engine
+    function startLiveLoop() {
+        if (countdownInterval) clearInterval(countdownInterval);
 
-        if (currentBalance < betAmount) {
-            alert('رصيدك غير كافٍ لإجراء المبارزة!');
-            return;
-        }
-
-        isPlaying = true;
-        document.getElementById('playBtn').disabled = true;
+        countdownTime = 5;
+        roundState = 'COUNTDOWN';
+        document.getElementById('timerVal').innerText = `${countdownTime}ث`;
+        document.getElementById('liveStatusText').innerText = 'الجولة القادمة تبدأ خلال:';
         document.getElementById('resultOverlay').classList.remove('active');
 
-        // Connect directly to app-٩.py play endpoint
-        fetch('/api/play', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                user_id: userId,
-                game_id: 'jousting',
-                bet_amount: betAmount
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert(data.message || 'حدث خطأ أثناء الاتصال بالسيرفر');
-                isPlaying = false;
-                document.getElementById('playBtn').disabled = false;
-                return;
+        countdownInterval = setInterval(() => {
+            countdownTime--;
+            if (countdownTime > 0) {
+                document.getElementById('timerVal').innerText = `${countdownTime}ث`;
+            } else {
+                clearInterval(countdownInterval);
+                executeRound();
             }
-
-            // Sync result
-            isWinRound = (data.win_amount > 0);
-            currentBalance = data.new_balance;
-
-            // Start charging animation
-            progress = 0;
-            gameState = 'CHARGING';
-
-            // Show result after impact animation
-            setTimeout(() => {
-                gameState = 'RESULT';
-                showResult(isWinRound, data.win_amount);
-                document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
-
-                setTimeout(() => {
-                    gameState = 'IDLE';
-                    isPlaying = false;
-                    document.getElementById('playBtn').disabled = false;
-                }, 2500);
-
-            }, 1800);
-
-        })
-        .catch(err => {
-            console.error(err);
-            alert('تعذر الارتباط بالنظام. تحقق من اتصالك.');
-            isPlaying = false;
-            document.getElementById('playBtn').disabled = false;
-        });
+        }, 1000);
     }
 
-    function showResult(win, winAmt) {
+    // Execute Clash Round
+    function executeRound() {
+        document.getElementById('timerVal').innerText = `جاري المبارزة! ⚔️`;
+        document.getElementById('liveStatusText').innerText = 'الحالة المباشرة:';
+        
+        const actionBtn = document.getElementById('playBtn');
+        actionBtn.disabled = true;
+
+        if (isBetPlacedForNextRound) {
+            // Call API backend
+            fetch('/api/play', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    game_id: 'jousting',
+                    bet_amount: betAmount
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'خطأ في الاتصال بالرصيد');
+                    resetRoundAfterClash(false, 0);
+                    return;
+                }
+
+                isWinRound = (data.win_amount > 0);
+                currentBalance = data.new_balance;
+
+                // Trigger Charging Animation
+                chargeProgress = 0;
+                roundState = 'CHARGING';
+
+                setTimeout(() => {
+                    roundState = 'RESULT';
+                    showResultOverlay(isWinRound, data.win_amount);
+                    document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
+
+                    setTimeout(() => {
+                        resetRoundAfterClash(true);
+                    }, 2800);
+
+                }, 1700);
+            })
+            .catch(err => {
+                console.error(err);
+                resetRoundAfterClash(false, 0);
+            });
+        } else {
+            // Demo clash simulation if user didn't join bet
+            isWinRound = Math.random() > 0.5;
+            chargeProgress = 0;
+            roundState = 'CHARGING';
+
+            setTimeout(() => {
+                roundState = 'RESULT';
+                setTimeout(() => {
+                    resetRoundAfterClash(false);
+                }, 2000);
+            }, 1700);
+        }
+    }
+
+    function resetRoundAfterClash(hadBet) {
+        isBetPlacedForNextRound = false;
+        const btn = document.getElementById('playBtn');
+        btn.classList.remove('joined');
+        btn.disabled = false;
+        btn.innerHTML = `<span>تأكيد الرهان للجولة ⚔️</span>`;
+
+        startLiveLoop();
+    }
+
+    function showResultOverlay(win, winAmt) {
         const overlay = document.getElementById('resultOverlay');
         const title = document.getElementById('resultTitle');
         const sub = document.getElementById('resultSub');
@@ -769,8 +989,10 @@
         overlay.classList.add('active');
     }
 
-    // Initialize Page
+    // Initialize Game
     fetchUserData();
+    updateBetUI();
+    startLiveLoop();
     requestAnimationFrame(render);
 </script>
 </body>
