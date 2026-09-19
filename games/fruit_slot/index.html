@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎰 لعبة السلوتس | GOLDEN GAME VIP</title>
+    <title>🎰 لعبة السلوتس الملكية | GOLDEN GAME VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,8 +14,8 @@
             --gold-bright: #ffd700;
             --gold-mid: #dfa837;
             --gold-dark: #7a4e05;
-            --bg-burgundy: #2b020a;
-            --card-bg: #180005;
+            --bg-burgundy: #1a0006;
+            --card-bg: #0f0003;
         }
 
         * {
@@ -30,7 +30,7 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background: radial-gradient(circle at center, #520918 0%, #1a0005 70%, #080002 100%);
+            background: radial-gradient(circle at center, #420512 0%, #120004 70%, #050001 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -41,8 +41,8 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(rgba(255, 215, 0, 0.1) 1.5px, transparent 0);
-            background-size: 20px 20px;
+            background-image: radial-gradient(rgba(255, 215, 0, 0.12) 1.5px, transparent 0);
+            background-size: 24px 24px;
             pointer-events: none;
         }
 
@@ -58,11 +58,11 @@
         .balloon {
             position: absolute;
             bottom: -100px;
-            width: 38px;
-            height: 48px;
+            width: 40px;
+            height: 52px;
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
             opacity: 0.95;
-            animation: floatUp 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: floatUp 3.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .balloon::after {
@@ -83,7 +83,7 @@
 
         /* ------------------ Header ------------------ */
         .header {
-            background: linear-gradient(180deg, rgba(35, 2, 9, 0.98) 0%, rgba(12, 0, 3, 0.95) 100%);
+            background: linear-gradient(180deg, rgba(25, 1, 6, 0.98) 0%, rgba(8, 0, 2, 0.95) 100%);
             border-bottom: 2px solid var(--gold-mid);
             padding: 8px 14px;
             display: flex;
@@ -94,14 +94,14 @@
         }
 
         .jackpot-container {
-            background: linear-gradient(135deg, #4a3002 0%, #a36b0c 50%, #291a00 100%);
+            background: linear-gradient(135deg, #4a3002 0%, #b88214 50%, #291a00 100%);
             border: 2px solid var(--gold-bright);
             border-radius: 20px;
-            padding: 4px 18px;
+            padding: 4px 20px;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
             margin-bottom: 6px;
         }
 
@@ -113,9 +113,9 @@
 
         .jackpot-amount {
             color: #fff;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             font-weight: 900;
-            text-shadow: 0 0 10px var(--gold-bright);
+            text-shadow: 0 0 12px var(--gold-bright);
         }
 
         .user-bar {
@@ -126,7 +126,7 @@
         }
 
         .balance-badge {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.65);
             border: 1px solid var(--gold-mid);
             padding: 4px 14px;
             border-radius: 14px;
@@ -151,13 +151,26 @@
 
         .slot-frame {
             position: relative;
-            background: linear-gradient(145deg, #e6be65, #593e0b, #bf8f30, #2b1d02);
+            background: linear-gradient(145deg, #ffd700, #593e0b, #d4af37, #1a1001);
             padding: 14px;
             border-radius: 35px;
-            box-shadow: 0 12px 45px rgba(0,0,0,0.95), inset 0 0 18px rgba(255,240,180,0.6);
+            box-shadow: 0 12px 45px rgba(0,0,0,0.95), inset 0 0 20px rgba(255,240,180,0.8);
             border: 3px solid var(--gold-light);
             width: 100%;
             max-width: 390px;
+            transition: transform 0.2s;
+        }
+
+        .slot-frame.shake {
+            animation: frameShake 0.4s ease-in-out;
+        }
+
+        @keyframes frameShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px) rotate(-1deg); }
+            40% { transform: translateX(6px) rotate(1deg); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
         .slot-housing {
@@ -169,17 +182,23 @@
             gap: 8px;
             border: 2px solid var(--gold-mid);
             box-shadow: inset 0 0 25px #000;
+            position: relative;
         }
 
         .reel-window {
             flex: 1;
             height: 125px;
-            background: linear-gradient(180deg, #111 0%, #fff 45%, #fff 55%, #111 100%);
+            background: linear-gradient(180deg, #0d0d0d 0%, #ffffff 48%, #ffffff 52%, #0d0d0d 100%);
             border-radius: 14px;
             border: 3px solid #8c6827;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 12px 15px rgba(0,0,0,0.85), inset 0 -12px 15px rgba(0,0,0,0.85);
+            box-shadow: inset 0 14px 18px rgba(0,0,0,0.9), inset 0 -14px 18px rgba(0,0,0,0.9);
+        }
+
+        .reel-window.teaser-glow {
+            border-color: #ff0055;
+            box-shadow: 0 0 15px #ff0055, inset 0 14px 18px rgba(0,0,0,0.9);
         }
 
         .reel-strip {
@@ -191,7 +210,6 @@
             align-items: center;
         }
 
-        /* 🌟 الرموز الحديثة الذهب والـ 3D */
         .reel-symbol {
             height: 125px;
             width: 100%;
@@ -201,25 +219,25 @@
             align-items: center;
             font-size: 3.3rem;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-            transition: transform 0.2s;
         }
 
+        /* 🌟 الرمز الملكي 7️⃣ */
         .seven-symbol {
-            font-size: 3.5rem;
+            font-size: 3.6rem;
             font-weight: 900;
-            background: linear-gradient(180deg, #ffeb3b 0%, #ff9800 50%, #d50000 100%);
+            background: linear-gradient(180deg, #fff275 0%, #ff9800 45%, #e60000 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
-            animation: pulse7 1.5s infinite alternate;
+            filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.95));
+            animation: pulse7 1.2s infinite alternate ease-in-out;
         }
 
         @keyframes pulse7 {
-            0% { transform: scale(0.95); }
-            100% { transform: scale(1.05); }
+            0% { transform: scale(0.94); }
+            100% { transform: scale(1.08); }
         }
 
-        /* 🌟 شجرة الجوكر الذهبية الفاخرة */
+        /* 🌟 شجرة الجوكر والمضاعفات */
         .tree-symbol {
             display: flex;
             flex-direction: column;
@@ -230,13 +248,13 @@
 
         .tree-symbol .tree-icon {
             font-size: 2.8rem;
-            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1)) drop-shadow(0 0 25px rgba(255, 180, 0, 0.8));
-            animation: treeGlow 1.2s infinite alternate ease-in-out;
+            filter: drop-shadow(0 0 14px rgba(255, 215, 0, 1)) drop-shadow(0 0 25px rgba(255, 180, 0, 0.9));
+            animation: treeGlow 1.1s infinite alternate ease-in-out;
         }
 
         @keyframes treeGlow {
             0% { transform: scale(0.95); }
-            100% { transform: scale(1.08); }
+            100% { transform: scale(1.1); }
         }
 
         .tree-symbol .tree-badge {
@@ -260,7 +278,7 @@
             width: 200%; height: 200%;
             background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.9) 50%, transparent 70%);
             transform: rotate(25deg);
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 1.4s infinite;
         }
 
         @keyframes shimmer {
@@ -268,7 +286,6 @@
             100% { transform: translateX(100%) rotate(25deg); }
         }
 
-        /* اللافتة الذهبية */
         .golden-banner {
             margin-top: 12px;
             background: linear-gradient(180deg, #ffe082 0%, #cfa138 50%, #7a540c 100%);
@@ -284,7 +301,6 @@
             font-size: 1.3rem;
             font-weight: 900;
             letter-spacing: 1px;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
             margin: 0;
         }
 
@@ -296,11 +312,11 @@
             letter-spacing: 3px;
         }
 
-        .blur { filter: blur(6px); }
+        .blur { filter: blur(7px); }
 
         .status-msg {
             margin-top: 10px;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 900;
             min-height: 28px;
             text-align: center;
@@ -405,7 +421,7 @@
             border: 2px solid var(--gold-light);
             padding: 12px;
             border-radius: 16px;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
             display: flex;
@@ -416,12 +432,84 @@
 
         .btn-spin:active { transform: scale(0.97); }
         .btn-spin:disabled { opacity: 0.5; filter: grayscale(0.8); }
+
+        /* 🏆 نافذة الربح الضخم (Big Win Modal) */
+        .win-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .win-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .win-box {
+            background: linear-gradient(135deg, #3d000c, #1a0005);
+            border: 3px solid var(--gold-bright);
+            border-radius: 28px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255,215,0,0.8);
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 320px;
+            width: 90%;
+        }
+
+        .win-modal.active .win-box {
+            transform: scale(1);
+        }
+
+        .win-box h3 {
+            font-size: 1.8rem;
+            color: var(--gold-bright);
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--gold-mid);
+        }
+
+        .win-amount-num {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            margin: 15px 0;
+            text-shadow: 0 0 20px var(--gold-bright);
+        }
+
+        .btn-close-win {
+            background: linear-gradient(180deg, #ffd700, #b8860b);
+            border: none;
+            color: #000;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <!-- 🎈 احتفالية الفوز -->
     <div class="balloon-container" id="balloonContainer"></div>
+
+    <!-- 🏆 نافذة الربح الأسطوري -->
+    <div class="win-modal" id="winModal">
+        <div class="win-box">
+            <h3 id="winTitle">فوز أسطوري! 🎉</h3>
+            <div class="win-amount-num" id="winModalAmount">0.00</div>
+            <button class="btn-close-win" onclick="closeWinModal()">متابعة اللعب 🚀</button>
+        </div>
+    </div>
 
     <!-- 🏆 Header -->
     <header class="header">
@@ -445,7 +533,7 @@
 
     <!-- 🎰 Slot Machine -->
     <div class="slot-container">
-        <div class="slot-frame">
+        <div class="slot-frame" id="slotFrame">
             <div class="slot-housing">
                 <div class="reel-window" id="reelWin1"><div class="reel-strip" id="reel1"></div></div>
                 <div class="reel-window" id="reelWin2"><div class="reel-strip" id="reel2"></div></div>
@@ -453,7 +541,7 @@
             </div>
 
             <div class="golden-banner">
-                <h2>لعبة السلوتس</h2>
+                <h2>لعبة السلوتس الملكية</h2>
                 <span>GOLDEN GAME VIP</span>
             </div>
         </div>
@@ -487,7 +575,7 @@
     </div>
 
     <script>
-        // ------------------ Audio Engine (Web Audio API) ------------------
+        // ------------------ Web Audio API Engine ------------------
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playClickSound() {
@@ -495,7 +583,7 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.03);
@@ -507,31 +595,31 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.08);
             } catch(e) {}
         }
 
-        // 💥 صوت الارتطام الثقيل عند نزول شجرة التشويق
         function playImpactSound() {
             try {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(25, audioCtx.currentTime + 0.35);
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
             } catch(e) {}
         }
 
         function playWinSound() {
             try {
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                notes.forEach((freq, idx) => {
                     setTimeout(() => {
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -539,9 +627,9 @@
                         osc.frequency.value = freq;
                         osc.connect(gain); gain.connect(audioCtx.destination);
                         osc.start();
-                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                        osc.stop(audioCtx.currentTime + 0.3);
-                    }, idx * 90);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                        osc.stop(audioCtx.currentTime + 0.35);
+                    }, idx * 80);
                 });
             } catch(e) {}
         }
@@ -664,7 +752,120 @@
             }
         }
 
-        // ------------------ فيزياء دوران البكرات الميكانيكية ------------------
+        // ------------------ الخوارزمية الصارمة والدقيقة للرموز ------------------
+        function mapOutcomeToSymbols(multiplier) {
+            let spinCount = parseInt(localStorage.getItem('slot_spin_counter') || '0') + 1;
+            localStorage.setItem('slot_spin_counter', spinCount);
+
+            let teaserInterval = parseInt(localStorage.getItem('next_teaser_interval') || '35');
+
+            // 1. الخسارة المؤكدة (0x)
+            if (multiplier <= 0) {
+                // ظهور شجرات التشويق الخاسرة (50x, 100x, 500x) كل 25 إلى 500 جولة
+                if (spinCount >= teaserInterval) {
+                    localStorage.setItem('slot_spin_counter', '0');
+                    localStorage.setItem('next_teaser_interval', Math.floor(Math.random() * 476) + 25); // بين 25 و 500
+
+                    const teaserLabels = ['50x', '100x', '500x'];
+                    const chosenLabel = teaserLabels[Math.floor(Math.random() * teaserLabels.length)];
+                    
+                    const f1 = baseFruits[0];
+                    const f2 = baseFruits[1];
+                    return [f1, f2, { icon: '🎄', label: chosenLabel, isTeaser: true }];
+                }
+
+                // احتمال ظهور سبعات مشوقة مفردة أو مزدوجة لخلق الحماس في الخسارة
+                if (Math.random() < 0.25) {
+                    const numSevens = Math.random() < 0.8 ? 1 : 2;
+                    if (numSevens === 1) {
+                        const pool = [...baseFruits];
+                        const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                        const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                        return [f1, f2, '7️⃣'].sort(() => Math.random() - 0.5);
+                    } else {
+                        const f1 = baseFruits[Math.floor(Math.random() * baseFruits.length)];
+                        return [f1, '7️⃣', '7️⃣'].sort(() => Math.random() - 0.5);
+                    }
+                }
+
+                // خسارة عادية بفواكه غير متشابهة
+                let pool = [...baseFruits];
+                let f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                let f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                let f3 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+                return [f1, f2, f3];
+            }
+
+            // 2. الربح الأسطوري لرفع خوارزمية الربح 100% (500x و 1000x)
+            if (multiplier >= 1000) {
+                return ['7️⃣', '7️⃣', { icon: '🎄', label: '500x' }];
+            }
+            if (multiplier >= 500) {
+                return ['7️⃣', '7️⃣', '7️⃣'];
+            }
+
+            // 3. ربح 1x -> ثلاثية برتقال، ليمون، أو كرز حصراً
+            if (multiplier === 1) {
+                const fruits1x = ['🍊', '🍋', '🍒'];
+                const chosen = fruits1x[Math.floor(Math.random() * fruits1x.length)];
+                return [chosen, chosen, chosen];
+            }
+
+            // 4. ربح 3x -> ثلاثية أجراس حصراً
+            if (multiplier === 3) {
+                if (Math.random() < 0.7) {
+                    return ['🔔', '🔔', '🔔'];
+                } else {
+                    const f = ['🍊', '🍋', '🍒'][Math.floor(Math.random() * 3)];
+                    return [f, f, { icon: '🌳', label: '3x' }]; // 1x base * 3 = 3x
+                }
+            }
+
+            // 5. ربح 4x -> ثلاثية بطيخ أو عنب حصراً
+            if (multiplier === 4) {
+                if (Math.random() < 0.7) {
+                    const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+                    return [sym, sym, sym];
+                } else {
+                    const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+                    return [sym, sym, { icon: '🌳', label: '1x' }]; // 4x base * 1 = 4x
+                }
+            }
+
+            // 6. ربح الشجرات المكملة المباشرة (1x, 2x, 3x, 5x)
+            if (multiplier === 2) { // 1x * 2 = 2x
+                const f = ['🍊', '🍋', '🍒'][Math.floor(Math.random() * 3)];
+                return [f, f, { icon: '🌳', label: '2x' }];
+            }
+            if (multiplier === 5) { // 1x * 5 = 5x
+                const f = ['🍊', '🍋', '🍒'][Math.floor(Math.random() * 3)];
+                return [f, f, { icon: '🌳', label: '5x' }];
+            }
+            if (multiplier === 6) { // Bell 3x * 2 = 6x
+                return ['🔔', '🔔', { icon: '🌳', label: '2x' }];
+            }
+            if (multiplier === 8) { // Watermelon 4x * 2 = 8x
+                const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+                return [sym, sym, { icon: '🌳', label: '2x' }];
+            }
+            if (multiplier === 12) { // Watermelon 4x * 3 = 12x
+                const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+                return [sym, sym, { icon: '🌳', label: '3x' }];
+            }
+            if (multiplier === 15) { // Bell 3x * 5 = 15x
+                return ['🔔', '🔔', { icon: '🌳', label: '5x' }];
+            }
+            if (multiplier === 20) { // Watermelon 4x * 5 = 20x
+                const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+                return [sym, sym, { icon: '🌳', label: '5x' }];
+            }
+
+            // Fallback لأي مضاعف فوز غير متوقع
+            const sym = Math.random() > 0.5 ? '🍉' : '🍇';
+            return [sym, sym, sym];
+        }
+
+        // ------------------ دوران البكرات الميكانيكي ------------------
         function animateSingleReel(reelIdx, targetSymbol, totalSpinSymbols, spinDuration, isTeaserDrop, callback) {
             const strip = document.getElementById(`reel${reelIdx}`);
             strip.innerHTML = '';
@@ -703,6 +904,8 @@
                     
                     if (isTeaserDrop && reelIdx === 3) {
                         playImpactSound();
+                        document.getElementById('slotFrame').classList.add('shake');
+                        setTimeout(() => document.getElementById('slotFrame').classList.remove('shake'), 400);
                     } else {
                         playStopSound();
                     }
@@ -712,84 +915,13 @@
             });
         }
 
-        // ------------------ الخوارزمية الصارمة للربح والرموز ------------------
-        function mapOutcomeToSymbols(multiplier) {
-            let spinCount = parseInt(localStorage.getItem('slot_spin_counter') || '0') + 1;
-            localStorage.setItem('slot_spin_counter', spinCount);
-
-            let teaserInterval = parseInt(localStorage.getItem('next_teaser_interval') || '30');
-
-            // 1. الخسارة (0x)
-            if (multiplier <= 0) {
-                // شجرة التشويق (50x, 100x, 500x)
-                if (spinCount >= teaserInterval) {
-                    localStorage.setItem('slot_spin_counter', '0');
-                    localStorage.setItem('next_teaser_interval', Math.floor(Math.random() * 26) + 25);
-
-                    const teaserLabels = ['50x', '100x', '500x'];
-                    const chosenLabel = teaserLabels[Math.floor(Math.random() * teaserLabels.length)];
-                    
-                    const f1 = baseFruits[0];
-                    const f2 = baseFruits[1];
-                    return [f1, f2, { icon: '🎄', label: chosenLabel, isTeaser: true }];
-                }
-
-                // احتمال ظهور رقم 7 واحد في الجولات الخاسرة غير الفائزة لإضافة تشويق
-                const showSingleSeven = Math.random() < 0.25; 
-                if (showSingleSeven) {
-                    const pool = [...baseFruits];
-                    const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                    const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                    const result = [f1, f2, '7️⃣'];
-                    return result.sort(() => Math.random() - 0.5); // توزيع عشوائي لمكان ظهور الـ 7
-                }
-
-                // خسارة عادية (فواكه غير متشابهة تماماً)
-                const pool = [...baseFruits];
-                const f1 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                const f2 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                const f3 = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
-                return [f1, f2, f3];
-            }
-
-            // 2. الربح الضخم جداً (السبعات الملكية مع شجرة 500x) - ظهور مؤكد 100%
-            if (multiplier >= 450) {
-                return [{ icon: '🎄', label: '500x' }, '7️⃣', '7️⃣'];
-            }
-
-            // 3. ربح 5 ضعف الرهان (5x) -> ثلاثية عنب أو بطيخ حصراً
-            if (multiplier >= 4.5 && multiplier <= 6) {
-                const sym = Math.random() > 0.5 ? '🍉' : '🍇';
-                return [sym, sym, sym];
-            }
-
-            // 4. ربح 3 أضعاف الرهان (3x) -> ثلاثية أجراس حصراً
-            if (multiplier >= 2.5 && multiplier < 4.5) {
-                return ['🔔', '🔔', '🔔'];
-            }
-
-            // 5. ربح شجرة المضاعف النادرة المكملة (1x, 2x, 3x)
-            if (multiplier === 2 || multiplier === 6) {
-                const baseFruit = baseFruits[Math.floor(Math.random() * 3)];
-                const multLabel = multiplier === 6 ? '3x' : '2x';
-                return [baseFruit, baseFruit, { icon: '🌳', label: multLabel }];
-            }
-
-            // 6. ربح 1 ضعف الرهان (1x) -> برتقال، ليمون، أو كرز حصراً
-            const fruits1x = ['🍊', '🍋', '🍒'];
-            const chosen = fruits1x[Math.floor(Math.random() * fruits1x.length)];
-            return [chosen, chosen, chosen];
-        }
-
         // ------------------ Balloons Celebration Trigger ------------------
         function triggerBalloons() {
             const container = document.getElementById('balloonContainer');
             container.innerHTML = '';
             
             const colors = ['#ffd700', '#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#ff6b81', '#a55eea'];
-            const count = 25;
-
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < 30; i++) {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 
@@ -806,8 +938,19 @@
 
                 container.appendChild(balloon);
             }
-
             setTimeout(() => { container.innerHTML = ''; }, 4500);
+        }
+
+        // ------------------ Big Win Modal Handler ------------------
+        function showWinModal(winAmount, isJackpot) {
+            const modal = document.getElementById('winModal');
+            document.getElementById('winTitle').innerText = isJackpot ? '🎰 جاكبوت ملكي أسطوري! 🏆' : '🎉 فوز ضخم جداً!';
+            document.getElementById('winModalAmount').innerText = `${winAmount.toFixed(2)} NPS`;
+            modal.classList.add('active');
+        }
+
+        function closeWinModal() {
+            document.getElementById('winModal').classList.remove('active');
         }
 
         // ------------------ Spin Execution ------------------
@@ -831,6 +974,8 @@
             document.getElementById('statusMessage').innerText = 'جاري دوران البكرات... 🎲';
             document.getElementById('statusMessage').style.color = 'var(--gold-bright)';
 
+            document.getElementById('reelWin3').classList.remove('teaser-glow');
+
             try {
                 const res = await fetch('/api/play', {
                     method: 'POST',
@@ -841,7 +986,6 @@
 
                 if (!data.success) {
                     alert(data.message || 'حدث خطأ بالاتصال');
-                    // إعادة الرصيد المخصوم في حال الفشل
                     userBalance += selectedBet;
                     document.getElementById('userBalance').innerText = userBalance.toFixed(2);
                     spinBtn.disabled = false;
@@ -853,8 +997,13 @@
                 let finishedCount = 0;
                 const isTeaserDrop = typeof resultSymbols[2] === 'object' && resultSymbols[2].isTeaser;
 
+                // تفعيل توهج التشويق على البكرة الثالثة عند نزول شجرة التشويق
+                if (isTeaserDrop) {
+                    document.getElementById('reelWin3').classList.add('teaser-glow');
+                }
+
                 const baseDuration = isFastSpeed ? 0.3 : 0.7;
-                const stagger = isFastSpeed ? 0.15 : 0.35;
+                const stagger = isFastSpeed ? 0.15 : (isTeaserDrop ? 0.8 : 0.35); // إبطاء البكرة الثالثة للتشويق
 
                 for (let i = 1; i <= 3; i++) {
                     const duration = baseDuration + (i - 1) * stagger;
@@ -869,7 +1018,6 @@
                 }
 
             } catch(e) {
-                // استرجاع الرهان عند حدوث خلل بالسيرفر
                 userBalance += selectedBet;
                 document.getElementById('userBalance').innerText = userBalance.toFixed(2);
                 document.getElementById('statusMessage').innerText = '❌ خطأ في الاتصال بالسيرفر';
@@ -878,9 +1026,8 @@
             }
         }
 
-        // ------------------ معالجة النتيجة بدقة ودون تكرار الرصيد ------------------
+        // ------------------ معالجة النتيجة والأرباح ------------------
         function processResult(data) {
-            // تحديث الرصيد النهائي الدقيق المرجع مباشرة من خادم Game Engine
             userBalance = parseFloat(data.new_balance);
             document.getElementById('userBalance').innerText = userBalance.toFixed(2);
 
@@ -889,6 +1036,11 @@
             if (data.win_amount > 0) {
                 playWinSound();
                 triggerBalloons();
+
+                if (data.multiplier >= 15) {
+                    showWinModal(data.win_amount, data.multiplier >= 500);
+                }
+
                 msgEl.style.color = '#4cd137';
                 msgEl.innerText = `🎉 مبروك! ربحت ${data.win_amount.toFixed(2)} NPS!`;
             } else {
