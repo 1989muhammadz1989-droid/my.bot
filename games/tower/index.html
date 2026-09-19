@@ -10,15 +10,18 @@
     
     <style>
         :root {
-            --bg-dark: #030712;
-            --panel-bg: rgba(11, 15, 25, 0.94);
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(15, 23, 42, 0.88);
             --gold-glow: #ffb703;
             --cyan-glow: #00f2fe;
-            --green-safe: #00e676;
-            --red-trap: #ff1744;
-            --metal-border: rgba(255, 255, 255, 0.15);
+            --green-safe: #10b981;
+            --red-trap: #ef4444;
+            --metal-border: rgba(255, 255, 255, 0.2);
             --text-main: #ffffff;
-            --text-muted: #94a3b8;
+            --text-muted: #cbd5e1;
+            --building-wall: #1e293b;
+            --building-accent: #334155;
+            --window-glow: #fef08a;
         }
 
         * {
@@ -31,7 +34,7 @@
         }
 
         body {
-            background: var(--bg-dark);
+            background: #090d16;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -41,53 +44,102 @@
             position: relative;
         }
 
-        /* خلفية ناطحات سحاب واقعية متحركة */
+        /* خلفية حي سكني واقعية وتفاعلية */
         .sky-background {
             position: fixed;
             inset: 0;
             z-index: 0;
-            background: 
-                linear-gradient(to top, rgba(3, 7, 18, 0.95) 15%, rgba(15, 23, 42, 0.6) 60%, rgba(2, 6, 23, 0.95) 100%),
-                radial-gradient(circle at 50% 20%, rgba(0, 242, 254, 0.12), transparent 70%);
-            background-size: cover;
-        }
-
-        .city-skyline {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 350px;
-            background: repeating-linear-gradient(90deg, #070b14 0px, #070b14 30px, transparent 30px, transparent 40px);
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* إطار اللعبة الهيكلي */
-        .game-wrapper {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 460px;
-            height: 100vh;
-            max-height: 900px;
-            display: flex;
-            flex-direction: column;
-            background: var(--panel-bg);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--metal-border);
-            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            background: linear-gradient(180deg, #0b132b 0%, #1c2541 40%, #3a506b 75%, #5bc0be 100%);
             overflow: hidden;
         }
 
-        /* الهيدر العلوي */
+        /* طبقات الحي السكني والأشجار المبنية بالـ CSS */
+        .city-landscape {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* جبال ومبانٍ بعيدة */
+        .distant-buildings {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+            height: 200px;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,183,3,0.15), transparent 40%),
+                repeating-linear-gradient(90deg, #111827 0px, #111827 40px, #1f2937 40px, #1f2937 70px, transparent 70px, transparent 80px);
+            opacity: 0.6;
+        }
+
+        /* شوارع وأشجار سكنية في الأسفل */
+        .residential-street {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: linear-gradient(0deg, #0f172a 0%, #1e293b 100%);
+            border-top: 4px solid #475569;
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+
+        .trees-container {
+            position: absolute;
+            bottom: 65px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 10px;
+            z-index: 1;
+        }
+
+        .tree {
+            width: 30px;
+            height: 45px;
+            background: #064e3b;
+            border-radius: 50% 50% 20% 20%;
+            position: relative;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5);
+        }
+        .tree::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 12px;
+            background: #78350f;
+        }
+
+        /* إطار اللعبة الهيكلي المحسن */
+        .game-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 460px;
+            height: 100vh;
+            max-height: 920px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--metal-border);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        /* الهيدر العلوي العسكري الفاخر */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 18px;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 26, 0.8) 100%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
             z-index: 10;
         }
 
@@ -98,33 +150,34 @@
         }
 
         .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid var(--cyan-glow);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0284c7, #0f172a);
+            border: 2px solid var(--cyan-glow);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--cyan-glow);
-            font-size: 16px;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+            font-size: 18px;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
         }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 183, 3, 0.4);
-            padding: 5px 14px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--gold-glow);
+            padding: 6px 16px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: 800;
+            box-shadow: 0 0 10px rgba(255, 183, 3, 0.2);
         }
 
         .balance-box span {
             color: var(--gold-glow);
-            font-size: 15px;
+            font-size: 16px;
         }
 
         /* ساحة البناء الكبرى */
@@ -136,92 +189,153 @@
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
-            padding-bottom: 20px;
+            padding-bottom: 60px;
         }
 
-        /* الرافعة المتحركة في الأعلى */
+        /* رافعة بناء صناعية واقعية */
         .crane-container {
             position: absolute;
             top: 0;
             width: 100%;
-            height: 120px;
+            height: 130px;
             z-index: 5;
             pointer-events: none;
         }
 
         .crane-arm {
             position: absolute;
-            top: 10px;
+            top: 8px;
             left: 0;
             right: 0;
-            height: 8px;
-            background: linear-gradient(90deg, #ffb703, #e63946);
-            box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+            height: 12px;
+            background: repeating-linear-gradient(45deg, #d97706, #d97706 10px, #1e293b 10px, #1e293b 20px);
+            border-bottom: 2px solid #92400e;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         .crane-hook-line {
             position: absolute;
-            top: 18px;
+            top: 20px;
             width: 2px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.6);
+            height: 70px;
+            background: #cbd5e1;
             left: 50%;
             transform: translateX(-50%);
-            animation: craneSwing 2.5s infinite ease-in-out alternate;
+            animation: craneSwing 2.8s infinite ease-in-out alternate;
+            box-shadow: 0 0 2px #000;
         }
 
         @keyframes craneSwing {
-            0% { left: 20%; }
-            100% { left: 80%; }
+            0% { left: 18%; }
+            100% { left: 82%; }
         }
 
         .crane-block {
             position: absolute;
-            bottom: -32px;
+            bottom: -38px;
             left: 50%;
             transform: translateX(-50%);
-            width: 140px;
-            height: 35px;
-            background: linear-gradient(135deg, #00f2fe, #0077b6);
+            width: 170px;
+            height: 44px;
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
             border: 2px solid #ffffff;
             border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
             font-size: 13px;
-            color: #000;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* برج الطوابق المبنية */
+        /* مجسم البرج والمبنى السكني */
         .tower-stack {
             display: flex;
             flex-direction: column-reverse;
             align-items: center;
-            gap: 6px;
             width: 100%;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 2;
         }
 
-        .building-floor {
-            width: 150px;
-            height: 42px;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid var(--cyan-glow);
-            border-radius: 8px;
+        /* الطابق الأرضي الأساسي للحي السكني */
+        .ground-floor-base {
+            width: 200px;
+            height: 55px;
+            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            border: 2px solid #64748b;
+            border-radius: 6px 6px 0 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,242,254,0.1);
-            animation: dropLanding 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: flex-end;
+            padding: 0 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
             position: relative;
         }
 
+        .ground-entrance {
+            width: 40px;
+            height: 35px;
+            background: linear-gradient(180deg, #38bdf8 0%, #0f172a 100%);
+            border: 2px solid #94a3b8;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin: 0 auto;
+        }
+
+        .ground-pillar {
+            width: 12px;
+            height: 100%;
+            background: #334155;
+            border-left: 1px solid #64748b;
+            border-right: 1px solid #64748b;
+        }
+
+        /* طوابق المبنى السكني الحقيقية */
+        .building-floor {
+            width: 180px;
+            height: 48px;
+            background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+            border: 2px solid #475569;
+            border-bottom: 3px solid #0f172a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            animation: dropLanding 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            margin-bottom: -1px;
+        }
+
+        /* شبكة الشبابيك المضاءة في الطابق */
+        .floor-windows {
+            display: flex;
+            gap: 6px;
+            position: absolute;
+            left: 12px;
+        }
+
+        .window {
+            width: 14px;
+            height: 22px;
+            background: var(--window-glow);
+            border: 1px solid #78350f;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(254, 240, 138, 0.8);
+        }
+
+        .window.off {
+            background: #0f172a;
+            box-shadow: none;
+            border-color: #334155;
+        }
+
         @keyframes dropLanding {
-            0% { transform: translateY(-150px) scale(1.1); opacity: 0; }
+            0% { transform: translateY(-160px) scale(1.08); opacity: 0; }
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
 
@@ -231,25 +345,34 @@
 
         @keyframes floorCollapse {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(300px) rotate(45deg); opacity: 0; }
+            100% { transform: translateY(350px) rotate(55deg); opacity: 0; }
         }
 
         .floor-label {
             font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
+            color: #e2e8f0;
+            font-weight: 800;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1px 6px;
+            border-radius: 4px;
         }
 
         .floor-mult-badge {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 900;
             color: var(--gold-glow);
-            text-shadow: 0 0 8px rgba(255, 183, 3, 0.5);
+            text-shadow: 0 0 8px rgba(255, 183, 3, 0.7);
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 183, 3, 0.4);
         }
 
-        /* لوحة التحكم السفلية */
+        /* لوحة التحكم السفلية المحسنة */
         .controls-panel {
-            background: linear-gradient(180deg, rgba(10, 14, 23, 0.98) 0%, rgba(3, 7, 18, 1) 100%);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(9, 13, 22, 1) 100%);
             padding: 14px 18px;
             border-top: 1px solid var(--metal-border);
             display: flex;
@@ -263,7 +386,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 6px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             padding: 4px;
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -282,9 +405,9 @@
         }
 
         .diff-btn.active {
-            background: linear-gradient(135deg, var(--cyan-glow), #0077b6);
+            background: linear-gradient(135deg, var(--cyan-glow), #0284c7);
             color: #000;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
         }
 
         /* التحكم بالرهان */
@@ -293,21 +416,25 @@
             align-items: center;
             justify-content: space-between;
             background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 4px 8px;
         }
 
         .bet-btn {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border: none;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
             color: var(--text-main);
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+        }
+
+        .bet-btn:active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .bet-input-wrapper {
@@ -328,7 +455,7 @@
             border: none;
             text-align: center;
             color: var(--gold-glow);
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 900;
             outline: none;
         }
@@ -340,12 +467,12 @@
 
         .q-btn {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
-            padding: 5px 0;
+            padding: 6px 0;
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             border-radius: 6px;
             cursor: pointer;
         }
@@ -353,14 +480,14 @@
         /* أزرار الحركة الرئيسية */
         .action-buttons-group {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         .action-btn {
             flex: 1;
-            padding: 12px;
+            padding: 13px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
             font-weight: 900;
             cursor: pointer;
@@ -372,15 +499,15 @@
         }
 
         .action-btn.drop {
-            background: linear-gradient(135deg, #00f2fe, #0077b6);
+            background: linear-gradient(135deg, #00f2fe, #0284c7);
             color: #000;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.35);
+            box-shadow: 0 4px 18px rgba(0, 242, 254, 0.4);
         }
 
         .action-btn.cashout {
             background: linear-gradient(135deg, #ffb703, #fb8500);
             color: #000;
-            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.4);
+            box-shadow: 0 4px 18px rgba(255, 183, 3, 0.4);
         }
 
         .action-btn:disabled {
@@ -392,19 +519,19 @@
         /* نافذة التنبيه والنتيجة */
         .toast {
             position: absolute;
-            top: 30%;
+            top: 35%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(10, 15, 26, 0.96);
+            background: rgba(15, 23, 42, 0.98);
             border: 2px solid var(--gold-glow);
-            border-radius: 16px;
-            padding: 20px 30px;
+            border-radius: 18px;
+            padding: 22px 32px;
             text-align: center;
             z-index: 100;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 30px rgba(255, 183, 3, 0.4);
+            box-shadow: 0 0 35px rgba(255, 183, 3, 0.5);
         }
 
         .toast.show {
@@ -413,13 +540,13 @@
         }
 
         .toast-title {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 900;
             color: var(--gold-glow);
         }
 
         .toast-amount {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
             color: var(--green-safe);
             margin-top: 4px;
@@ -428,14 +555,25 @@
 </head>
 <body>
 
-    <div class="sky-background"></div>
-    <div class="city-skyline"></div>
+    <!-- خلفية حي سكني وأشجار وشوارع واقعية -->
+    <div class="sky-background">
+        <div class="city-landscape">
+            <div class="distant-buildings"></div>
+            <div class="trees-container">
+                <div class="tree"></div>
+                <div class="tree"></div>
+                <div class="tree"></div>
+                <div class="tree"></div>
+            </div>
+            <div class="residential-street"></div>
+        </div>
+    </div>
 
     <div class="game-wrapper" id="gameWrapper">
         <!-- الشريط العلوي -->
         <div class="header">
             <div class="user-info">
-                <div class="avatar"><i class="fa-solid fa-building-circle-check"></i></div>
+                <div class="avatar"><i class="fa-solid fa-building-user"></i></div>
                 <div>
                     <div id="userName" style="font-size: 12px; font-weight: 800;">مهندس البرج</div>
                     <div style="font-size: 9px; color: var(--text-muted);">المستوى VIP</div>
@@ -450,23 +588,31 @@
 
         <!-- ساحة البناء الكبرى -->
         <div class="construction-stage">
-            <!-- الرافعة المعلقة -->
+            <!-- الرافعة الصناعية المعلقة -->
             <div class="crane-container">
                 <div class="crane-arm"></div>
                 <div class="crane-hook-line">
-                    <div class="crane-block" id="craneBlock">طابق جديد</div>
+                    <div class="crane-block" id="craneBlock">
+                        <i class="fa-solid fa-truck-ramp-box" style="margin-left:6px;"></i> طابق سكني
+                    </div>
                 </div>
             </div>
 
-            <!-- مجسم البرج المبني -->
+            <!-- مجسم البرج المبني والحي السكني -->
             <div class="tower-stack" id="towerStack">
-                <!-- يتم توليد الطوابق هنا عند الإسقاط -->
+                <!-- الطابق الأرضي الأساسي ثابت في قاعدة الحي -->
+                <div class="ground-floor-base">
+                    <div class="ground-pillar"></div>
+                    <div class="ground-entrance"></div>
+                    <div class="ground-pillar"></div>
+                </div>
+                <!-- يتم توليد الطوابق الجديدة فوق الطابق الأرضي -->
             </div>
         </div>
 
         <!-- لوحة التحكم السفلية -->
         <div class="controls-panel">
-            <!-- تحديد الصعوبة ونسب الأرباح -->
+            <!-- تحديد الصعوبة وننسب الأرباح -->
             <div class="difficulty-selector">
                 <button class="diff-btn active" id="btn-easy" onclick="setDifficulty('easy')">سهل (5% ربح)</button>
                 <button class="diff-btn" id="btn-medium" onclick="setDifficulty('medium')">متوسط (3% ربح)</button>
@@ -514,7 +660,7 @@
     <script>
         /**
          * ==========================================
-         * إعدادات خوارزميات اللعبة ونسب الربح والخصارة
+         * إعدادات خوارزميات اللعبة ونسب الربح والخسارة (الحفاظ الكامل عليها)
          * ==========================================
          * سهل: ربح 5% - لا يتجاوز 3x
          * متوسط: ربح 3% - لا يتجاوز 4x
@@ -556,10 +702,10 @@
 
             if (type === 'drop') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(400 + (currentFloorIndex * 40), audioCtx.currentTime);
+                osc.frequency.setValueAtTime(380 + (currentFloorIndex * 35), audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.18);
             } else if (type === 'win') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
@@ -569,11 +715,11 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (type === 'boom') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.35);
                 gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
             }
         }
 
@@ -586,7 +732,7 @@
             return urlParams.get('user_id') || urlParams.get('telegram_id') || "10001";
         }
 
-        // جلب بيانات الحساب
+        // جلب بيانات الحساب المربوطة
         function fetchUserData() {
             const uid = getUserId();
             fetch(`/api/user/get?user_id=${uid}`)
@@ -641,7 +787,7 @@
             currentBet = val;
         }
 
-        // حركة إسقاط الطابق
+        // حركة إسقاط الطابق السكني
         function dropFloor() {
             validateBet();
 
@@ -656,9 +802,18 @@
                 document.getElementById('balanceDisplay').innerText = currentBalance.toFixed(2);
                 isGameActive = true;
                 currentFloorIndex = 0;
-                document.getElementById('towerStack').innerHTML = '';
                 
-                // تعطيل أدوات الإعدادات
+                // إعادة ضبط تكويم البرج مع الحفاظ على الطابق الأرضي الأساسي
+                const stack = document.getElementById('towerStack');
+                stack.innerHTML = `
+                    <div class="ground-floor-base">
+                        <div class="ground-pillar"></div>
+                        <div class="ground-entrance"></div>
+                        <div class="ground-pillar"></div>
+                    </div>
+                `;
+                
+                // تعطيل أدوات الإعدادات أثناء اللعب
                 document.querySelectorAll('.diff-btn, .bet-btn, .q-btn, .bet-input').forEach(el => el.disabled = true);
             }
 
@@ -693,21 +848,34 @@
             const stack = document.getElementById('towerStack');
             const floorElem = document.createElement('div');
             floorElem.className = 'building-floor';
+            
+            // توليد شبابيك مضاءة بشكل عشوائي لإعطاء طابع حقيقي للحي
+            const w1 = Math.random() > 0.3 ? '' : 'off';
+            const w2 = Math.random() > 0.3 ? '' : 'off';
+            const w3 = Math.random() > 0.3 ? '' : 'off';
+
             floorElem.innerHTML = `
+                <div class="floor-windows">
+                    <div class="window ${w1}"></div>
+                    <div class="window ${w2}"></div>
+                    <div class="window ${w3}"></div>
+                </div>
                 <span class="floor-label">طابق ${floorNum}</span>
                 <span class="floor-mult-badge">${mult}x</span>
             `;
+
+            // إدراج الطابق في الأعلى فوق الطابق الأرضي
             stack.appendChild(floorElem);
 
-            // رفع الكاميرا ببطء إذا زاد الارتفاع
-            if (floorNum > 5) {
-                stack.style.transform = `translateY(${(floorNum - 5) * 45}px)`;
+            // رفع الكاميرا عند زيادة ارتفاع المبنى
+            if (floorNum > 4) {
+                stack.style.transform = `translateY(${(floorNum - 4) * 48}px)`;
             }
         }
 
         function triggerCollapse() {
             const stack = document.getElementById('towerStack');
-            if (stack.lastChild) {
+            if (stack.lastChild && stack.children.length > 1) {
                 stack.lastChild.classList.add('collapse');
             }
             document.getElementById('gameWrapper').style.animation = 'shake 0.3s ease';
@@ -751,7 +919,7 @@
             }, 1000);
         }
 
-        // مزامنة نتائج اللعبة مع API السيرفر
+        // مزامنة نتائج اللعبة مع API السيرفر (الحفاظ الكامل عليها)
         function syncGameWithServer(bet, win, mult) {
             const uid = getUserId();
             fetch('/api/play', {
