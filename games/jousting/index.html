@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مبارزة الفرسان الملحمية - Jousting Knight Live 2X</title>
+    <title>مبارزة الفرسان الملحمية - Jousting Knights Live 2X</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -15,7 +15,7 @@
             padding: 0;
         }
         body {
-            background-color: #050302;
+            background-color: #030202;
             color: #fff;
             font-family: 'Cairo', sans-serif;
             overflow: hidden;
@@ -31,13 +31,13 @@
         .top-bar {
             width: 100%;
             max-width: 650px;
-            padding: 12px 18px;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(180deg, rgba(25, 16, 9, 0.98) 0%, rgba(10, 6, 3, 0.95) 100%);
+            background: linear-gradient(180deg, rgba(20, 12, 6, 0.98) 0%, rgba(8, 4, 2, 0.95) 100%);
             border-bottom: 2px solid #d4af37;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
             z-index: 20;
         }
         .user-info {
@@ -46,22 +46,22 @@
             gap: 10px;
         }
         .user-avatar {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: 2px solid #ffd700;
-            background: radial-gradient(circle, #4a321a 0%, #1a0f08 100%);
+            background: radial-gradient(circle, #5a3c1e 0%, #1a0f08 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            font-size: 20px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
         }
         .user-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             color: #f3cf7a;
-            max-width: 130px;
+            max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -70,43 +70,43 @@
             background: rgba(0, 0, 0, 0.85);
             border: 1.5px solid #d4af37;
             border-radius: 20px;
-            padding: 6px 16px;
+            padding: 5px 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.3), 0 0 12px rgba(0,0,0,0.8);
+            gap: 6px;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.3);
         }
         .balance-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #bbb;
         }
         .balance-val {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 900;
             color: #4ef037;
             font-family: 'Cinzel', monospace;
         }
         .currency {
             color: #ffd700;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
         }
 
-        /* Live Round Status & Combat Timer Bar */
+        /* Live Round Status Bar */
         .live-status-bar {
             position: absolute;
-            top: 72px;
+            top: 68px;
             z-index: 25;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            background: rgba(15, 9, 4, 0.92);
+            gap: 3px;
+            background: rgba(12, 7, 3, 0.92);
             border: 1px solid rgba(212, 175, 55, 0.8);
-            padding: 8px 22px;
-            border-radius: 25px;
+            padding: 6px 20px;
+            border-radius: 22px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.85);
         }
         .status-header {
             display: flex;
@@ -114,8 +114,8 @@
             gap: 8px;
         }
         .live-dot {
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background: #ff3333;
             box-shadow: 0 0 10px #ff3333;
@@ -133,7 +133,7 @@
         .timer-val {
             font-family: 'Cinzel', monospace;
             color: #ffd700;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
         }
         .combat-progress-bg {
@@ -143,16 +143,16 @@
             border-radius: 2px;
             overflow: hidden;
             display: none;
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .combat-progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #ff3333, #ffd700);
+            background: linear-gradient(90deg, #ff3333, #ffd700, #3b82f6);
             transition: width 0.1s linear;
         }
 
-        /* Canvas Arena Stage */
+        /* Canvas Stage Container */
         .stage-container {
             position: relative;
             width: 100%;
@@ -181,11 +181,11 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center;
             z-index: 30;
-            width: 88%;
-            max-width: 380px;
-            padding: 24px 20px;
+            width: 85%;
+            max-width: 360px;
+            padding: 22px 18px;
             border-radius: 24px;
-            background: rgba(12, 7, 4, 0.95);
+            background: rgba(10, 6, 3, 0.96);
             border: 2px solid #ffd700;
             backdrop-filter: blur(12px);
             box-shadow: 0 15px 50px rgba(0,0,0,0.95), inset 0 0 20px rgba(255, 215, 0, 0.25);
@@ -195,71 +195,71 @@
             opacity: 1;
         }
         .result-title {
-            font-size: 30px;
+            font-size: 26px;
             font-weight: 900;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .result-win {
             color: #4ef037;
-            text-shadow: 0 0 25px rgba(78, 240, 55, 0.9);
+            text-shadow: 0 0 20px rgba(78, 240, 55, 0.8);
         }
         .result-loss {
             color: #ff3333;
-            text-shadow: 0 0 25px rgba(255, 51, 51, 0.9);
+            text-shadow: 0 0 20px rgba(255, 51, 51, 0.8);
         }
         .result-sub {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             color: #fff;
             font-family: 'Cinzel', monospace;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .result-desc {
-            font-size: 13px;
+            font-size: 12px;
             color: #aaa;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         /* Control Panel */
         .control-panel {
             width: 100%;
             max-width: 650px;
-            background: linear-gradient(0deg, rgba(10, 6, 3, 0.99) 0%, rgba(26, 16, 9, 0.95) 100%);
+            background: linear-gradient(0deg, rgba(8, 5, 2, 0.99) 0%, rgba(22, 13, 7, 0.95) 100%);
             border-top: 2px solid #d4af37;
-            padding: 14px 20px 22px 20px;
+            padding: 12px 16px 18px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 -8px 35px rgba(0,0,0,0.95);
+            gap: 10px;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.95);
             z-index: 20;
         }
+
+        /* Bet Amount Row */
         .bet-control-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: rgba(0,0,0,0.65);
             border: 1px solid #7a5c2d;
-            border-radius: 16px;
-            padding: 6px 12px;
+            border-radius: 14px;
+            padding: 4px 10px;
         }
         .bet-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             border: 1px solid #d4af37;
             background: linear-gradient(180deg, #5e4827 0%, #2e200f 100%);
             color: #ffd700;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s;
         }
         .bet-btn:active {
             transform: scale(0.92);
-            background: #2e200f;
         }
         .bet-display {
             display: flex;
@@ -273,10 +273,10 @@
         .bet-value-box {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
         .bet-amount {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 900;
             color: #ffffff;
             font-family: 'Cinzel', monospace;
@@ -284,63 +284,83 @@
         .quick-bets {
             display: flex;
             justify-content: space-between;
-            gap: 6px;
+            gap: 5px;
         }
         .q-btn {
             flex: 1;
-            padding: 8px 0;
-            background: rgba(48, 34, 18, 0.85);
-            border: 1px solid #826233;
-            border-radius: 10px;
+            padding: 6px 0;
+            background: rgba(45, 30, 15, 0.85);
+            border: 1px solid #7a5a29;
+            border-radius: 8px;
             color: #eee;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.15s;
         }
-        .q-btn:active, .q-btn.active {
+        .q-btn:active {
             background: #d4af37;
             color: #000;
-            border-color: #fff;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
-        /* Action / Bet Button */
-        .action-btn {
-            width: 100%;
-            height: 56px;
-            border-radius: 16px;
-            border: 2px solid #ffea9f;
-            background: linear-gradient(180deg, #eec34b 0%, #986a0e 100%);
-            color: #120800;
-            font-size: 21px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.45), inset 0 2px 5px rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Blue vs Red Knight Bet Selector Grid */
+        .knight-bet-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
+            margin-top: 2px;
+        }
+        .knight-card-btn {
+            position: relative;
+            padding: 10px;
+            border-radius: 14px;
+            border: 2px solid #444;
+            background: rgba(15, 10, 5, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
             transition: all 0.2s;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
         }
-        .action-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+        .knight-card-btn.blue-side {
+            border-color: #2563eb;
+            background: linear-gradient(180deg, rgba(37, 99, 235, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
         }
-        .action-btn.joined {
-            background: linear-gradient(180deg, #32e173 0%, #0d837a 100%);
-            color: #021a08;
-            border-color: #a3ffb0;
-            box-shadow: 0 6px 25px rgba(50, 225, 115, 0.45);
+        .knight-card-btn.red-side {
+            border-color: #dc2626;
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.25) 0%, rgba(24, 9, 9, 0.9) 100%);
         }
-        .action-btn:disabled {
-            background: #362e26;
-            border-color: #52473c;
-            color: #786c5f;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
+        .knight-card-btn.selected {
+            box-shadow: 0 0 18px currentColor;
+            transform: scale(1.02);
+            border-width: 2.5px;
+        }
+        .knight-card-btn.blue-side.selected {
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+        .knight-card-btn.red-side.selected {
+            border-color: #f87171;
+            color: #f87171;
+        }
+        .knight-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #fff;
+        }
+        .multiplier-badge {
+            font-size: 11px;
+            font-weight: 900;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.4);
+        }
+        .bet-status-indicator {
+            font-size: 11px;
+            font-weight: 800;
+            color: #aaa;
         }
     </style>
 </head>
@@ -349,7 +369,7 @@
     <!-- Upper Stats Bar -->
     <div class="top-bar">
         <div class="user-info">
-            <div class="user-avatar">🛡️</div>
+            <div class="user-avatar">🐎</div>
             <div class="user-name" id="userName">الفارس</div>
         </div>
         <div class="balance-box">
@@ -371,7 +391,7 @@
         </div>
     </div>
 
-    <!-- Animation Canvas Arena -->
+    <!-- Animation Canvas Arena Stage -->
     <div class="stage-container">
         <canvas id="gameCanvas"></canvas>
         <div class="result-overlay" id="resultOverlay">
@@ -404,13 +424,24 @@
             <button class="q-btn" onclick="setBet(1000)">1000</button>
         </div>
 
-        <button class="action-btn" id="playBtn" onclick="toggleBetInRound()">
-            <span>تأكيد الرهان للجولة ⚔️</span>
-        </button>
+        <!-- Blue / Red Knight Side Betting Selector -->
+        <div class="knight-bet-selector">
+            <button class="knight-card-btn blue-side" id="btnBetBlue" onclick="placeBetOnSide('BLUE')">
+                <span class="knight-title">🟦 الفارس الأزرق</span>
+                <span class="multiplier-badge">ربح 2.0X</span>
+                <span class="bet-status-indicator" id="statusBlue">اضغط للرهان ⚔️</span>
+            </button>
+
+            <button class="knight-card-btn red-side" id="btnBetRed" onclick="placeBetOnSide('RED')">
+                <span class="knight-title">🟥 الفارس الأحمر</span>
+                <span class="multiplier-badge">ربح 2.0X</span>
+                <span class="bet-status-indicator" id="statusRed">اضغط للرهان ⚔️</span>
+            </button>
+        </div>
     </div>
 
 <script>
-    // URL Params & Telegram User Initialization
+    // Telegram User & API Integration
     const urlParams = new URLSearchParams(window.location.search);
     let userId = urlParams.get('user_id') || urlParams.get('telegram_id');
     
@@ -425,16 +456,17 @@
     const maxBet = 1000;
     const WIN_MULTIPLIER = 2.0; // STRICT 2X MULTIPLIER RULE
     
+    // Betting Side States: null, 'BLUE', 'RED'
+    let chosenSideForBet = null;
+
     // Round States: 'COUNTDOWN', 'CHARGING', 'MELEE_COMBAT', 'FINAL_STRIKE', 'RESULT'
     let roundState = 'COUNTDOWN';
-    let countdownTime = 5; // 5-second countdown between rounds
-    let combatTimer = 0; // 15-second total combat duration
-    const TOTAL_COMBAT_DURATION = 15; // Exact 15 seconds real combat duration
+    let countdownTime = 5;
+    let combatTimer = 0;
+    const TOTAL_COMBAT_DURATION = 15;
     let countdownInterval = null;
     let combatInterval = null;
-    
-    let isBetPlacedForNextRound = false;
-    let isPlayerWinner = false;
+    let winnerSide = 'BLUE'; // 'BLUE' or 'RED'
 
     // Canvas Setup
     const canvas = document.getElementById('gameCanvas');
@@ -451,7 +483,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Procedural Audio Engine
+    // Procedural Sound Effects Engine
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
@@ -465,14 +497,14 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(60 + Math.random()*20, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(15, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+            osc.stop(audioCtx.currentTime + 0.08);
         } catch(e) {}
     }
 
@@ -482,21 +514,21 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.25);
-            gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.25);
+            osc.stop(audioCtx.currentTime + 0.3);
         } catch(e) {}
     }
 
     function playImpactSound() {
         if (!audioCtx) return;
         try {
-            const bufferSize = audioCtx.sampleRate * 0.45;
+            const bufferSize = audioCtx.sampleRate * 0.5;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
@@ -507,12 +539,12 @@
 
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.4);
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.45);
 
             const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+            gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
 
             noise.connect(filter);
             filter.connect(gain);
@@ -521,30 +553,35 @@
         } catch(e) {}
     }
 
-    // Animation & Physics Objects
+    // Objects & Physics Setup
     let particles = [];
     let cameraShake = { x: 0, y: 0, intensity: 0 };
 
-    let playerKnight = {
+    let blueKnight = {
         x: 0, y: 0,
         hp: 100,
         color: '#2563eb',
-        banner: '#3b82f6',
-        swordAngle: 0,
+        banner: '#60a5fa',
+        horseColor: '#332211',
+        lanceAngle: 0,
         fallen: false,
-        fallAngle: 0
+        fallAngle: 0,
+        unhorsedX: 0, unhorsedY: 0
     };
 
-    let enemyKnight = {
+    let redKnight = {
         x: 0, y: 0,
         hp: 100,
         color: '#dc2626',
-        banner: '#ef4444',
-        swordAngle: 0,
+        banner: '#f87171',
+        horseColor: '#1a1a1a',
+        lanceAngle: 0,
         fallen: false,
-        fallAngle: 0
+        fallAngle: 0,
+        unhorsedX: 0, unhorsedY: 0
     };
 
+    // User Data API Integration
     function fetchUserData() {
         fetch(`/api/user/get?user_id=${userId}`)
             .then(res => res.json())
@@ -560,13 +597,13 @@
     }
 
     function changeBet(delta) {
-        if (isBetPlacedForNextRound && roundState === 'COUNTDOWN') return;
+        if (roundState !== 'COUNTDOWN') return;
         betAmount = Math.max(minBet, Math.min(maxBet, betAmount + delta));
         updateBetUI();
     }
 
     function setBet(val) {
-        if (isBetPlacedForNextRound && roundState === 'COUNTDOWN') return;
+        if (roundState !== 'COUNTDOWN') return;
         betAmount = Math.max(minBet, Math.min(maxBet, val));
         updateBetUI();
     }
@@ -576,37 +613,59 @@
         document.getElementById('winEst').innerText = (betAmount * WIN_MULTIPLIER).toFixed(2);
     }
 
-    function toggleBetInRound() {
+    // Bet Side Selection Mechanics
+    function placeBetOnSide(side) {
         initAudio();
         if (roundState !== 'COUNTDOWN') return;
 
-        if (!isBetPlacedForNextRound) {
-            if (currentBalance < betAmount) {
-                alert('رصيدك غير كافٍ لإجراء هذا الرهان!');
-                return;
-            }
-            isBetPlacedForNextRound = true;
-            const btn = document.getElementById('playBtn');
-            btn.classList.add('joined');
-            btn.innerHTML = `<span>تم تأكيد الرهان (${betAmount} NPS) ✔️</span>`;
+        if (currentBalance < betAmount) {
+            alert('رصيدك غير كافٍ لإجراء هذا الرهان!');
+            return;
+        }
+
+        if (chosenSideForBet === side) {
+            // Cancel bet
+            chosenSideForBet = null;
         } else {
-            isBetPlacedForNextRound = false;
-            const btn = document.getElementById('playBtn');
-            btn.classList.remove('joined');
-            btn.innerHTML = `<span>تأكيد الرهان للجولة ⚔️</span>`;
+            chosenSideForBet = side;
+        }
+
+        updateSideSelectorUI();
+    }
+
+    function updateSideSelectorUI() {
+        const btnBlue = document.getElementById('btnBetBlue');
+        const btnRed = document.getElementById('btnBetRed');
+        const statusBlue = document.getElementById('statusBlue');
+        const statusRed = document.getElementById('statusRed');
+
+        btnBlue.classList.remove('selected');
+        btnRed.classList.remove('selected');
+
+        if (chosenSideForBet === 'BLUE') {
+            btnBlue.classList.add('selected');
+            statusBlue.innerText = `تم الرهان (${betAmount} NPS) ✔️`;
+            statusRed.innerText = `اضغط للرهان ⚔️`;
+        } else if (chosenSideForBet === 'RED') {
+            btnRed.classList.add('selected');
+            statusRed.innerText = `تم الرهان (${betAmount} NPS) ✔️`;
+            statusBlue.innerText = `اضغط للرهان ⚔️`;
+        } else {
+            statusBlue.innerText = `اضغط للرهان ⚔️`;
+            statusRed.innerText = `اضغط للرهان ⚔️`;
         }
     }
 
-    // Particle FX Engine
+    // Advanced Particle Engine
     function createDust(x, y) {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
             particles.push({
-                x: x + (Math.random() - 0.5) * 15,
+                x: x + (Math.random() - 0.5) * 20,
                 y: y,
-                vx: (Math.random() - 0.5) * 3,
-                vy: -Math.random() * 2 - 1,
-                size: Math.random() * 8 + 4,
-                color: `rgba(${160 + Math.random()*40}, ${120 + Math.random()*30}, 80, ${Math.random() * 0.4 + 0.2})`,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -Math.random() * 3 - 1,
+                size: Math.random() * 10 + 4,
+                color: `rgba(${160 + Math.random()*50}, ${120 + Math.random()*30}, 70, ${Math.random() * 0.4 + 0.2})`,
                 life: 1,
                 type: 'DUST'
             });
@@ -614,18 +673,35 @@
     }
 
     function createSparks(x, y) {
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 30; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 14 + 4;
+            const speed = Math.random() * 16 + 5;
             particles.push({
                 x: x,
                 y: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed - 2,
-                size: Math.random() * 4 + 2,
+                size: Math.random() * 5 + 2,
                 color: Math.random() > 0.3 ? '#ffd700' : '#ffffff',
                 life: 1,
                 type: 'SPARK'
+            });
+        }
+    }
+
+    function createLanceShatter(x, y, dir) {
+        for (let i = 0; i < 25; i++) {
+            const angle = (Math.random() - 0.5) * 1.5 + (dir > 0 ? 0 : Math.PI);
+            const speed = Math.random() * 12 + 4;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 2,
+                size: Math.random() * 6 + 2,
+                color: Math.random() > 0.5 ? '#d4af37' : '#8a5a22',
+                life: 1,
+                type: 'WOOD'
             });
         }
     }
@@ -647,141 +723,257 @@
         }
     }
 
-    // Graphic Background Renderer
+    // High Quality Cinematic Visual Renderer
     function drawBackground() {
-        // Sky Gradient
+        // Sunset Cinematic Sky
         let skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.65);
-        skyGrad.addColorStop(0, '#060305');
-        skyGrad.addColorStop(0.4, '#240d06');
-        skyGrad.addColorStop(0.8, '#63250a');
-        skyGrad.addColorStop(1, '#be571d');
+        skyGrad.addColorStop(0, '#040205');
+        skyGrad.addColorStop(0.35, '#220a06');
+        skyGrad.addColorStop(0.7, '#6e270a');
+        skyGrad.addColorStop(1, '#d4651d');
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, width, height * 0.65);
 
-        // Sun & Volumetric Light
+        // Volumetric Sun Rays
         let sunX = width * 0.5;
         let sunY = height * 0.38;
-        let sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, width * 0.55);
-        sunGrad.addColorStop(0, 'rgba(255, 220, 140, 0.5)');
-        sunGrad.addColorStop(0.5, 'rgba(210, 90, 20, 0.2)');
+        let sunGrad = ctx.createRadialGradient(sunX, sunY, 15, sunX, sunY, width * 0.6);
+        sunGrad.addColorStop(0, 'rgba(255, 230, 150, 0.65)');
+        sunGrad.addColorStop(0.4, 'rgba(230, 90, 20, 0.25)');
         sunGrad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = sunGrad;
         ctx.fillRect(0, 0, width, height * 0.65);
 
-        // Castle Silhouettes in Horizon
-        ctx.fillStyle = '#120703';
+        // Parallax Mountain Silhouettes
+        ctx.fillStyle = '#140804';
         ctx.beginPath();
         ctx.moveTo(0, height * 0.65);
-        ctx.lineTo(width * 0.15, height * 0.58);
-        ctx.lineTo(width * 0.2, height * 0.61);
-        ctx.lineTo(width * 0.3, height * 0.54);
-        ctx.lineTo(width * 0.35, height * 0.65);
-        ctx.lineTo(width * 0.65, height * 0.65);
-        ctx.lineTo(width * 0.72, height * 0.52);
-        ctx.lineTo(width * 0.8, height * 0.65);
-        ctx.lineTo(width, height * 0.65);
+        ctx.lineTo(width * 0.12, height * 0.55);
+        ctx.lineTo(width * 0.22, height * 0.60);
+        ctx.lineTo(width * 0.38, height * 0.50);
+        ctx.lineTo(width * 0.48, height * 0.62);
+        ctx.lineTo(width * 0.65, height * 0.52);
+        ctx.lineTo(width * 0.78, height * 0.63);
+        ctx.lineTo(width, height * 0.54);
         ctx.lineTo(width, height);
         ctx.lineTo(0, height);
         ctx.fill();
 
-        // Arena Dirt Ground
+        // Arena Dirt Ground Gradient
         let groundGrad = ctx.createLinearGradient(0, height * 0.65, 0, height);
-        groundGrad.addColorStop(0, '#3a2211');
-        groundGrad.addColorStop(0.3, '#241409');
-        groundGrad.addColorStop(1, '#0e0703');
+        groundGrad.addColorStop(0, '#422713');
+        groundGrad.addColorStop(0.3, '#2a170a');
+        groundGrad.addColorStop(1, '#0e0602');
         ctx.fillStyle = groundGrad;
         ctx.fillRect(0, height * 0.65, width, height * 0.35);
 
-        // Fence / Barrier
-        ctx.strokeStyle = '#5a3d1f';
-        ctx.lineWidth = 4;
+        // Arena Wooden Railings / Fence
+        ctx.strokeStyle = '#614022';
+        ctx.lineWidth = 5;
         ctx.beginPath();
-        ctx.moveTo(0, height * 0.67);
-        ctx.lineTo(width, height * 0.67);
+        ctx.moveTo(0, height * 0.68);
+        ctx.lineTo(width, height * 0.68);
         ctx.stroke();
+
+        // Fence Pillars
+        for (let x = 0; x <= width; x += width * 0.15) {
+            ctx.fillStyle = '#422b16';
+            ctx.fillRect(x - 4, height * 0.65, 8, height * 0.08);
+        }
     }
 
-    // Knight Render Engine
-    function drawKnight(knight, isPlayer) {
+    // Ultra Realistic Mounted Knight & Horse Renderer
+    function drawMountedKnight(knight, isBlue) {
         ctx.save();
+        
+        const dir = isBlue ? 1 : -1;
+        const scale = height * 0.0019;
+        
         ctx.translate(knight.x, knight.y);
 
-        if (knight.fallen) {
-            ctx.rotate(knight.fallAngle);
-        }
-
-        const dir = isPlayer ? 1 : -1;
-        const scale = height * 0.0018;
+        // Gallop Sine Motion
+        const gallopPhase = combatTimer * 18;
+        const bounceY = (roundState === 'CHARGING' || roundState === 'MELEE_COMBAT') ? Math.abs(Math.sin(gallopPhase)) * 8 : 0;
+        
+        ctx.translate(0, -bounceY);
         ctx.scale(scale * dir, scale);
 
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        // Dynamic Horse Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.beginPath();
-        ctx.ellipse(0, 0, 35, 10, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 10, 50, 14, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Armor Legs & Feet
-        ctx.fillStyle = '#64748b';
-        ctx.fillRect(-15, -25, 10, 25);
-        ctx.fillRect(5, -25, 10, 25);
+        // 1. HORSE LEGS (Galloping Animation)
+        ctx.strokeStyle = knight.horseColor;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
 
-        // Torso / Plate Armor
-        ctx.fillStyle = '#94a3b8';
+        const legSwing = Math.sin(gallopPhase) * 0.6;
+
+        // Back Legs
         ctx.beginPath();
-        ctx.moveTo(-20, -60);
-        ctx.lineTo(20, -60);
-        ctx.lineTo(15, -25);
-        ctx.lineTo(-15, -25);
+        ctx.moveTo(-30, -20);
+        ctx.lineTo(-30 - legSwing * 30, 10);
+        ctx.stroke();
+
+        // Front Legs
+        ctx.beginPath();
+        ctx.moveTo(30, -20);
+        ctx.lineTo(30 + legSwing * 30, 10);
+        ctx.stroke();
+
+        // 2. HORSE BODY & MUSCLES
+        ctx.fillStyle = knight.horseColor;
+        ctx.beginPath();
+        ctx.ellipse(0, -25, 45, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Horse Neck & Head
+        ctx.beginPath();
+        ctx.moveTo(25, -35);
+        ctx.lineTo(45, -65);
+        ctx.lineTo(55, -60);
+        ctx.lineTo(40, -25);
         ctx.closePath();
         ctx.fill();
 
-        // Tabard / Colored Banner
+        // Horse Head Snout
+        ctx.beginPath();
+        ctx.arc(52, -62, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Horse Mane & Tail
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(-42, -25);
+        ctx.quadraticCurveTo(-60, -10, -55, 10);
+        ctx.stroke();
+
+        // Horse Caparison / Decorative Banner Cloth
         ctx.fillStyle = knight.color;
-        ctx.fillRect(-12, -58, 24, 30);
+        ctx.fillRect(-25, -35, 50, 25);
 
-        // Helmet & Visor
-        ctx.fillStyle = '#475569';
-        ctx.beginPath();
-        ctx.arc(0, -75, 16, 0, Math.PI * 2);
-        ctx.fill();
+        // 3. KNIGHT RIDER (Plate Armor)
+        if (!knight.fallen) {
+            ctx.save();
+            ctx.translate(0, -42);
 
-        // Visor Slot
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(isPlayer ? 2 : -10, -78, 10, 4);
+            // Legs on Saddle
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(-10, 0, 12, 22);
 
-        // Plume / Feather
-        ctx.fillStyle = knight.banner;
-        ctx.beginPath();
-        ctx.moveTo(0, -90);
-        ctx.quadraticCurveTo(isPlayer ? -15 : 15, -105, isPlayer ? -25 : 25, -95);
-        ctx.lineTo(0, -85);
-        ctx.fill();
+            // Torso Plate Armor
+            let armorGrad = ctx.createLinearGradient(-15, -40, 15, 0);
+            armorGrad.addColorStop(0, '#cbd5e1');
+            armorGrad.addColorStop(0.5, '#64748b');
+            armorGrad.addColorStop(1, '#334155');
+            ctx.fillStyle = armorGrad;
+            
+            ctx.beginPath();
+            ctx.moveTo(-16, -38);
+            ctx.lineTo(16, -38);
+            ctx.lineTo(12, 0);
+            ctx.lineTo(-12, 0);
+            ctx.closePath();
+            ctx.fill();
 
-        // Sword & Shield
-        ctx.save();
-        ctx.translate(isPlayer ? 10 : -10, -45);
-        ctx.rotate(knight.swordAngle);
+            // Colored Surcoat / Tabard
+            ctx.fillStyle = knight.color;
+            ctx.fillRect(-10, -36, 20, 26);
 
-        // Sword Blade
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(-3, -50, 6, 50);
-        // Hilt
-        ctx.fillStyle = '#ffd700';
-        ctx.fillRect(-10, -5, 20, 5);
-        ctx.restore();
+            // Helmet & Metallic Visor
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.arc(0, -48, 13, 0, Math.PI * 2);
+            ctx.fill();
 
-        // Health Bar Above Head
+            // Visor Eye Slot
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(2, -50, 10, 3);
+
+            // Plume Feather
+            ctx.fillStyle = knight.banner;
+            ctx.beginPath();
+            ctx.moveTo(0, -60);
+            ctx.quadraticCurveTo(-15, -75, -25, -65);
+            ctx.lineTo(-2, -56);
+            ctx.fill();
+
+            // Jousting Shield
+            ctx.fillStyle = knight.color;
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(10, -35);
+            ctx.lineTo(25, -35);
+            ctx.lineTo(22, -10);
+            ctx.lineTo(10, -18);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Epic Jousting Lance
+            ctx.save();
+            ctx.translate(5, -25);
+            ctx.rotate(knight.lanceAngle);
+
+            // Long Shaft Gradient
+            let lanceGrad = ctx.createLinearGradient(0, -6, 90, 0);
+            lanceGrad.addColorStop(0, '#854d0e');
+            lanceGrad.addColorStop(0.8, '#fef08a');
+            lanceGrad.addColorStop(1, '#e2e8f0');
+
+            ctx.fillStyle = lanceGrad;
+            ctx.beginPath();
+            ctx.moveTo(-10, -4);
+            ctx.lineTo(100, -1);
+            ctx.lineTo(100, 1);
+            ctx.lineTo(-10, 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Lance Guard Shield
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(0, 0, 10, 0, Math.PI*2);
+            ctx.fill();
+
+            ctx.restore(); // Restore Lance
+            ctx.restore(); // Restore Rider
+        } else {
+            // UNHORSED KNIGHT FALLEN ON GROUND
+            ctx.save();
+            ctx.translate(isBlue ? -30 : 30, 0);
+            ctx.rotate(knight.fallAngle);
+
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(-15, -10, 30, 12);
+            ctx.fillStyle = knight.color;
+            ctx.fillRect(-10, -10, 20, 12);
+
+            // Fallen Helmet
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.arc(15, -5, 10, 0, Math.PI*2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Health Bar Indicator
         if (roundState === 'MELEE_COMBAT' || roundState === 'FINAL_STRIKE') {
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.fillRect(-30, -110, 60, 8);
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fillRect(-30, -95, 60, 7);
             ctx.fillStyle = knight.hp > 30 ? '#22c55e' : '#ef4444';
-            ctx.fillRect(-28, -108, (knight.hp / 100) * 56, 4);
+            ctx.fillRect(-28, -93, (knight.hp / 100) * 56, 3);
         }
 
         ctx.restore();
     }
 
-    // Update Particles
+    // Particle FX Rendering
     function updateParticles() {
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
@@ -789,8 +981,8 @@
             p.y += p.vy;
             p.life -= 0.025;
 
-            if (p.type === 'SPARK' || p.type === 'BLOOD') {
-                p.vy += 0.4; // Gravity
+            if (p.type === 'SPARK' || p.type === 'BLOOD' || p.type === 'WOOD') {
+                p.vy += 0.35; // Gravity
             }
 
             if (p.life <= 0) {
@@ -798,35 +990,36 @@
             } else {
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, Math.max(1, p.size * p.life), 0, Math.PI * 2);
                 ctx.fill();
             }
         }
     }
 
-    // Main 15-Second Combat Controller
+    // Main 15-Second Combat Simulation
     function start15SecBattle() {
         roundState = 'CHARGING';
         combatTimer = 0;
-        document.getElementById('liveStatusText').innerText = "المعركة ملحمة جارية!";
+        document.getElementById('liveStatusText').innerText = "المعركة جارية والفرسان ينطلقون!";
         document.getElementById('combatProgressBg').style.display = 'block';
 
-        // Pre-determine outcome for smooth cinematic sync
-        // Independent mathematical calculation: 50% chance win
-        isPlayerWinner = Math.random() >= 0.5;
+        // Strict 50/50 Chance Outcome
+        winnerSide = Math.random() >= 0.5 ? 'BLUE' : 'RED';
 
-        // Reset Knights
-        playerKnight.hp = 100;
-        enemyKnight.hp = 100;
-        playerKnight.fallen = false;
-        enemyKnight.fallen = false;
-        playerKnight.fallAngle = 0;
-        enemyKnight.fallAngle = 0;
+        // Reset Knights Physics
+        blueKnight.hp = 100;
+        redKnight.hp = 100;
+        blueKnight.fallen = false;
+        redKnight.fallen = false;
+        blueKnight.fallAngle = 0;
+        redKnight.fallAngle = 0;
+        blueKnight.lanceAngle = 0.1;
+        redKnight.lanceAngle = -0.1;
 
-        playerKnight.x = width * 0.15;
-        playerKnight.y = height * 0.72;
-        enemyKnight.x = width * 0.85;
-        enemyKnight.y = height * 0.72;
+        blueKnight.x = width * 0.12;
+        blueKnight.y = height * 0.74;
+        redKnight.x = width * 0.88;
+        redKnight.y = height * 0.74;
 
         if (combatInterval) clearInterval(combatInterval);
 
@@ -840,63 +1033,72 @@
             document.getElementById('combatProgressFill').style.width = `${progressPct}%`;
             document.getElementById('timerVal').innerText = `${Math.ceil(TOTAL_COMBAT_DURATION - combatTimer)}ث`;
 
-            // PHASE 1: CHARGING (0s - 3.5s)
-            if (combatTimer < 3.5) {
+            // PHASE 1: JOUST CHARGING (0s - 4.5s)
+            if (combatTimer < 4.5) {
                 roundState = 'CHARGING';
-                playerKnight.x += (width * 0.35 - playerKnight.x) * 0.05;
-                enemyKnight.x -= (enemyKnight.x - width * 0.65) * 0.05;
-                createDust(playerKnight.x, playerKnight.y);
-                createDust(enemyKnight.x, enemyKnight.y);
-                if (Math.random() < 0.3) playGallopSound();
+                blueKnight.x += (width * 0.42 - blueKnight.x) * 0.04;
+                redKnight.x -= (redKnight.x - width * 0.58) * 0.04;
+
+                createDust(blueKnight.x, blueKnight.y);
+                createDust(redKnight.x, redKnight.y);
+
+                if (Math.random() < 0.35) playGallopSound();
             }
-            // PHASE 2: MELEE DUEL COMBAT (3.5s - 12s)
-            else if (combatTimer >= 3.5 && combatTimer < 12) {
+            // PHASE 2: JOUST IMPACT & MELEE DUEL (4.5s - 12s)
+            else if (combatTimer >= 4.5 && combatTimer < 12) {
                 roundState = 'MELEE_COMBAT';
 
-                // Sword swing dynamics
-                playerKnight.swordAngle = Math.sin(combatTimer * 8) * 1.2;
-                enemyKnight.swordAngle = -Math.sin(combatTimer * 8) * 1.2;
-
-                // Clash moments
-                if (Math.floor(combatTimer * 10) % 6 === 0) {
-                    const clashX = (playerKnight.x + enemyKnight.x) / 2;
-                    const clashY = playerKnight.y - 40;
+                // Initial Joust Impact Shatter
+                if (combatTimer < 4.8) {
+                    const clashX = (blueKnight.x + redKnight.x) / 2;
+                    const clashY = blueKnight.y - 40;
                     createSparks(clashX, clashY);
+                    createLanceShatter(clashX, clashY, 1);
+                    createLanceShatter(clashX, clashY, -1);
                     playClashSound();
-                    cameraShake.intensity = 6;
+                    cameraShake.intensity = 10;
+                }
 
-                    // Random back and forth damage feel
+                // Dynamic Sword / Lance Angle Swing
+                blueKnight.lanceAngle = Math.sin(combatTimer * 7) * 0.4;
+                redKnight.lanceAngle = -Math.sin(combatTimer * 7) * 0.4;
+
+                if (Math.floor(combatTimer * 10) % 7 === 0) {
+                    const impactX = (blueKnight.x + redKnight.x) / 2;
+                    createSparks(impactX, blueKnight.y - 35);
+                    playClashSound();
+
                     if (Math.random() > 0.5) {
-                        playerKnight.hp = Math.max(20, playerKnight.hp - 4);
-                        createBloodSplatter(playerKnight.x, playerKnight.y - 40, -1);
+                        blueKnight.hp = Math.max(15, blueKnight.hp - 5);
+                        createBloodSplatter(blueKnight.x, blueKnight.y - 40, -1);
                     } else {
-                        enemyKnight.hp = Math.max(20, enemyKnight.hp - 4);
-                        createBloodSplatter(enemyKnight.x, enemyKnight.y - 40, 1);
+                        redKnight.hp = Math.max(15, redKnight.hp - 5);
+                        createBloodSplatter(redKnight.x, redKnight.y - 40, 1);
                     }
                 }
             }
-            // PHASE 3: FINAL DECISIVE STRIKE (12s - 15s)
+            // PHASE 3: UNHORSING DECISIVE STRIKE (12s - 15s)
             else if (combatTimer >= 12 && combatTimer < TOTAL_COMBAT_DURATION) {
                 roundState = 'FINAL_STRIKE';
 
-                if (isPlayerWinner) {
-                    enemyKnight.hp = Math.max(0, enemyKnight.hp - 8);
-                    enemyKnight.fallen = true;
-                    enemyKnight.fallAngle = Math.min(Math.PI / 2, enemyKnight.fallAngle + 0.1);
-                    createBloodSplatter(enemyKnight.x, enemyKnight.y - 30, 1);
+                if (winnerSide === 'BLUE') {
+                    redKnight.hp = Math.max(0, redKnight.hp - 10);
+                    redKnight.fallen = true;
+                    redKnight.fallAngle = Math.min(Math.PI / 2, redKnight.fallAngle + 0.12);
+                    createBloodSplatter(redKnight.x, redKnight.y - 30, 1);
                 } else {
-                    playerKnight.hp = Math.max(0, playerKnight.hp - 8);
-                    playerKnight.fallen = true;
-                    playerKnight.fallAngle = Math.min(-Math.PI / 2, playerKnight.fallAngle - 0.1);
-                    createBloodSplatter(playerKnight.x, playerKnight.y - 30, -1);
+                    blueKnight.hp = Math.max(0, blueKnight.hp - 10);
+                    blueKnight.fallen = true;
+                    blueKnight.fallAngle = Math.min(-Math.PI / 2, blueKnight.fallAngle - 0.12);
+                    createBloodSplatter(blueKnight.x, blueKnight.y - 30, -1);
                 }
 
                 if (Math.floor(combatTimer * 10) % 10 === 0) {
                     playImpactSound();
-                    cameraShake.intensity = 15;
+                    cameraShake.intensity = 16;
                 }
             }
-            // COMBAT END -> SETTLE ROUND
+            // COMBAT COMPLETE -> SETTLE
             else {
                 clearInterval(combatInterval);
                 finishRound();
@@ -905,7 +1107,7 @@
         }, 50);
     }
 
-    // Final Round Settle
+    // Round Settle & Balance Math
     function finishRound() {
         roundState = 'RESULT';
         document.getElementById('combatProgressBg').style.display = 'none';
@@ -914,9 +1116,9 @@
         const title = document.getElementById('resultTitle');
         const sub = document.getElementById('resultSub');
 
-        if (isBetPlacedForNextRound) {
-            if (isPlayerWinner) {
-                const winPayout = betAmount * WIN_MULTIPLIER; // STRICT 2X RETURN
+        if (chosenSideForBet !== null) {
+            if (chosenSideForBet === winnerSide) {
+                const winPayout = betAmount * WIN_MULTIPLIER; // STRICT 2X WIN
                 currentBalance += winPayout;
                 title.innerText = 'انتصار ملحمي! ⚔️';
                 title.className = 'result-title result-win';
@@ -924,14 +1126,14 @@
                 sub.style.color = '#4ef037';
             } else {
                 currentBalance -= betAmount; // LOSS DEDUCTION
-                title.innerText = 'هزيمة في المعركة! 🛡️';
+                title.innerText = 'هزيمة في المبارزة! 🛡️';
                 title.className = 'result-title result-loss';
                 sub.innerText = `-${betAmount.toFixed(2)} NPS`;
                 sub.style.color = '#ff3333';
             }
             document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
         } else {
-            title.innerText = isPlayerWinner ? 'فاز الفارس الأزرق!' : 'فاز الفارس الأحمر!';
+            title.innerText = winnerSide === 'BLUE' ? 'انتصر الفارس الأزرق!' : 'انتصر الفارس الأحمر!';
             title.className = 'result-title';
             sub.innerText = 'لم تشارك برهان';
             sub.style.color = '#fff';
@@ -939,20 +1141,18 @@
 
         overlay.classList.add('active');
 
-        // Reset bet status button
-        isBetPlacedForNextRound = false;
-        const btn = document.getElementById('playBtn');
-        btn.classList.remove('joined');
-        btn.innerHTML = `<span>تأكيد الرهان للجولة ⚔️</span>`;
+        // Reset Bet Selection
+        chosenSideForBet = null;
+        updateSideSelectorUI();
 
-        // Wait 4 seconds then restart loop
+        // Wait 4s then restart countdown
         setTimeout(() => {
             overlay.classList.remove('active');
             startCountdown();
         }, 4000);
     }
 
-    // Countdown Manager
+    // Countdown Loop Manager
     function startCountdown() {
         roundState = 'COUNTDOWN';
         countdownTime = 5;
@@ -972,11 +1172,10 @@
         }, 1000);
     }
 
-    // Main Render Loop
+    // Render Animation Loop
     function render() {
         ctx.clearRect(0, 0, width, height);
 
-        // Camera Shake Effect
         ctx.save();
         if (cameraShake.intensity > 0) {
             cameraShake.x = (Math.random() - 0.5) * cameraShake.intensity;
@@ -986,15 +1185,15 @@
         }
 
         drawBackground();
-        drawKnight(playerKnight, true);
-        drawKnight(enemyKnight, false);
+        drawMountedKnight(blueKnight, true);
+        drawMountedKnight(redKnight, false);
         updateParticles();
 
         ctx.restore();
         requestAnimationFrame(render);
     }
 
-    // Start App
+    // Init Game
     fetchUserData();
     updateBetUI();
     startCountdown();
