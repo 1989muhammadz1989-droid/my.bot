@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>لعبة رمي السهم - الحديقة الملكية المتقدمة</title>
+  <title>لعبة رمي السهم - الساحة الملكية الاحترافية</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
 
     * {
       box-sizing: border-box;
@@ -15,7 +15,7 @@
       font-family: 'Tajawal', 'Segoe UI', sans-serif;
     }
     body {
-      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+      background: #020617;
       color: #fff;
       display: flex;
       flex-direction: column;
@@ -27,82 +27,80 @@
     .game-container {
       position: relative;
       width: 100%;
-      max-width: 880px;
-      height: 660px;
+      max-width: 900px;
+      height: 680px;
       background: #020617;
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.15);
+      border-radius: 28px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(56, 189, 248, 0.2);
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     canvas {
       width: 100%;
-      height: 520px;
+      height: 530px;
       display: block;
+      cursor: crosshair;
     }
 
     /* شريط المعاينة العلوي للمؤثرات والرياح */
     .top-bar {
       position: absolute;
-      top: 15px;
-      left: 20px;
-      right: 20px;
+      top: 18px;
+      left: 24px;
+      right: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 8;
       pointer-events: none;
     }
-    .wind-badge {
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      backdrop-filter: blur(8px);
-      padding: 6px 16px;
-      border-radius: 20px;
+    .badge {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      backdrop-filter: blur(12px);
+      padding: 8px 18px;
+      border-radius: 24px;
       font-size: 14px;
       color: #38bdf8;
       display: flex;
       align-items: center;
       gap: 8px;
       font-weight: 700;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
-    .streak-badge {
-      background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(245, 158, 11, 0.4));
+    .payout-badge {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(245, 158, 11, 0.35));
       border: 1px solid #facc15;
-      backdrop-filter: blur(8px);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 14px;
       color: #fef08a;
       font-weight: 900;
-      box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
-      display: none;
+      box-shadow: 0 0 18px rgba(250, 204, 21, 0.25);
     }
 
     /* لوحة التحكم والتحكّم بالرهان */
     .ui-panel {
-      height: 140px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      height: 150px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 1) 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      gap: 20px;
+      padding: 0 30px;
+      gap: 15px;
       z-index: 5;
     }
     .stat-box {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      min-width: 130px;
     }
     .stat-label {
-      font-size: 13px;
+      font-size: 12px;
       color: #94a3b8;
       font-weight: 700;
+      text-transform: uppercase;
     }
     .stat-value {
       font-size: 24px;
@@ -111,11 +109,38 @@
       text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
     }
 
+    /* خيارات الرهان السريعة */
+    .bet-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-bets {
+      display: flex;
+      gap: 6px;
+    }
+    .quick-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #94a3b8;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-btn:hover {
+      background: #334155;
+      color: #fff;
+    }
+
     .bet-controls {
       display: flex;
       align-items: center;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 16px;
       overflow: hidden;
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
@@ -124,9 +149,9 @@
       background: linear-gradient(135deg, #334155, #1e293b);
       color: #f8fafc;
       border: none;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
+      width: 46px;
+      height: 46px;
+      font-size: 22px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s;
@@ -138,30 +163,32 @@
       transform: scale(0.95);
     }
     .bet-input {
-      width: 95px;
+      width: 85px;
       text-align: center;
       background: transparent;
       border: none;
       color: #facc15;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       outline: none;
     }
 
+    /* زر التسديد الاحترافي */
     .play-btn {
       position: relative;
       background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
       color: #fff;
       border: 1px solid #4ade80;
-      padding: 16px 44px;
-      font-size: 22px;
+      padding: 16px 40px;
+      font-size: 20px;
       font-weight: 900;
-      border-radius: 16px;
+      border-radius: 18px;
       cursor: pointer;
       box-shadow: 0 6px 25px rgba(34, 197, 94, 0.45), 0 0 15px rgba(34, 197, 94, 0.2);
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       text-shadow: 0 2px 4px rgba(0,0,0,0.5);
       overflow: hidden;
+      min-width: 200px;
     }
     .play-btn::before {
       content: '';
@@ -170,7 +197,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.25), transparent);
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
       transform: rotate(45deg);
       transition: 0.5s;
     }
@@ -179,7 +206,7 @@
     }
     .play-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.6);
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.65);
     }
     .play-btn:active {
       transform: translateY(1px) scale(0.97);
@@ -195,18 +222,20 @@
     /* الإشعارات العائمة التفاعلية */
     .status-toast {
       position: absolute;
-      top: 30px;
+      top: 25px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 14px 36px;
+      padding: 14px 38px;
       border-radius: 30px;
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 900;
       display: none;
       z-index: 10;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.85);
       backdrop-filter: blur(12px);
       animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+      white-space: nowrap;
     }
     .toast-win {
       background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(21, 128, 61, 0.95));
@@ -231,15 +260,17 @@
 
   <div class="game-container">
     <div class="top-bar">
-      <div class="wind-badge" id="windDisplay">
-        <span>🌬️ سرعة الرياح:</span>
-        <span id="windVal">0.8 م/ث</span>
+      <div class="badge" id="windDisplay">
+        <span>🌬️ اتجاه الرياح:</span>
+        <span id="windVal">1.2 م/ث ➔</span>
       </div>
-      <div class="streak-badge" id="streakDisplay">🔥 انتصارات متتالية: <span id="streakVal">0</span></div>
+      <div class="badge payout-badge">
+        <span>🎯 مضاعف الفوز: 2.0x</span>
+      </div>
     </div>
 
     <div id="statusToast" class="status-toast"></div>
-    <canvas id="gameCanvas" width="850" height="520"></canvas>
+    <canvas id="gameCanvas" width="880" height="530"></canvas>
     
     <div class="ui-panel">
       <div class="stat-box">
@@ -247,13 +278,21 @@
         <span class="stat-value" id="balanceDisplay">0.00 nps</span>
       </div>
 
-      <div class="bet-controls">
-        <button class="bet-btn" onclick="adjustBet(-5)">-</button>
-        <input type="text" id="betAmount" class="bet-input" value="5" readonly>
-        <button class="bet-btn" onclick="adjustBet(5)">+</button>
+      <div class="bet-container">
+        <div class="quick-bets">
+          <button class="quick-btn" onclick="setBet(5)">5</button>
+          <button class="quick-btn" onclick="setBet(25)">25</button>
+          <button class="quick-btn" onclick="setBet(50)">50</button>
+          <button class="quick-btn" onclick="setBet(100)">100</button>
+        </div>
+        <div class="bet-controls">
+          <button class="bet-btn" onclick="adjustBet(-5)">-</button>
+          <input type="text" id="betAmount" class="bet-input" value="5" readonly>
+          <button class="bet-btn" onclick="adjustBet(5)">+</button>
+        </div>
       </div>
 
-      <button id="shootBtn" class="play-btn" onclick="startShoot()">سدد السهم 🎯</button>
+      <button id="shootBtn" class="play-btn" onclick="startShoot()">تثبيت وتسديد 🎯</button>
     </div>
   </div>
 
@@ -261,24 +300,40 @@
     // 1. محرك الصوت المطور المتكامل (Web Audio API 2.0)
     const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+    function playDrawSound() {
+      if (AudioCtx.state === 'suspended') AudioCtx.resume();
+      const osc = AudioCtx.createOscillator();
+      const gain = AudioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(120, AudioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(280, AudioCtx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.01, AudioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.2, AudioCtx.currentTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(AudioCtx.destination);
+      osc.start();
+      osc.stop(AudioCtx.currentTime + 0.25);
+    }
+
     function playShootSound() {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
       const osc = AudioCtx.createOscillator();
       const gain = AudioCtx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(360, AudioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(70, AudioCtx.currentTime + 0.2);
-      gain.gain.setValueAtTime(0.8, AudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.2);
+      osc.frequency.setValueAtTime(420, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, AudioCtx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.9, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.18);
       osc.connect(gain);
       gain.connect(AudioCtx.destination);
       osc.start();
-      osc.stop(AudioCtx.currentTime + 0.2);
+      osc.stop(AudioCtx.currentTime + 0.18);
     }
 
     function playAirSound() {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
-      const bufferSize = AudioCtx.sampleRate * 0.4;
+      const bufferSize = AudioCtx.sampleRate * 0.35;
       const buffer = AudioCtx.createBuffer(1, bufferSize, AudioCtx.sampleRate);
       const output = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
@@ -286,11 +341,11 @@
       whiteNoise.buffer = buffer;
       const filter = AudioCtx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1100, AudioCtx.currentTime);
-      filter.frequency.linearRampToValueAtTime(350, AudioCtx.currentTime + 0.4);
+      filter.frequency.setValueAtTime(1400, AudioCtx.currentTime);
+      filter.frequency.linearRampToValueAtTime(400, AudioCtx.currentTime + 0.35);
       const gain = AudioCtx.createGain();
-      gain.gain.setValueAtTime(0.3, AudioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.35, AudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.35);
       whiteNoise.connect(filter);
       filter.connect(gain);
       gain.connect(AudioCtx.destination);
@@ -299,12 +354,11 @@
 
     function playHitSound(isBullseye) {
       if (AudioCtx.state === 'suspended') AudioCtx.resume();
-      // صوت ارتطام السهم بالهدف الخشبي
       const osc = AudioCtx.createOscillator();
       const gain = AudioCtx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(isBullseye ? 580 : 240, AudioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(30, AudioCtx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(isBullseye ? 620 : 260, AudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, AudioCtx.currentTime + 0.15);
       gain.gain.setValueAtTime(1.0, AudioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.15);
       osc.connect(gain);
@@ -312,23 +366,22 @@
       osc.start();
       osc.stop(AudioCtx.currentTime + 0.15);
 
-      // نغمة الفوز الحماسية المضافة عند الإصابة الذهبية
       if (isBullseye) {
         setTimeout(() => {
           const winOsc = AudioCtx.createOscillator();
           const winGain = AudioCtx.createGain();
           winOsc.type = 'triangle';
-          winOsc.frequency.setValueAtTime(523.25, AudioCtx.currentTime); // C5
-          winOsc.frequency.setValueAtTime(659.25, AudioCtx.currentTime + 0.1); // E5
-          winOsc.frequency.setValueAtTime(783.99, AudioCtx.currentTime + 0.2); // G5
-          winOsc.frequency.setValueAtTime(1046.50, AudioCtx.currentTime + 0.3); // C6
-          winGain.gain.setValueAtTime(0.4, AudioCtx.currentTime);
-          winGain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.5);
+          winOsc.frequency.setValueAtTime(523.25, AudioCtx.currentTime); 
+          winOsc.frequency.setValueAtTime(659.25, AudioCtx.currentTime + 0.08); 
+          winOsc.frequency.setValueAtTime(783.99, AudioCtx.currentTime + 0.16); 
+          winOsc.frequency.setValueAtTime(1046.50, AudioCtx.currentTime + 0.24); 
+          winGain.gain.setValueAtTime(0.45, AudioCtx.currentTime);
+          winGain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.45);
           winOsc.connect(winGain);
           winOsc.connect(AudioCtx.destination);
           winOsc.start();
-          winOsc.stop(AudioCtx.currentTime + 0.5);
-        }, 100);
+          winOsc.stop(AudioCtx.currentTime + 0.45);
+        }, 80);
       }
     }
 
@@ -341,36 +394,41 @@
     let userBalance = 0;
     let betAmount = 5;
     let isPlaying = false;
-    let winStreak = 0;
 
     // اهتزاز الشاشة (Camera Shake)
     let shakeTime = 0;
 
-    // عناصر الطبيعة والمؤثرات المتطورة
-    const targetPos = { x: canvas.width / 2, y: 195, radius: 68 };
-    const bowPos = { x: canvas.width / 2, y: canvas.height - 15 };
+    // عناصر الهدف والتصويب بالمهارة
+    const targetPos = { x: canvas.width / 2, y: 180, radius: 72 };
+    const bowPos = { x: canvas.width / 2, y: canvas.height - 10 };
+
+    // ميكانيكية الرياح والاهتزاز بالتنفس
+    let windSpeed = 1.2;
+    let windDir = 1; // 1 = لليمين, -1 = للعدار
+    let timeTick = 0;
+
+    // مؤشر تصويب اللاعب التفاعلي
+    let aimOffset = { x: 0, y: 0 };
+    let playerLockPoint = { x: targetPos.x, y: targetPos.y };
 
     let arrow = {
       x: bowPos.x,
       y: bowPos.y - 45,
       scale: 1,
-      angle: 0,
       targetX: 0,
       targetY: 0,
       inFlight: false,
       stringPull: 0
     };
 
-    // جزيئات الفوز والشرارات (Particles)
     let particles = [];
-    // السحب والمؤثرات الجوية
     let clouds = [
-      { x: 50, y: 60, speed: 0.3, size: 45 },
-      { x: 380, y: 40, speed: 0.2, size: 60 },
-      { x: 680, y: 80, speed: 0.4, size: 50 }
+      { x: 30, y: 50, speed: 0.25, size: 50 },
+      { x: 360, y: 35, speed: 0.15, size: 65 },
+      { x: 690, y: 70, speed: 0.35, size: 55 }
     ];
     let leaves = [];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 15; i++) {
       leaves.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height * 0.6,
@@ -381,7 +439,7 @@
       });
     }
 
-    // جلب معلومات المستخدم بنفس الآلية المعتمدة
+    // جلب معلومات المستخدم
     async function loadUserData() {
       try {
         const res = await fetch(`/api/user/get?user_id=${userId}`);
@@ -396,6 +454,12 @@
     }
     loadUserData();
 
+    function setBet(val) {
+      if (isPlaying) return;
+      betAmount = val;
+      document.getElementById('betAmount').value = betAmount;
+    }
+
     function adjustBet(delta) {
       if (isPlaying) return;
       let newBet = betAmount + delta;
@@ -405,12 +469,19 @@
       }
     }
 
-    // 3. رسم البيئة والمحيط ثلاثي الأبعاد الواقعي
-    function draw3DScene() {
+    // 3. رسم البيئة والمحيط ثلاثي الأبعاد
+    function drawScene() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // تطبيق اهتزاز الكاميرا الكينماتي
+      timeTick += 0.04;
+
+      // حساب اهتزاز يد اللاعب الطبيعي (التنفس) عند التصويب
+      if (!isPlaying) {
+        aimOffset.x = Math.sin(timeTick * 1.5) * 22 + (windSpeed * windDir * 8);
+        aimOffset.y = Math.cos(timeTick * 2.1) * 16;
+      }
+
       ctx.save();
       if (shakeTime > 0) {
         let dx = (Math.random() - 0.5) * shakeTime;
@@ -420,19 +491,20 @@
         if (shakeTime < 0.5) shakeTime = 0;
       }
 
-      // السماء بتدرج شفق ملكي خلاب
+      // السماء الملكية
       let skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
-      skyGrad.addColorStop(0, '#0284c7');
-      skyGrad.addColorStop(0.5, '#38bdf8');
-      skyGrad.addColorStop(1, '#bae6fd');
+      skyGrad.addColorStop(0, '#0369a1');
+      skyGrad.addColorStop(0.5, '#0284c7');
+      skyGrad.addColorStop(1, '#7dd3fc');
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, w, h * 0.55);
 
-      // السحب المتحركة في الخلفية
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      // السحب المتحركة
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
       clouds.forEach(c => {
-        c.x += c.speed;
+        c.x += c.speed * windDir;
         if (c.x - 100 > w) c.x = -100;
+        if (c.x + 100 < 0) c.x = w + 100;
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
         ctx.arc(c.x + c.size * 0.6, c.y - c.size * 0.2, c.size * 0.8, 0, Math.PI * 2);
@@ -440,61 +512,53 @@
         ctx.fill();
       });
 
-      // توهج وشعاع الشمس (Sun Flare)
-      let sunGlow = ctx.createRadialGradient(w/2, 140, 5, w/2, 140, 280);
-      sunGlow.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-      sunGlow.addColorStop(0.3, 'rgba(254, 240, 138, 0.3)');
+      // توهج وشعاع الشمس
+      let sunGlow = ctx.createRadialGradient(w/2, 130, 5, w/2, 130, 300);
+      sunGlow.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+      sunGlow.addColorStop(0.3, 'rgba(254, 240, 138, 0.35)');
       sunGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = sunGlow;
       ctx.fillRect(0, 0, w, h * 0.55);
 
-      // الجبال والغطاء النباتي المبتعد
-      ctx.fillStyle = '#155e75';
+      // الجبال
+      ctx.fillStyle = '#0f766e';
       ctx.beginPath();
       ctx.moveTo(0, h * 0.55);
-      ctx.lineTo(150, h * 0.42);
-      ctx.lineTo(320, h * 0.55);
-      ctx.lineTo(550, h * 0.38);
-      ctx.lineTo(750, h * 0.55);
-      ctx.lineTo(w, h * 0.45);
+      ctx.lineTo(160, h * 0.4);
+      ctx.lineTo(340, h * 0.55);
+      ctx.lineTo(580, h * 0.36);
+      ctx.lineTo(780, h * 0.55);
+      ctx.lineTo(w, h * 0.44);
       ctx.lineTo(w, h * 0.55);
       ctx.fill();
 
-      // الأشجار الخلفية الكثيفة
-      ctx.fillStyle = '#166534';
-      for (let i = -10; i < w + 20; i += 38) {
-        ctx.beginPath();
-        ctx.arc(i + 15, h * 0.54 - 12, 32, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // الأرضية والعشب مع العمق المنظوري
+      // الأرضية والعشب
       let grassGrad = ctx.createLinearGradient(0, h * 0.52, 0, h);
       grassGrad.addColorStop(0, '#15803d');
-      grassGrad.addColorStop(0.35, '#16a34a');
-      grassGrad.addColorStop(1, '#09381e');
+      grassGrad.addColorStop(0.4, '#16a34a');
+      grassGrad.addColorStop(1, '#052e16');
       ctx.fillStyle = grassGrad;
       ctx.fillRect(0, h * 0.52, w, h * 0.48);
 
-      // خطوط نسيج العشب والأبعاد
+      // أسطر خطوط العشب العمودية للعمق
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
       ctx.lineWidth = 2;
-      for (let i = -250; i < w + 250; i += 75) {
+      for (let i = -250; i < w + 250; i += 70) {
         ctx.beginPath();
         ctx.moveTo(w / 2, h * 0.52);
         ctx.lineTo(i * 1.6, h);
         ctx.stroke();
       }
 
-      // تحريك أوراق الشجر المتساقطة بالهواء
-      ctx.fillStyle = '#84cc16';
+      // تحريك أوراق الشجر
+      ctx.fillStyle = '#a3e635';
       leaves.forEach(l => {
-        l.x += l.speedX;
+        l.x += l.speedX * windDir;
         l.y += l.speedY;
         l.rot += 0.03;
-        if (l.y > h || l.x > w) {
+        if (l.y > h || l.x > w || l.x < 0) {
           l.y = Math.random() * h * 0.4;
-          l.x = -10;
+          l.x = windDir > 0 ? -10 : w + 10;
         }
         ctx.save();
         ctx.translate(l.x, l.y);
@@ -503,62 +567,84 @@
         ctx.restore();
       });
 
-      // حامل لوحة الهدف الخشبي (Wood Stand Structure)
-      ctx.fillStyle = '#3b1a0e';
-      ctx.shadowColor = 'rgba(0,0,0,0.6)';
-      ctx.shadowBlur = 12;
-
-      // أرجل الحامل المتينة
+      // حامل الهدف الخشبي
+      ctx.fillStyle = '#29140a';
       ctx.beginPath();
-      ctx.moveTo(targetPos.x - 32, targetPos.y);
-      ctx.lineTo(targetPos.x - 68, h * 0.62);
-      ctx.lineTo(targetPos.x - 50, h * 0.62);
-      ctx.lineTo(targetPos.x - 20, targetPos.y);
+      ctx.moveTo(targetPos.x - 30, targetPos.y);
+      ctx.lineTo(targetPos.x - 65, h * 0.63);
+      ctx.lineTo(targetPos.x - 48, h * 0.63);
+      ctx.lineTo(targetPos.x - 18, targetPos.y);
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(targetPos.x + 32, targetPos.y);
-      ctx.lineTo(targetPos.x + 68, h * 0.62);
-      ctx.lineTo(targetPos.x + 50, h * 0.62);
-      ctx.lineTo(targetPos.x + 20, targetPos.y);
+      ctx.moveTo(targetPos.x + 30, targetPos.y);
+      ctx.lineTo(targetPos.x + 65, h * 0.63);
+      ctx.lineTo(targetPos.x + 48, h * 0.63);
+      ctx.lineTo(targetPos.x + 18, targetPos.y);
       ctx.fill();
 
-      ctx.shadowBlur = 0;
-
-      // رسم لوحة الهدف الاحترافية
       drawTargetBoard();
 
-      // رسم جزيئات الاحتفال/الشرارات عند الاصطدام
+      // رسم مؤشر التصويب المتذبذب عند التجهيز للتسديد
+      if (!isPlaying) {
+        drawAimCrosshair(targetPos.x + aimOffset.x, targetPos.y + aimOffset.y);
+      }
+
       updateAndDrawParticles();
 
       ctx.restore();
     }
 
-    // رسم لوحة الإصابة المتقدمة والتفاصيل الخشبية
+    // رسم مؤشر التصويب
+    function drawAimCrosshair(cx, cy) {
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 18, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-25, 0); ctx.lineTo(-10, 0);
+      ctx.moveTo(25, 0); ctx.lineTo(10, 0);
+      ctx.moveTo(0, -25); ctx.lineTo(0, -10);
+      ctx.moveTo(0, 25); ctx.lineTo(0, 10);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // رسم لوحة الإصابة المتقدمة
     function drawTargetBoard() {
       ctx.save();
       ctx.translate(targetPos.x, targetPos.y);
 
-      // ظل خلف الهدف
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-      ctx.shadowBlur = 20;
-      ctx.shadowOffsetY = 10;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+      ctx.shadowBlur = 22;
+      ctx.shadowOffsetY = 12;
 
-      // إطار الهدف الخشبي الخارجي
       ctx.beginPath();
       ctx.arc(0, 0, targetPos.radius + 8, 0, Math.PI * 2);
-      ctx.fillStyle = '#582d1d';
+      ctx.fillStyle = '#422006';
       ctx.fill();
 
       ctx.shadowBlur = 0;
 
-      // حلقات الهدف الدولية الرسمية مع إضاءة دائرية
       const rings = [
-        { r: targetPos.radius, color: '#f8fafc' },        // أبيض خارجي
-        { r: targetPos.radius * 0.8, color: '#0f172a' },  // أسود
-        { r: targetPos.radius * 0.6, color: '#2563eb' },  // أزرق
-        { r: targetPos.radius * 0.4, color: '#dc2626' },  // أحمر
-        { r: targetPos.radius * 0.2, color: '#eab308' }   // أصفر ذهبي (Bullseye)
+        { r: targetPos.radius, color: '#f8fafc' },        
+        { r: targetPos.radius * 0.8, color: '#0f172a' },  
+        { r: targetPos.radius * 0.6, color: '#2563eb' },  
+        { r: targetPos.radius * 0.4, color: '#dc2626' },  
+        { r: targetPos.radius * 0.2, color: '#eab308' }   // الذهبية (Bullseye)
       ];
 
       rings.forEach(ring => {
@@ -567,20 +653,18 @@
         ctx.fillStyle = ring.color;
         ctx.fill();
         ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
         ctx.stroke();
       });
 
-      // توهج دائري خفيف على الحلقة الذهبية
       let goldGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, targetPos.radius * 0.2);
-      goldGlow.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+      goldGlow.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
       goldGlow.addColorStop(1, 'rgba(234, 179, 8, 0)');
       ctx.fillStyle = goldGlow;
       ctx.beginPath();
       ctx.arc(0, 0, targetPos.radius * 0.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // علامة (+) الدقيقة في المنتصف
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 1.2;
       ctx.beginPath();
@@ -591,7 +675,7 @@
       ctx.restore();
     }
 
-    // رسم قوس اللاعب الأول واليدين في أسفل الشاشة
+    // رسم القوس في منظور الشخص الأول
     function drawFirstPersonBow() {
       if (arrow.inFlight) return;
 
@@ -599,35 +683,33 @@
       ctx.translate(bowPos.x, bowPos.y);
 
       // اليدين والسواعد
-      ctx.fillStyle = '#d97706';
+      ctx.fillStyle = '#ea580c';
       ctx.beginPath();
-      ctx.ellipse(-18, -72, 20, 38, -0.2, 0, Math.PI * 2);
+      ctx.ellipse(-18, -70, 22, 40, -0.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // هيكل القوس الخشبي الفاخر
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 14;
+      // القوس الخشبي الملكي
+      ctx.strokeStyle = '#3f1d0b';
+      ctx.lineWidth = 15;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, -52, 115, Math.PI * 1.15, Math.PI * 1.85);
+      ctx.arc(0, -50, 120, Math.PI * 1.15, Math.PI * 1.85);
       ctx.stroke();
 
-      // لمسات وتغليف ملكي ذهبي على القوس
       ctx.strokeStyle = '#facc15';
       ctx.lineWidth = 4;
       ctx.stroke();
 
-      // وتر القوس المربوط
+      // الوتر المربوط
       ctx.strokeStyle = '#f8fafc';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.moveTo(-82, -125);
-      ctx.lineTo(0, -32 + arrow.stringPull);
-      ctx.lineTo(82, -125);
+      ctx.moveTo(-85, -128);
+      ctx.lineTo(0, -30 + arrow.stringPull);
+      ctx.lineTo(85, -128);
       ctx.stroke();
 
-      // السهم الجاهز للإطلاق
-      drawArrowGraphic(0, -68 + arrow.stringPull, 1.15, -Math.PI / 2);
+      drawArrowGraphic(0, -65 + arrow.stringPull, 1.15, -Math.PI / 2);
 
       ctx.restore();
     }
@@ -639,11 +721,9 @@
       ctx.rotate(angle);
       ctx.scale(scale, scale);
 
-      // جسم السهم الخشبي المصقول
       ctx.fillStyle = '#78350f';
       ctx.fillRect(-3.5, -42, 7, 84);
 
-      // رأس السهم الفولاذي المضيء
       ctx.fillStyle = '#f1f5f9';
       ctx.beginPath();
       ctx.moveTo(-7, -42);
@@ -655,7 +735,6 @@
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // ريش السهم القرمزي (Fletching)
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
       ctx.moveTo(-3.5, 25); ctx.lineTo(-14, 40); ctx.lineTo(-3.5, 36);
@@ -665,19 +744,17 @@
       ctx.restore();
     }
 
-    // إدارة الجزيئات والاحتفال عند الربح
     function createParticles(x, y, isWin) {
-      const count = isWin ? 35 : 10;
+      const count = isWin ? 40 : 12;
       for (let i = 0; i < count; i++) {
         particles.push({
           x: x,
           y: y,
-          vx: (Math.random() - 0.5) * (isWin ? 10 : 4),
-          vy: (Math.random() - 0.5) * (isWin ? 10 : 4) - (isWin ? 2 : 0),
+          vx: (Math.random() - 0.5) * (isWin ? 11 : 4),
+          vy: (Math.random() - 0.5) * (isWin ? 11 : 4) - (isWin ? 2 : 0),
           color: isWin ? ['#facc15', '#4ade80', '#38bdf8', '#f43f5e'][Math.floor(Math.random()*4)] : '#a16207',
           size: Math.random() * 5 + 3,
-          alpha: 1,
-          life: 1
+          alpha: 1
         });
       }
     }
@@ -705,7 +782,7 @@
       }
     }
 
-    // 4. تنفيذ التسديد والتفاعل التام مع السيرفر والـ API
+    // 4. تنفيذ التسديد والتفاعل مع السيرفر والـ API
     async function startShoot() {
       if (isPlaying) return;
       if (userBalance < betAmount) {
@@ -716,12 +793,16 @@
       isPlaying = true;
       document.getElementById('shootBtn').disabled = true;
 
-      // تأثير سحب الوتر استعداداً للتسديد
-      arrow.stringPull = 28;
+      // تثبيت نقطة تصويب اللاعب الحالية
+      playerLockPoint.x = targetPos.x + aimOffset.x;
+      playerLockPoint.y = targetPos.y + aimOffset.y;
+
+      // شد الوتر
+      arrow.stringPull = 30;
+      playDrawSound();
       render();
 
       try {
-        // إرسال طلب الرهان للسيرفر (الربط الأصلي المعتمد)
         const response = await fetch('/api/play', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -746,31 +827,31 @@
         userBalance = data.new_balance;
         document.getElementById('balanceDisplay').innerText = `${userBalance.toFixed(2)} nps`;
 
-        // حساب موضع الهبوط الدقيق بناءً على نتيجة الخوارزمية المستلمة
         const isWin = data.multiplier > 0;
 
         if (isWin) {
-          // إصابة فائقة الدقة في الحلقة الذهبية (Bullseye)
+          // الفوز: السهم يتجه بدقة فائقة إلى المنطقة الذهبية في منتصف الهدف
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * (targetPos.radius * 0.18);
+          const dist = Math.random() * (targetPos.radius * 0.16);
           arrow.targetX = targetPos.x + Math.cos(angle) * dist;
           arrow.targetY = targetPos.y + Math.sin(angle) * dist;
         } else {
-          // جولة خسارة: انحراف طبيعي جداً كأنه تصويب قريب في الحلقات الخارجية
-          const angle = Math.random() * Math.PI * 2;
-          const dist = targetPos.radius * 0.45 + Math.random() * (targetPos.radius * 0.38);
-          arrow.targetX = targetPos.x + Math.cos(angle) * dist;
-          arrow.targetY = targetPos.y + Math.sin(angle) * dist;
+          // الخسارة المموّهة: انحراف طبيعي جداً متوافق مع سرعة الرياح واتجاهها
+          const windDriftX = (windSpeed * windDir * 28);
+          const randAngle = Math.random() * Math.PI * 2;
+          const dist = targetPos.radius * 0.45 + Math.random() * (targetPos.radius * 0.35);
+
+          arrow.targetX = targetPos.x + windDriftX + (Math.cos(randAngle) * 15);
+          arrow.targetY = targetPos.y + (Math.sin(randAngle) * dist);
         }
 
-        // إطلاق القوس
         setTimeout(() => {
           arrow.stringPull = 0;
           arrow.inFlight = true;
           playShootSound();
-          setTimeout(playAirSound, 70);
+          setTimeout(playAirSound, 60);
           animateArrowFlight(data);
-        }, 130);
+        }, 120);
 
       } catch (e) {
         console.error(e);
@@ -781,13 +862,12 @@
       }
     }
 
-    // تحريك السهم سينمائياً وتحديث المؤثرات
     function animateArrowFlight(gameData) {
       let progress = 0;
-      const duration = 28;
+      const duration = 26;
 
       const startX = bowPos.x;
-      const startY = bowPos.y - 68;
+      const startY = bowPos.y - 65;
       const endX = arrow.targetX;
       const endY = arrow.targetY;
 
@@ -795,51 +875,39 @@
         progress++;
         let t = progress / duration;
 
-        // مسار الطيران المنظوري القوسي
         arrow.x = startX + (endX - startX) * t;
         let linearY = startY + (endY - startY) * t;
-        let arc = -50 * Math.sin(t * Math.PI);
+        let arc = -55 * Math.sin(t * Math.PI);
         arrow.y = linearY + arc;
 
-        // تصغير حجم السهم لإعطاء شعور بالابتعاد في العمق
         arrow.scale = 1.15 - (t * 0.78);
 
         render();
 
-        // رسم السهم في المسار
         drawArrowGraphic(arrow.x, arrow.y, arrow.scale, -Math.PI / 2);
 
         if (progress < duration) {
           requestAnimationFrame(step);
         } else {
-          // ارتطام السهم بالهدف وإطلاق الاهتزاز والشرارات
           const isWin = gameData.multiplier > 0;
-          shakeTime = isWin ? 14 : 6;
+          shakeTime = isWin ? 15 : 7;
           playHitSound(isWin);
           createParticles(arrow.targetX, arrow.targetY, isWin);
 
-          // تحديث شارة الانتصارات المتتالية (Streak)
-          if (isWin) {
-            winStreak++;
-            document.getElementById('streakVal').innerText = winStreak;
-            document.getElementById('streakDisplay').style.display = 'flex';
-          } else {
-            winStreak = 0;
-            document.getElementById('streakDisplay').style.display = 'none';
-          }
+          // تغيير سرعة الرياح للجولة التالية بطريقة مشوقة
+          windSpeed = parseFloat((Math.random() * 2.2 + 0.4).toFixed(1));
+          windDir = Math.random() > 0.5 ? 1 : -1;
+          document.getElementById('windVal').innerText = `${windSpeed} م/ث ${windDir > 0 ? '➔' : '⬅'}`;
 
-          // تغيير سرعة الرياح شكلياً لجعل كل جولة مشوقة
-          document.getElementById('windVal').innerText = `${(Math.random() * 2.5 + 0.3).toFixed(1)} م/ث`;
-
-          // إظهار نتيجة الجولة
+          // إظهار نتيجة الجولة وحساب الربح مضاعفاً (2x)
           setTimeout(() => {
             if (isWin) {
-              showToast(`🎯 مبروك! أصبت المنتصف وربحت ${gameData.win_amount} nps`, "win");
+              const winPayout = (betAmount * 2).toFixed(2);
+              showToast(`🎯 مبروك! أصبت المنتصف وربحت ${winPayout} nps`, "win");
             } else {
-              showToast("جولة خسارة! لم تصب المنتصف", "loss");
+              showToast("جولة خسارة! انحرف السهم عن المنتصف", "loss");
             }
 
-            // إتاحة اللعب للجولة التالية
             setTimeout(resetGame, 2200);
           }, 150);
         }
@@ -870,9 +938,8 @@
 
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      draw3DScene();
+      drawScene();
       
-      // رسم السهم المستقر في لوحة الإصابة بعد انتهاء التسديدة
       if (arrow.inFlight && !isPlaying) {
         drawArrowGraphic(arrow.targetX, arrow.targetY, 0.37, -Math.PI / 2);
       }
@@ -880,15 +947,11 @@
       drawFirstPersonBow();
     }
 
-    // بدء الحلقة الرسومية المبدئية
     function loop() {
-      if (!isPlaying && particles.length > 0) {
-        render();
-      }
+      render();
       requestAnimationFrame(loop);
     }
 
-    render();
     loop();
   </script>
 </body>
