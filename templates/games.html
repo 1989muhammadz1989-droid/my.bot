@@ -299,7 +299,7 @@
             overflow: hidden !important;
         }
 
-        /* شريط علوي عائم للشاشة الكاملة يحتوي فقط على الرصيد و زر الإغلاق X */
+        /* شريط علوي عائم للشاشة الكاملة يحتوي فقط على زر الإغلاق X */
         .game-fullscreen-header {
             position: absolute;
             top: 12px;
@@ -307,12 +307,13 @@
             right: 15px;
             z-index: 100001;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             pointer-events: none;
         }
 
         .game-balance-overlay {
+            display: none !important;
             pointer-events: auto;
             background: rgba(10, 10, 12, 0.85);
             backdrop-filter: blur(8px);
@@ -323,7 +324,6 @@
             color: var(--accent-gold);
             font-size: 0.95rem;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-            display: flex;
             align-items: center;
             gap: 6px;
         }
@@ -550,7 +550,7 @@
     <!-- نافذة تشغيل اللعبة ملء الشاشة باكملها -->
     <div class="modal-overlay" id="game-modal" style="padding: 0;">
         <div class="modal-card game-fullscreen-card" id="modal-card-element">
-            <!-- شريط علوي عائم يظهر فقط رصيد العميل وإشارة X للخروج -->
+            <!-- شريط علوي عائم يحتوي على زر الإغلاق X -->
             <div class="game-fullscreen-header">
                 <div class="game-balance-overlay">
                     <i class="fa-solid fa-wallet" style="color: var(--accent-gold);"></i>
@@ -705,7 +705,9 @@
                     document.getElementById('u-id').innerText = data.user_id;
                     const bal = parseFloat(data.balance).toFixed(2);
                     document.getElementById('u-balance').innerText = bal;
-                    document.getElementById('modal-user-balance').innerText = bal;
+                    if (document.getElementById('modal-user-balance')) {
+                        document.getElementById('modal-user-balance').innerText = bal;
+                    }
                 }
             } catch (err) {
                 console.error("خطأ في جلب بيانات المستخدم:", err);
@@ -775,8 +777,10 @@
         function openGameModal(game) {
             currentGameId = game.id;
             
-            // مزامنة رصيد العميل للظهور في أعلى اللعبة
-            document.getElementById('modal-user-balance').innerText = document.getElementById('u-balance').innerText;
+            // مزامنة رصيد العميل للظهور في أعلى اللعبة (عنصر مخفي)
+            if (document.getElementById('modal-user-balance')) {
+                document.getElementById('modal-user-balance').innerText = document.getElementById('u-balance').innerText;
+            }
 
             const staticPlayArea = document.getElementById('static-play-area');
             const liveIframeContainer = document.getElementById('live-iframe-container');
@@ -841,7 +845,9 @@
                 if (data.success) {
                     const newBal = parseFloat(data.new_balance).toFixed(2);
                     document.getElementById('u-balance').innerText = newBal;
-                    document.getElementById('modal-user-balance').innerText = newBal;
+                    if (document.getElementById('modal-user-balance')) {
+                        document.getElementById('modal-user-balance').innerText = newBal;
+                    }
 
                     if (data.multiplier > 0) {
                         resultBox.className = 'result-box result-win';
