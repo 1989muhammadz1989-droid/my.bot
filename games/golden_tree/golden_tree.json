@@ -1,0 +1,13 @@
+{
+  "id": "golden_tree",
+  "name": "Golden tree",
+  "description": "لعبة السلوت الملكية باللون الازرق والنهدي",
+  "image": "cover.jpg",
+  "default_algo": {
+    "loss_rate": 60.0,
+    "normal_rate": 25.0,
+    "medium_rate": 10.0,
+    "high_rate": 4.5,
+    "mega_rate": 0.5
+  }
+}
