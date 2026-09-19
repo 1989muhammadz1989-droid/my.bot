@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Golden Tree 👑 - Royal Blue & Purple Edition</title>
+    <title>Golden Tree 👑 - Royal Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
             position: relative;
         }
 
-        /* --- 1. واجهة الدخول الملكية باللون الأزرق والنهدي --- */
+        /* --- 1. واجهة الدخول --- */
         .splash-screen {
             position: fixed;
             inset: 0;
@@ -212,12 +212,12 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- 3. إطار البكرات باللون الأزرق والنهدي الملكي --- */
+        /* --- 3. إطار البكرات مع خط ذهبي لكل بكرة --- */
         .game-container {
             position: relative;
             width: 95%;
             max-width: 420px;
-            margin: 2px auto 0;
+            margin: 15px auto 0;
             perspective: 1200px;
         }
 
@@ -236,8 +236,10 @@
             touch-action: none;
             cursor: grab;
             transform-style: preserve-3d;
+            gap: 4px;
         }
 
+        /* إضافة خط ذهبي محيط ومفصل بكل بكرة */
         .reel {
             flex: 1;
             height: 240px;
@@ -245,18 +247,8 @@
             border-radius: 10px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
-        }
-
-        .reel:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 2px;
-            height: 100%;
-            background: var(--purple-dark);
-            z-index: 10;
+            border: 1.5px solid var(--gold);
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9), 0 0 8px var(--gold-glow);
         }
 
         .reel-strip {
@@ -289,7 +281,7 @@
             100% { transform: translateY(0); }
         }
 
-        /* --- تطور الرموز وإزالة طبقة الزجاج --- */
+        /* --- إزالة تقييد الصناديق وإطلاق الرموز بحرية --- */
         .symbol {
             height: 80px;
             width: 100%;
@@ -299,7 +291,7 @@
             align-items: center;
             position: relative;
             flex-shrink: 0;
-            padding: 3px;
+            padding: 0;
             overflow: hidden;
         }
 
@@ -310,174 +302,66 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            font-size: 44px;
-            background: radial-gradient(circle at 35% 35%, #2a0845 0%, #0f051d 100%);
-            border: 2px solid var(--gold);
-            border-radius: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(168, 34, 219, 0.3);
+            font-size: 48px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             max-width: 100%;
             object-fit: contain;
         }
 
-        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); border-color: rgba(34, 197, 94, 0.6); }
-        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); border-color: rgba(168, 85, 247, 0.6); }
-        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); border-color: rgba(255, 140, 0, 0.6); }
-        .symbol.fruit-cherry .symbol-badge { filter: drop-shadow(0 0 10px #dc2626); border-color: rgba(220, 38, 38, 0.6); }
-        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); border-color: rgba(234, 179, 8, 0.6); }
-        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); border-color: rgba(250, 204, 21, 0.6); }
-        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); border-color: rgba(255, 223, 0, 0.7); }
+        .symbol.fruit-watermelon .symbol-badge { filter: drop-shadow(0 0 10px #22c55e); }
+        .symbol.fruit-grape .symbol-badge { filter: drop-shadow(0 0 10px #a855f7); }
+        .symbol.fruit-orange .symbol-badge { filter: drop-shadow(0 0 10px #ff8c00); }
+        .symbol.fruit-cherry .symbol-badge { filter: drop-shadow(0 0 10px #dc2626); }
+        .symbol.fruit-pineapple .symbol-badge { filter: drop-shadow(0 0 10px #eab308); }
+        .symbol.fruit-lemon .symbol-badge { filter: drop-shadow(0 0 10px #facc15); }
+        .symbol.bell .symbol-badge { filter: drop-shadow(0 0 12px #ffdf00); }
 
         .symbol.seven .symbol-badge {
             color: var(--gold);
             text-shadow: 0 0 15px var(--blue-bright), 0 0 25px var(--gold);
             font-weight: 900;
             font-style: italic;
-            font-size: 48px;
-            border-color: var(--gold);
+            font-size: 52px;
         }
 
-        /* --- 4. الشجرة الذهبية المتطورة 3D --- */
+        /* --- الشجرة الذهبية الساطعة المتطورة --- */
         .symbol.tree-rare .symbol-badge {
-            font-size: 46px;
-            border: 2.5px solid var(--gold);
-            filter: drop-shadow(0 0 18px var(--gold)) drop-shadow(0 0 25px rgba(168, 34, 219, 0.9));
-            background: radial-gradient(circle at 35% 30%, #4a0e4e 0%, #1c0522 60%, #09010c 100%);
-            box-shadow: inset 0 2px 8px rgba(255,215,0,0.5), inset 0 -6px 12px rgba(0,0,0,0.9), 0 0 20px var(--gold-glow);
-            animation: tree3DPulse 2s infinite alternate ease-in-out;
+            font-size: 52px;
+            filter: drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 28px #ffa500);
+            animation: goldenTreeGlow 1.8s infinite alternate ease-in-out;
         }
 
-        @keyframes tree3DPulse {
-            0% { transform: scale(0.97) rotate(-1deg); filter: drop-shadow(0 0 12px var(--gold)); }
-            100% { transform: scale(1.05) rotate(1deg); filter: drop-shadow(0 0 24px var(--gold)) drop-shadow(0 0 15px var(--blue-bright)); }
+        @keyframes goldenTreeGlow {
+            0% { transform: scale(0.95); filter: drop-shadow(0 0 10px #ffd700) brightness(1.1); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 24px #fff3a1) drop-shadow(0 0 35px #ffd700) brightness(1.4); }
         }
 
         .tree-mult-tag {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            background: linear-gradient(135deg, var(--purple-bright), var(--blue-primary));
-            color: var(--gold);
+            top: 4px;
+            right: 4px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
             font-size: 11px;
             font-weight: 900;
             padding: 1px 6px;
             border-radius: 8px;
-            border: 1px solid var(--gold);
-            box-shadow: 0 0 8px var(--purple-glow);
+            border: 1px solid #fff;
+            box-shadow: 0 0 10px var(--gold-glow);
             z-index: 5;
         }
 
         .symbol.win-pop-royal .symbol-badge {
             animation: symbolWinRoyal 0.35s infinite alternate ease-in-out;
             z-index: 10;
-            border-color: var(--gold);
-            box-shadow: 0 0 20px var(--gold-glow);
         }
 
         @keyframes symbolWinRoyal {
             0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--blue-bright)); }
-            100% { transform: scale(1.18); filter: drop-shadow(0 0 25px var(--gold)) brightness(1.3); }
-        }
-
-        /* --- وعاء الشجرة الذهبية السحرية --- */
-        .pot-container {
-            width: 95%;
-            max-width: 420px;
-            margin: 8px auto 4px;
-            background: rgba(12, 3, 25, 0.95);
-            border: 2px solid var(--purple-bright);
-            border-radius: 20px;
-            padding: 10px 16px;
-            box-shadow: 0 0 20px var(--purple-glow), inset 0 0 10px #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .pot-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            gap: 15px;
-        }
-
-        .pot-title-label {
-            font-size: 12px;
-            font-weight: 900;
-            color: var(--gold-light);
-            text-shadow: 0 0 8px var(--purple-glow);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 2px;
-        }
-
-        .pot-vessel {
-            position: relative;
-            width: 64px;
-            height: 64px;
-            background: radial-gradient(circle at 35% 25%, #ffd700 0%, #8a2be2 50%, #120224 95%);
-            border-radius: 50%;
-            border: 3px solid var(--gold);
-            box-shadow: inset 0 -8px 15px rgba(0,0,0,0.95), inset 0 5px 10px rgba(255,255,255,0.6), 0 0 22px var(--purple-glow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            transition: transform 0.2s;
-        }
-
-        .pot-vessel.exploding {
-            animation: treeExplodeAnim 0.8s ease-in-out infinite alternate;
-        }
-
-        @keyframes treeExplodeAnim {
-            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 15px var(--gold)); }
-            100% { transform: scale(1.25) rotate(10deg); filter: drop-shadow(0 0 35px var(--blue-bright)); }
-        }
-
-        .pot-vessel::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            width: 75%;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid var(--gold);
-            background: radial-gradient(circle, #2b004a 0%, #000000 100%);
-            z-index: 3;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
-        }
-
-        .pot-coins-fill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(0deg, #8a2be2 0%, #ffd700 70%, #fff3a1 100%);
-            height: 0%;
-            transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 -2px 10px #ffd700;
-            z-index: 1;
-        }
-
-        .pot-icon {
-            position: relative;
-            z-index: 4;
-            font-size: 32px;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.9));
-        }
-
-        .flying-gold-coin {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
-            font-size: 32px;
-            filter: drop-shadow(0 0 15px #ffd700);
-            will-change: transform;
+            100% { transform: scale(1.25); filter: drop-shadow(0 0 25px var(--gold)) brightness(1.4); }
         }
 
         .tree-banner {
@@ -502,7 +386,7 @@
 
         .info-panel {
             text-align: center;
-            margin: 4px 12px;
+            margin: 10px 12px 6px;
             padding: 8px 16px;
             background: rgba(12, 3, 25, 0.9);
             border: 1.5px solid var(--purple-bright);
@@ -836,20 +720,6 @@
         <div class="slots-frame" id="slotsFrame"></div>
     </div>
 
-    <!-- 4. وعاء الشجرة الذهبية لتجميع الطاقة والمضاعفات -->
-    <div class="pot-container" id="potContainer">
-        <div class="pot-wrapper">
-            <div class="pot-title-label">
-                <span>🌳 الشجرة الذهبية السحرية</span>
-                <span style="font-size: 10px; color: var(--gold);" id="potRoundsProgress">التقدم: 0 / 100 جولة</span>
-            </div>
-            <div class="pot-vessel" id="potVessel">
-                <div class="pot-coins-fill" id="potCoinsFill"></div>
-                <div class="pot-icon">🌳</div>
-            </div>
-        </div>
-    </div>
-
     <div class="info-panel">
         <div class="line-info" id="lineInfo">اختر الرهان واضغط ↻ للبدء</div>
         <div class="win-display">ربح <span id="winAmount">0.00</span> NPS</div>
@@ -916,7 +786,7 @@
             </div>
 
             <div style="background: #190633; border: 1px solid var(--purple-bright); border-radius: 12px; padding: 8px; font-size: 11px; color: var(--gold); text-align: right; margin-top: 6px;">
-                🌳 <b>الشجرة الذهبية (Wild):</b> تعمل كمكمل أوتوماتيكي لأي رمز ناقص على خطوط الربح. وتكتميل وتزدهر الشجرة أوتوماتيكياً كل 75 إلى 500 جولة لكل لاعب لتمنح أرباحاً استثنائية!
+                🌳 <b>الشجرة الذهبية (Wild):</b> تعمل كمكمل أوتوماتيكي لأي رمز ناقص على خطوط الربح وتظهر بمضاعفات أثناء الجولات البرمجة!
             </div>
 
             <button class="modal-btn" onclick="closePaytableModal()">فهمت 🚀</button>
@@ -976,7 +846,7 @@
             [[0,0], [1,1], [1,2], [1,3], [0,4]]  // Line 10: زاوية علوية
         ];
 
-        /* قيم الرموز للرسم البياني */
+        /* قيم الرموز للعرض */
         const ALL_FRUITS = ['🍊', '🍒', '🍍', '🍋', '🍉', '🍇', '🔔', '7'];
 
         const tg = window.Telegram?.WebApp;
@@ -1028,28 +898,11 @@
         }, 10000);
 
         /* ====================================================
-           تحديد سعة امتلاء الشجرة تلقائياً (75 - 500 جولة)
+           تتبع الجولات للتحكم بظهور الشجرة الذهبية والسبعات
            ==================================================== */
-        function initRandomTreeExplosionCapacity() {
-            let capacity = Math.floor(Math.random() * (500 - 75 + 1)) + 75;
-            sessionStorage.setItem('gt_tree_target_rounds', capacity);
-            return capacity;
-        }
-
-        let treeTargetRounds = parseInt(sessionStorage.getItem('gt_tree_target_rounds')) || initRandomTreeExplosionCapacity();
-        let currentTreeRounds = parseInt(localStorage.getItem('gt_tree_current_rounds')) || 0;
-
-        function updatePotUI() {
-            let percent = Math.min(Math.floor((currentTreeRounds / treeTargetRounds) * 100), 100);
-            const fillEl = document.getElementById('potCoinsFill');
-            if (fillEl) fillEl.style.height = percent + '%';
-            
-            const progressEl = document.getElementById('potRoundsProgress');
-            if (progressEl) {
-                progressEl.innerText = `التقدم: ${currentTreeRounds} / ${treeTargetRounds} جولة`;
-            }
-        }
-        updatePotUI();
+        let totalGameRounds = parseInt(localStorage.getItem('gt_total_rounds')) || 0;
+        let singleTreeTarget = Math.floor(Math.random() * (50 - 25 + 1)) + 25;
+        let doubleTreeTarget = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
 
         const betLevels = {
             1: [3, 6, 9, 15, 50],
@@ -1159,7 +1012,7 @@
             else if (symObj.sym === '🍋') { div.classList.add('fruit-lemon'); badge.innerText = '🍋'; }
             else if (symObj.sym === '🔔') { div.classList.add('bell'); badge.innerText = '🔔'; }
             else if (symObj.sym === '7') { div.classList.add('seven'); badge.innerText = '7'; }
-            else if (symObj.sym === '🌳' || symObj.sym === '🏺') {
+            else if (symObj.sym === '🌳') {
                 div.classList.add('tree-rare');
                 badge.innerText = '🌳';
                 if (symObj.mult > 1) {
@@ -1203,75 +1056,66 @@
             populateStrip(reelStrip, generateRandomSymbols(6));
         }
 
-        /* --- تحريك طاقة الشجرة الذهبية --- */
-        function animateGoldToTree(startElement) {
-            if (!startElement) return;
-            const rect = startElement.getBoundingClientRect();
-            const potRect = document.getElementById('potVessel').getBoundingClientRect();
-            const coin = document.createElement('div');
-            coin.className = 'flying-gold-coin';
-            coin.innerText = '✨';
-            
-            const startX = rect.left + rect.width / 2;
-            const startY = rect.top + rect.height / 2;
-            const deltaX = (potRect.left + potRect.width / 2) - startX;
-            const deltaY = (potRect.top + potRect.height / 2) - startY;
-
-            coin.style.left = startX + 'px';
-            coin.style.top = startY + 'px';
-            document.body.appendChild(coin);
-
-            coin.animate([
-                { transform: 'translate(0, 0) scale(1) rotate(0deg)', opacity: 1 },
-                { transform: `translate(${deltaX * 0.5}px, ${deltaY - 60}px) scale(1.4) rotate(360deg)`, opacity: 1 },
-                { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.4) rotate(720deg)`, opacity: 0.8 }
-            ], {
-                duration: 700,
-                easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)'
-            }).onfinish = () => {
-                coin.remove();
-            };
-        }
-
         /* ====================================================
-           توليد الشبكة البصرية مع الشجرة الذهبية (Wild)
+           توليد شبكة البكرات بالخورازميات المحدثة للشجرة والسبعات
            ==================================================== */
-        function buildGridVisuals(multiplier, treeExploded) {
+        function buildGridVisuals(multiplier) {
             let grid = Array(5).fill(null).map(() => []);
             let winCoords = [];
 
-            if (multiplier <= 0 && !treeExploded) {
-                // حالة الخسارة العادية
-                for (let c = 0; c < 5; c++) {
-                    for (let r = 0; r < 3; r++) {
-                        let symIndex = (c * 3 + r * 2 + Math.floor(Math.random() * 3)) % ALL_FRUITS.length;
-                        grid[c][r] = { sym: ALL_FRUITS[symIndex], mult: 1 };
-                    }
-                }
-                return { grid, winCoords };
-            }
+            // إملاء ابتدائي عشوائي مستبعداً منه السبعات لمنع تجميع 5 سبعات عشوائياً
+            const baseSymbolsNoSeven = ['🍊', '🍒', '🍍', '🍋', '🍉', '🍇', '🔔'];
 
-            // اختيار خط رابح ومصفوفة الفواكه
-            let chosenLine = PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
-            let winSymbol = ALL_FRUITS[Math.floor(Math.random() * ALL_FRUITS.length)];
-            let matchLength = multiplier >= 10 ? 5 : (multiplier >= 5 ? 4 : 3);
-
-            // إملاء باقي البكرات عشوائياً
             for (let c = 0; c < 5; c++) {
                 for (let r = 0; r < 3; r++) {
-                    grid[c][r] = { sym: ALL_FRUITS[(c + r + 2) % ALL_FRUITS.length], mult: 1 };
+                    grid[c][r] = { sym: baseSymbolsNoSeven[Math.floor(Math.random() * baseSymbolsNoSeven.length)], mult: 1 };
                 }
             }
 
-            // تطبيق خط الربح مع إضافة الشجرة الذهبية كمكمل للرموز (Wild)
-            for (let i = 0; i < matchLength; i++) {
-                let [r, c] = chosenLine[i];
-                if (i === 1 || i === 2) {
-                    grid[c][r] = { sym: '🌳', mult: 1 }; // الشجرة الذهبية المكمله
+            // 1. تحديد الفوز الأساسي إن وجد من السيرفر
+            if (multiplier > 0) {
+                let chosenLine = PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
+                
+                /* تقييد 5 سبعات: لا تظهر إلا إذا تم رفع الخوارزميات (مضاعف ضخم أعلى من 400x) */
+                let winSymbol;
+                if (multiplier >= 400) {
+                    winSymbol = '7'; // السبعات الملكية فقط عند رفع الخوارزميات
                 } else {
-                    grid[c][r] = { sym: winSymbol, mult: 1 };
+                    winSymbol = baseSymbolsNoSeven[Math.floor(Math.random() * baseSymbolsNoSeven.length)];
                 }
-                winCoords.push([r, c]);
+
+                let matchLength = multiplier >= 10 ? 5 : (multiplier >= 5 ? 4 : 3);
+
+                for (let i = 0; i < matchLength; i++) {
+                    let [r, c] = chosenLine[i];
+                    grid[c][r] = { sym: winSymbol, mult: 1 };
+                    winCoords.push([r, c]);
+                }
+            }
+
+            // 2. تطبيق منطق ظهور الشجرة الذهبية المحددة بالجولات
+            let spawnSingleTree = (totalGameRounds % singleTreeTarget === 0);
+            let spawnDoubleTree = (totalGameRounds % doubleTreeTarget === 0);
+
+            if (spawnDoubleTree) {
+                // شجرتين بين 100 الى 500 جولة (واحدة بلا مضاعف 1x، والثانية بمضاعف 2x أو أحياناً بلا مضاعفات)
+                let c1 = Math.floor(Math.random() * 2);
+                let r1 = Math.floor(Math.random() * 3);
+                let c2 = Math.floor(Math.random() * 3) + 2;
+                let r2 = Math.floor(Math.random() * 3);
+
+                let secondTreeMult = Math.random() > 0.4 ? 2 : 1; // أحياناً بلا مضاعف وثانية بمضاعف 2x
+
+                grid[c1][r1] = { sym: '🌳', mult: 1 };
+                grid[c2][r2] = { sym: '🌳', mult: secondTreeMult };
+
+            } else if (spawnSingleTree) {
+                // شجرة واحدة بين 25 الى 50 جولة مع مضاعفات كحد أقصى 3x
+                let c = Math.floor(Math.random() * 5);
+                let r = Math.floor(Math.random() * 3);
+                let multVal = Math.floor(Math.random() * 3) + 1; // 1x, 2x, or 3x max
+
+                grid[c][r] = { sym: '🌳', mult: multVal };
             }
 
             return { grid, winCoords };
@@ -1294,6 +1138,10 @@
             isSpinning = true;
             forceStopRequested = false;
 
+            // زيادة عداد الجولات التراكمي
+            totalGameRounds++;
+            localStorage.setItem('gt_total_rounds', totalGameRounds);
+
             document.getElementById('spinBtn').innerText = '⏹️';
             document.getElementById('lineInfo').innerText = 'جاري الاتصال بالسيرفر والتدوير...';
 
@@ -1306,7 +1154,7 @@
                 strip.classList.add('spinning');
             });
 
-            // 1. استدعاء API السيرفر الرئيسي
+            // 1. استدعاء API السيرفر الرئيسي مع خصم الرصيد وحساب الأرباح والخسائر
             let serverResult = null;
             try {
                 let response = await fetch('/api/play', {
@@ -1337,18 +1185,7 @@
                 return;
             }
 
-            // 2. معالجة تقدم طاقة الشجرة الذهبية
-            currentTreeRounds++;
-            let treeExploded = false;
-            if (currentTreeRounds >= treeTargetRounds) {
-                treeExploded = true;
-                currentTreeRounds = 0;
-                treeTargetRounds = initRandomTreeExplosionCapacity();
-            }
-            localStorage.setItem('gt_tree_current_rounds', currentTreeRounds);
-            updatePotUI();
-
-            // 3. تحديث الرصيد الحقيقي القادم من قاعدة البيانات
+            // 2. تحديث الرصيد الحقيقي القادم من قاعدة البيانات
             currentBalance = serverResult.new_balance;
             localStorage.setItem('gt_balance', currentBalance);
             document.getElementById('u-balance').innerText = currentBalance.toFixed(2);
@@ -1356,8 +1193,8 @@
             let multiplier = serverResult.multiplier;
             let winAmount = serverResult.win_amount;
 
-            // 4. بناء شبكة البكرات المرئية
-            let visualOutcome = buildGridVisuals(multiplier, treeExploded);
+            // 3. بناء شبكة البكرات المرئية بالخورازميات
+            let visualOutcome = buildGridVisuals(multiplier);
 
             let initialDelay = speedLevel === 1 ? 300 : (speedLevel === 2 ? 150 : 50);
             let staggerStep = speedLevel === 1 ? 200 : (speedLevel === 2 ? 100 : 40);
@@ -1373,28 +1210,13 @@
                 strip.classList.add('decelerate-stop');
                 setTimeout(() => strip.classList.remove('decelerate-stop'), 350);
 
-                visualOutcome.grid[step].forEach((s, rowIdx) => {
-                    if (s && (s.sym === '🌳' || s.sym === '🏺') && strip.children[rowIdx]) {
-                        animateGoldToTree(strip.children[rowIdx]);
-                    }
-                });
-
                 playProSound('reel_stop');
             }
 
             clearInterval(spinSoundInterval);
             document.getElementById('winAmount').innerText = winAmount.toFixed(2);
 
-            // 5. في حالة نمو وازدهار الشجرة الذهبية
-            if (treeExploded) {
-                const potVessel = document.getElementById('potVessel');
-                potVessel.classList.add('exploding');
-                setTimeout(() => potVessel.classList.remove('exploding'), 2500);
-                triggerUltraFastGoldShower(40);
-                showModal("💥 ازدهار الشجرة الذهبية 🌳", `تم اكتمال طاقة الشجرة وتفعيل القوة المكملة للرموز بنجاح!`);
-            }
-
-            // 6. الاحتفال وتنسيق الفوز
+            // 4. الاحتفال وتنسيق الفوز
             if (winAmount > 0) {
                 document.getElementById('lineInfo').innerText = `مبروك! الربح: ${winAmount.toFixed(2)} NPS`;
                 document.getElementById('lastWin').innerText = winAmount.toFixed(2);
