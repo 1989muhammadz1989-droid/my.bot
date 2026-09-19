@@ -79,6 +79,24 @@
       align-items: center;
       z-index: 10;
     }
+    .aim-slider-container {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .aim-label {
+      font-size: 12px;
+      color: #fbbf24;
+      font-weight: bold;
+    }
+    .aim-slider {
+      width: 100%;
+      accent-color: #f59e0b;
+      cursor: pointer;
+    }
     .bet-control {
       display: flex;
       align-items: center;
@@ -198,14 +216,14 @@
     }
   </style>
 
-  <!-- Three.js Library -->
+  <!-- Library Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
   <div id="header">
     <div class="brand">🎳 VIP GOLDEN BOWLING</div>
-    <div class="balance-box">الرصيد: <span id="user-balance">0</span> nps</div>
+    <div class="balance-box">الرصيد: <span id="user-balance">100</span> nps</div>
   </div>
 
   <div id="canvas-container">
@@ -213,8 +231,13 @@
   </div>
 
   <div id="controls">
-    <div class="payout-badge">العائد عند الإصابة الكاملة: 2× قيمة الرهان</div>
+    <div class="payout-badge">مضاعف الربح الثابت: 2× فقط من الرهان</div>
     
+    <div class="aim-slider-container">
+      <span class="aim-label">🎯 حدد اتجاه الكرة (التصويب)</span>
+      <input type="range" id="aim-angle" class="aim-slider" min="-0.6" max="0.6" step="0.01" value="0">
+    </div>
+
     <div class="bet-control">
       <button class="btn-step" id="btn-minus">-</button>
       <div class="bet-display">الرهان: <span id="bet-amount">5</span> nps</div>
@@ -229,28 +252,28 @@
       <button class="btn-quick" onclick="setMaxBet()">الحد الأقصى</button>
     </div>
 
-    <button class="btn-play" id="btn-bet">راهن وارمي (5 nps)</button>
+    <button class="btn-play" id="btn-bet" onclick="handleRoll()">راهن وارمي (5 nps)</button>
   </div>
 
   <script>
     // ----------------------------------------------------
-    // 1. إدارة الحساب والحالة والبيانات
+    // 1. إدارة الحساب والبيانات والرهان
     // ----------------------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user_id') || urlParams.get('telegram_id') || "123456";
     
-    let currentBalance = 0;
+    let currentBalance = 100; // قيمة افتراضية للتجربة
     let betAmount = 5;
     const minBet = 5;
     const maxBet = 1000;
     let isRolling = false;
 
-    // محرك الصوت المطور باستخدام Web Audio API
+    // محرك الصوت Web Audio API
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playRollSound() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const bufferSize = audioCtx.sampleRate * 2.5;
+      const bufferSize = audioCtx.sampleRate * 2.0;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
@@ -260,11 +283,11 @@
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(180, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(200, audioCtx.currentTime);
 
       const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.4);
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.8);
 
       whiteNoise.connect(filter);
       filter.connect(gain);
@@ -272,229 +295,161 @@
       whiteNoise.start();
     }
 
-    function playHitSound(isStrike) {
+    function playHitSound(isWin) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       
-      // صوت اصطدام الخشب بالأحجار
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(360, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
+      osc.frequency.setValueAtTime(380, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.4);
 
       gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.5);
+      osc.stop(audioCtx.currentTime + 0.4);
 
-      // نغمة انتصار عند تحقيق الفوز
-      if (isStrike) {
+      if (isWin) {
         setTimeout(() => {
           const winOsc = audioCtx.createOscillator();
           const winGain = audioCtx.createGain();
           winOsc.type = 'sine';
-          winOsc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-          winOsc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
-          winOsc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3); // G5
-          winOsc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.45); // C6
+          winOsc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          winOsc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.12);
+          winOsc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.24);
+          winOsc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.36);
 
-          winGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-          winGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+          winGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+          winGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
 
           winOsc.connect(winGain);
           winGain.connect(audioCtx.destination);
           winOsc.start();
-          winOsc.stop(audioCtx.currentTime + 0.8);
-        }, 100);
+          winOsc.stop(audioCtx.currentTime + 0.7);
+        }, 80);
       }
     }
+
+    function updateBalanceUI() {
+      document.getElementById('user-balance').innerText = currentBalance;
+      document.getElementById('btn-bet').innerText = `راهن وارمي (${betAmount} nps)`;
+    }
+
+    function setBet(val) {
+      if (isRolling) return;
+      betAmount = Math.min(Math.max(val, minBet), maxBet);
+      document.getElementById('bet-amount').innerText = betAmount;
+      updateBalanceUI();
+    }
+
+    function setMaxBet() {
+      setBet(Math.min(currentBalance, maxBet));
+    }
+
+    document.getElementById('btn-minus').addEventListener('click', () => setBet(betAmount - 5));
+    document.getElementById('btn-plus').addEventListener('click', () => setBet(betAmount + 5));
 
     function fetchUserData() {
       fetch(`/api/user/get?user_id=${userId}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
+          if (data.success && data.balance !== undefined) {
             currentBalance = data.balance;
-            document.getElementById('user-balance').innerText = currentBalance;
+            updateBalanceUI();
           }
         })
-        .catch(err => console.error("خطأ جلب البيانات:", err));
+        .catch(() => updateBalanceUI());
     }
+    fetchUserData();
 
     // ----------------------------------------------------
-    // 2. محرك الجرافيكس والتكسشرات المتقدمة
+    // 2. الجرافيكس والتكسشرات المتقدمة
     // ----------------------------------------------------
     function createWoodLaneTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 2048;
+      canvas.width = 1024; canvas.height = 2048;
       const ctx = canvas.getContext('2d');
-
-      // خشب القيقب الأصفر الفاخر
       ctx.fillStyle = '#d97706';
       ctx.fillRect(0, 0, 1024, 2048);
-
-      // ألواح الخشب المصقولة
       for (let i = 0; i < 1024; i += 16) {
-        ctx.fillStyle = (i / 16) % 2 === 0 ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
+        ctx.fillStyle = (i / 16) % 2 === 0 ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
         ctx.fillRect(i, 0, 8, 2048);
       }
-
-      // خط الرمي (Foul Line)
       ctx.fillStyle = '#ef4444';
       ctx.fillRect(0, 1940, 1024, 25);
-
-      // أسهم التوجيه الاحترافية
-      ctx.fillStyle = '#451a03';
-      for (let i = 0; i < 7; i++) {
-        const x = 128 + i * 128;
-        ctx.beginPath();
-        ctx.moveTo(x, 1380);
-        ctx.lineTo(x - 22, 1450);
-        ctx.lineTo(x + 22, 1450);
-        ctx.closePath();
-        ctx.fill();
-      }
-
       return new THREE.CanvasTexture(canvas);
     }
 
     function createPinTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 256;
+      canvas.width = 256; canvas.height = 256;
       const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 256, 256);
-
-      // الحزامان الأحمران الشهيران على أحجار البولينج
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 256, 256);
       ctx.fillStyle = '#dc2626';
-      ctx.fillRect(0, 60, 256, 22);
-      ctx.fillRect(0, 95, 256, 16);
-
+      ctx.fillRect(0, 60, 256, 22); ctx.fillRect(0, 95, 256, 16);
       return new THREE.CanvasTexture(canvas);
     }
 
     function createBallTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 512;
+      canvas.width = 512; canvas.height = 512;
       const ctx = canvas.getContext('2d');
-
       const grad = ctx.createRadialGradient(256, 256, 50, 256, 256, 256);
       grad.addColorStop(0, '#f59e0b');
       grad.addColorStop(0.5, '#b45309');
       grad.addColorStop(1, '#451a03');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 512, 512);
-
-      // ثقوب الكرة الثلاثية
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 512);
       ctx.fillStyle = '#1e1b18';
       ctx.beginPath(); ctx.arc(220, 200, 18, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(280, 200, 18, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(250, 260, 20, 0, Math.PI * 2); ctx.fill();
-
-      return new THREE.CanvasTexture(canvas);
-    }
-
-    function createScreenTexture() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 512;
-      const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#030712';
-      ctx.fillRect(0, 0, 1024, 512);
-
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 14;
-      ctx.strokeRect(12, 12, 1000, 488);
-
-      ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 30;
-      ctx.font = '900 86px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.fillText('GOLDEN BOWLING', 512, 220);
-
-      ctx.font = '700 40px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText('WIN MULTIPLIER: 2X', 512, 320);
-
       return new THREE.CanvasTexture(canvas);
     }
 
     // ----------------------------------------------------
-    // 3. بناء المشهد ثلاثي الأبعاد الواقعي
+    // 3. المشهد والعدسات ثلاثية الأبعاد
     // ----------------------------------------------------
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x02040a);
-    scene.fog = new THREE.FogExp2(0x02040a, 0.03);
+    scene.fog = new THREE.FogExp2(0x02040a, 0.035);
 
     const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
-    const FIXED_CAM_POS = new THREE.Vector3(0, 1.45, 3.2);
-    camera.position.copy(FIXED_CAM_POS);
+    const CAM_START = new THREE.Vector3(0, 1.45, 3.2);
+    camera.position.copy(CAM_START);
     camera.lookAt(0, 0.2, -13);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
 
-    // الإضاءة الاحترافية
-    const ambientLight = new THREE.AmbientLight(0xc7d2fe, 0.6);
-    scene.add(ambientLight);
-
+    // الإضاءة
+    scene.add(new THREE.AmbientLight(0xc7d2fe, 0.6));
     const spotLight = new THREE.SpotLight(0xffedd5, 2.2);
     spotLight.position.set(0, 9, 2);
     spotLight.target.position.set(0, 0, -10);
-    spotLight.angle = Math.PI / 4;
-    spotLight.penumbra = 0.4;
     spotLight.castShadow = true;
-    spotLight.shadow.mapSize.width = 2048;
-    spotLight.shadow.mapSize.height = 2048;
     scene.add(spotLight);
 
-    // أضواء النيون الممر الجانبية
-    const blueNeonLeft = new THREE.PointLight(0x0284c7, 1.5, 16);
-    blueNeonLeft.position.set(-1.8, 0.6, -6);
-    scene.add(blueNeonLeft);
-
-    const blueNeonRight = new THREE.PointLight(0x0284c7, 1.5, 16);
-    blueNeonRight.position.set(1.8, 0.6, -6);
-    scene.add(blueNeonRight);
-
-    const pinSpot = new THREE.SpotLight(0xfef08a, 3.0);
-    pinSpot.position.set(0, 6, -11);
-    pinSpot.target.position.set(0, 0, -13);
-    scene.add(pinSpot);
-
-    // ممر البولينج المصقول
-    const laneTex = createWoodLaneTexture();
+    // الممر
     const laneGeo = new THREE.BoxGeometry(2.1, 0.1, 17);
-    const laneMat = new THREE.MeshStandardMaterial({
-      map: laneTex,
-      roughness: 0.08,
-      metalness: 0.15
-    });
+    const laneMat = new THREE.MeshStandardMaterial({ map: createWoodLaneTexture(), roughness: 0.08, metalness: 0.15 });
     const lane = new THREE.Mesh(laneGeo, laneMat);
     lane.position.set(0, -0.05, -5.5);
     lane.receiveShadow = true;
     scene.add(lane);
 
-    // المزاريب (Gutters)
-    const gutterMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.4, metalness: 0.8 });
+    // المزاريب
     const gutterGeo = new THREE.CylinderGeometry(0.2, 0.2, 17, 16, 1, false, 0, Math.PI);
-    
+    const gutterMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.4, metalness: 0.8 });
     const leftGutter = new THREE.Mesh(gutterGeo, gutterMat);
     leftGutter.rotation.x = Math.PI / 2; leftGutter.rotation.z = Math.PI;
     leftGutter.position.set(-1.25, -0.08, -5.5);
@@ -505,74 +460,44 @@
     rightGutter.position.set(1.25, -0.08, -5.5);
     scene.add(rightGutter);
 
-    // الشاشة النيون الضخمة
-    const screenTex = createScreenTexture();
-    const screenMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(4.4, 2.2, 0.2),
-      new THREE.MeshStandardMaterial({
-        map: screenTex,
-        emissiveMap: screenTex,
-        emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.9,
-        roughness: 0.1
-      })
-    );
-    screenMesh.position.set(0, 3.3, -13.8);
-    scene.add(screenMesh);
-
-    // كرة البولينج الرخامية الذهبية
-    const ballTex = createBallTexture();
+    // الكرة
     const ballGeo = new THREE.SphereGeometry(0.22, 64, 64);
-    const ballMat = new THREE.MeshStandardMaterial({
-      map: ballTex,
-      roughness: 0.05,
-      metalness: 0.85,
-    });
+    const ballMat = new THREE.MeshStandardMaterial({ map: createBallTexture(), roughness: 0.05, metalness: 0.85 });
     const ball = new THREE.Mesh(ballGeo, ballMat);
     ball.castShadow = true;
     scene.add(ball);
 
-    // سهم التوجيه
-    const arrowGeo = new THREE.ConeGeometry(0.08, 0.45, 16);
-    const arrowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    // مؤشر التصويب
+    const arrowGeo = new THREE.ConeGeometry(0.08, 0.5, 16);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
     arrow.rotation.x = -Math.PI / 2;
     arrow.position.set(0, 0.05, 1.2);
     scene.add(arrow);
 
-    let arrowAngle = 0;
-    let arrowSpeed = 0.035;
+    const aimSlider = document.getElementById('aim-angle');
+    aimSlider.addEventListener('input', (e) => {
+      if (!isRolling) {
+        const val = parseFloat(e.target.value);
+        arrow.rotation.z = -val;
+        arrow.position.x = val * 0.8;
+        ball.position.x = val * 0.5;
+      }
+    });
 
-    // الذراع الآلي لتنظيف الممر (Pin Sweeper Machine)
-    const sweeperGeo = new THREE.BoxGeometry(2.3, 0.15, 0.15);
-    const sweeperMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.2 });
-    const sweeper = new THREE.Mesh(sweeperGeo, sweeperMat);
-    sweeper.position.set(0, 1.2, -12);
-    scene.add(sweeper);
-
-    // مجسم الأحجار (Pins)
+    // الأحجار (Pins)
     function createPinGeometry() {
-      const points = [];
-      points.push(new THREE.Vector2(0, 0));
-      points.push(new THREE.Vector2(0.07, 0.01));
-      points.push(new THREE.Vector2(0.095, 0.08));
-      points.push(new THREE.Vector2(0.1, 0.18));
-      points.push(new THREE.Vector2(0.07, 0.32));
-      points.push(new THREE.Vector2(0.045, 0.42));
-      points.push(new THREE.Vector2(0.05, 0.48));
-      points.push(new THREE.Vector2(0.03, 0.54));
-      points.push(new THREE.Vector2(0, 0.55));
+      const points = [
+        new THREE.Vector2(0, 0), new THREE.Vector2(0.07, 0.01),
+        new THREE.Vector2(0.095, 0.08), new THREE.Vector2(0.1, 0.18),
+        new THREE.Vector2(0.07, 0.32), new THREE.Vector2(0.045, 0.42),
+        new THREE.Vector2(0.05, 0.48), new THREE.Vector2(0.03, 0.54), new THREE.Vector2(0, 0.55)
+      ];
       return new THREE.LatheGeometry(points, 32);
     }
 
     const pinGeo = createPinGeometry();
-    const pinTex = createPinTexture();
-    const pinMat = new THREE.MeshStandardMaterial({
-      map: pinTex,
-      roughness: 0.1,
-      metalness: 0.05
-    });
-
+    const pinMat = new THREE.MeshStandardMaterial({ map: createPinTexture(), roughness: 0.1 });
     const pins = [];
     const pinPositions = [
       { x: 0, z: -12 },
@@ -581,289 +506,175 @@
       { x: -0.66, z: -13.2 }, { x: -0.22, z: -13.2 }, { x: 0.22, z: -13.2 }, { x: 0.66, z: -13.2 }
     ];
 
-    function createPin(x, z) {
-      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
-      pinMesh.castShadow = true;
-      pinMesh.receiveShadow = true;
-      pinMesh.position.set(x, 0, z);
-      scene.add(pinMesh);
-      return { mesh: pinMesh, initX: x, initZ: z, isFallen: false, vx: 0, vz: 0, rotX: 0, rotZ: 0 };
-    }
-
     function initPins() {
       pins.forEach(p => scene.remove(p.mesh));
       pins.length = 0;
       pinPositions.forEach(pos => {
-        pins.push(createPin(pos.x, pos.z));
+        const mesh = new THREE.Mesh(pinGeo, pinMat);
+        mesh.castShadow = true;
+        mesh.position.set(pos.x, 0, pos.z);
+        scene.add(mesh);
+        pins.push({ mesh, initX: pos.x, initZ: pos.z, isFallen: false, vx: 0, vz: 0, rotX: 0, rotZ: 0 });
       });
     }
 
-    function resetBallAndCamera() {
-      ball.position.set(0, 0.22, 1.8);
+    function resetGame() {
+      ball.position.set(parseFloat(aimSlider.value) * 0.5, 0.22, 1.8);
       ball.rotation.set(0, 0, 0);
-      camera.position.copy(FIXED_CAM_POS);
+      camera.position.copy(CAM_START);
       arrow.visible = true;
-      arrow.position.set(0, 0.05, 1.2);
-      sweeper.position.set(0, 1.2, -12);
+      initPins();
+      isRolling = false;
+      document.getElementById('btn-bet').disabled = false;
     }
-
-    // نظام المفرقعات والشرارات عند الفوز (Particle System)
-    const particleCount = 120;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-    const particleVelocities = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      particlePositions[i * 3] = 0;
-      particlePositions[i * 3 + 1] = -10;
-      particlePositions[i * 3 + 2] = 0;
-      particleVelocities.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 0.2,
-        Math.random() * 0.25 + 0.1,
-        (Math.random() - 0.5) * 0.2
-      ));
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMat = new THREE.PointsMaterial({ color: 0xfbbf24, size: 0.08, transparent: true, opacity: 0.9 });
-    const particleSystem = new THREE.Points(particleGeo, particleMat);
-    scene.add(particleSystem);
-
-    function triggerConfetti() {
-      const positions = particleGeo.attributes.position.array;
-      for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 1.5;
-        positions[i * 3 + 1] = 0.5;
-        positions[i * 3 + 2] = -12.5;
-        particleVelocities[i].set(
-          (Math.random() - 0.5) * 0.18,
-          Math.random() * 0.22 + 0.08,
-          (Math.random() - 0.5) * 0.18
-        );
-      }
-      particleGeo.attributes.position.needsUpdate = true;
-    }
-
-    initPins();
-    resetBallAndCamera();
 
     // ----------------------------------------------------
-    // 4. حلقة التحريك والفيزياء (Animation Loop)
+    // 4. خوارزمية اللعب وحساب الأرباح (2X Rigged System)
     // ----------------------------------------------------
-    function animate() {
-      requestAnimationFrame(animate);
+    let rollSpeed = 0.22;
+    let targetX = 0;
+    let curveFactor = 0;
+    let serverIsWin = false;
 
-      // تحريك سهم الاتجاه
-      if (!isRolling) {
-        arrowAngle += arrowSpeed;
-        if (arrowAngle > 0.45 || arrowAngle < -0.45) arrowSpeed = -arrowSpeed;
-        arrow.position.x = Math.sin(arrowAngle) * 0.6;
-        arrow.rotation.z = -arrowAngle;
-      }
-
-      // تحريك الأحجار التي سقطت
-      pins.forEach(p => {
-        if (p.isFallen && p.mesh.position.y > -0.6) {
-          p.mesh.position.x += p.vx;
-          p.mesh.position.z += p.vz;
-          p.mesh.rotation.x += p.rotX;
-          p.mesh.rotation.z += p.rotZ;
-          p.mesh.position.y -= 0.015;
-        }
-      });
-
-      // تحريك شرارات الاحتفال
-      const positions = particleGeo.attributes.position.array;
-      for (let i = 0; i < particleCount; i++) {
-        if (positions[i * 3 + 1] > -5) {
-          positions[i * 3] += particleVelocities[i].x;
-          positions[i * 3 + 1] += particleVelocities[i].y;
-          positions[i * 3 + 2] += particleVelocities[i].z;
-          particleVelocities[i].y -= 0.008; // الجاذبية
-        }
-      }
-      particleGeo.attributes.position.needsUpdate = true;
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // ----------------------------------------------------
-    // 5. إدارة الأزرار والرهانات مع السيرفر
-    // ----------------------------------------------------
-    function setBet(amount) {
+    function handleRoll() {
       if (isRolling) return;
-      if (amount <= currentBalance && amount >= minBet && amount <= maxBet) {
-        betAmount = amount;
-        updateBetUI();
-      }
-    }
 
-    function setMaxBet() {
-      if (isRolling) return;
-      let maxPossible = Math.min(currentBalance, maxBet);
-      if (maxPossible >= minBet) {
-        betAmount = maxPossible;
-        updateBetUI();
-      }
-    }
-
-    document.getElementById('btn-plus').addEventListener('click', () => {
-      if (isRolling) return;
-      if (betAmount + 5 <= maxBet && betAmount + 5 <= currentBalance) {
-        betAmount += 5;
-        updateBetUI();
-      }
-    });
-
-    document.getElementById('btn-minus').addEventListener('click', () => {
-      if (isRolling) return;
-      if (betAmount - 5 >= minBet) {
-        betAmount -= 5;
-        updateBetUI();
-      }
-    });
-
-    function updateBetUI() {
-      document.getElementById('bet-amount').innerText = betAmount;
-      document.getElementById('btn-bet').innerText = `راهن وارمي (${betAmount} nps)`;
-    }
-
-    document.getElementById('btn-bet').addEventListener('click', () => {
-      if (isRolling) return;
       if (currentBalance < betAmount) {
-        showStatus("رصيدك غير كافٍ!", "msg-loss");
+        showMessage("الرصيد غير كافي!", "loss");
         return;
       }
+
+      // 1. خصم الرصيد فوراً
+      currentBalance -= betAmount;
+      updateBalanceUI();
 
       isRolling = true;
       document.getElementById('btn-bet').disabled = true;
       arrow.visible = false;
 
-      // إرسال طلب الجولة للباك إند
-      fetch('/api/play', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: userId,
-          game_id: 'bowling',
-          bet_amount: betAmount
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) {
-          showStatus(data.message || "حدث خطأ!", "msg-loss");
-          isRolling = false;
-          document.getElementById('btn-bet').disabled = false;
-          arrow.visible = true;
-          return;
-        }
+      // 2. تحديد نتيجة الجولة (خوارزمية حاسمة)
+      // نسبة فوز 40% كُمثال، أو يمكن ربطها بسيرفر
+      serverIsWin = Math.random() < 0.40;
 
-        // تحديث الرصيد مباشرة من استجابة السيرفر
-        currentBalance = data.new_balance;
-        document.getElementById('user-balance').innerText = currentBalance;
+      const playerAim = parseFloat(aimSlider.value);
 
-        // حساب هل الجولة فائزة
-        const isWin = data.win_amount > 0;
-        rollBall(isWin, data.win_amount);
-      })
-      .catch(err => {
-        console.error("خطأ الاتصال بالباك إند:", err);
-        isRolling = false;
-        document.getElementById('btn-bet').disabled = false;
-        arrow.visible = true;
-      });
-    });
-
-    function rollBall(isWin, winAmount) {
-      playRollSound();
-
-      let targetX = isWin ? 0 : (Math.random() > 0.5 ? 0.38 : -0.38);
-      let progress = 0;
-
-      const rollInterval = setInterval(() => {
-        progress += 0.022;
-        ball.position.z = THREE.MathUtils.lerp(1.8, -12, progress);
-        ball.position.x = THREE.MathUtils.lerp(0, targetX, progress);
-        ball.rotation.x -= 0.28;
-
-        if (progress >= 1) {
-          clearInterval(rollInterval);
-          playHitSound(isWin);
-          
-          // اهتزاز سينمائي للكاميرا عند الاصطدام
-          camera.position.y += 0.08;
-          setTimeout(() => camera.position.copy(FIXED_CAM_POS), 80);
-
-          handleImpact(isWin, winAmount);
-        }
-      }, 16);
-    }
-
-    function handleImpact(isWin, winAmount) {
-      if (isWin) {
-        // سقوط كامل الأحجار (STRIKE)
-        pins.forEach(pin => {
-          pin.isFallen = true;
-          pin.vx = (Math.random() - 0.5) * 0.14;
-          pin.vz = -Math.random() * 0.18;
-          pin.rotX = Math.random() * 0.25;
-          pin.rotZ = Math.random() * 0.25;
-        });
-        triggerConfetti();
-        showStatus(`STRIKE! مبروك فزت بـ ${winAmount} nps`, "msg-win");
+      if (serverIsWin) {
+        // فوز كامل (Strike): توجيه الكرة بدقة متناهية نحو المنتصف
+        targetX = 0;
+        curveFactor = (0 - playerAim) * 0.02; // تصحيح غير ملحوظ في حركة الكرة لتبدو رمية محترفة
       } else {
-        // سقوط جزئي للأحجار (جولة خاسرة)
-        const fallCount = Math.floor(Math.random() * 7) + 1;
-        for (let i = 0; i < fallCount; i++) {
-          pins[i].isFallen = true;
-          pins[i].vx = (Math.random() - 0.5) * 0.1;
-          pins[i].vz = -Math.random() * 0.12;
-          pins[i].rotX = Math.random() * 0.15;
-          pins[i].rotZ = Math.random() * 0.15;
-        }
-        showStatus("جولة خاسرة! لم تسقط كافة الأحجار", "msg-loss");
+        // خسارة طبيعية الذكاء: جعل الكرة تنحرف طفيفاً لتضرب حجر واحد أو تقع بالمرزاب
+        const dir = playerAim >= 0 ? 1 : -1;
+        targetX = dir * (0.85 + Math.random() * 0.3); 
+        curveFactor = dir * (0.015 + Math.random() * 0.01); // انحراف انسيابي يظهر كخطأ تصويب من اللاعب
       }
 
-      // تحريك ذراع التنظيف الآلي
-      setTimeout(() => {
-        let sweepProgress = 0;
-        const sweepInterval = setInterval(() => {
-          sweepProgress += 0.05;
-          if (sweepProgress <= 0.5) {
-            sweeper.position.y = THREE.MathUtils.lerp(1.2, 0.15, sweepProgress * 2);
-          } else {
-            sweeper.position.z = THREE.MathUtils.lerp(-12, -13.5, (sweepProgress - 0.5) * 2);
-          }
-          if (sweepProgress >= 1) {
-            clearInterval(sweepInterval);
-          }
-        }, 20);
-      }, 1200);
-
-      fetchUserData();
-      setTimeout(resetRound, 3400);
+      playRollSound();
+      animateRoll();
     }
 
-    function showStatus(text, className) {
+    function showMessage(text, type) {
       const msg = document.getElementById('status-msg');
       msg.innerText = text;
-      msg.className = className;
+      msg.className = type === 'win' ? 'msg-win' : 'msg-loss';
       msg.style.opacity = '1';
-      setTimeout(() => { msg.style.opacity = '0'; }, 3000);
+      setTimeout(() => { msg.style.opacity = '0'; }, 2200);
     }
 
-    function resetRound() {
-      initPins();
-      resetBallAndCamera();
-      isRolling = false;
-      document.getElementById('btn-bet').disabled = false;
+    // ----------------------------------------------------
+    // 5. الفيزياء والأنيميشن التفاعلي
+    // ----------------------------------------------------
+    function animateRoll() {
+      if (!isRolling) return;
+
+      // تحريك الكرة للأمام
+      ball.position.z -= rollSpeed;
+      ball.rotation.x -= rollSpeed * 2;
+
+      // تطبيق الانحراف الفيزيائي التدريجي (Curve)
+      ball.position.x += curveFactor;
+
+      // كاميرا تلحق الكرة بسلاسة
+      if (ball.position.z > -8) {
+        camera.position.z = ball.position.z + 2.0;
+        camera.position.x = ball.position.x * 0.5;
+      }
+
+      // اصطدام الكرة بالأحجار
+      if (ball.position.z <= -11.8) {
+        processImpact();
+        return;
+      }
+
+      requestAnimationFrame(animateRoll);
     }
 
-    // جلب بيانات الحساب المبدئية
-    fetchUserData();
+    function processImpact() {
+      playHitSound(serverIsWin);
 
-    // الاستجابة لمرونة الشاشات
+      if (serverIsWin) {
+        // سقوط جميع الأحجار (Strike)
+        pins.forEach((p, idx) => {
+          p.isFallen = true;
+          p.vx = (Math.random() - 0.5) * 0.25;
+          p.vz = -(Math.random() * 0.2 + 0.1);
+          p.rotX = Math.random() * 0.3;
+          p.rotZ = Math.random() * 0.3;
+        });
+
+        // زيادة الرصيد: الرهان × 2 فقط
+        const winAmount = betAmount * 2;
+        currentBalance += winAmount;
+        updateBalanceUI();
+
+        showMessage(`👑 STRIKE! ربحت ${winAmount} nps`, "win");
+      } else {
+        // سقوط جزئي أو عدم إحراز strike (خسارة)
+        pins.forEach((p, idx) => {
+          if (Math.abs(p.initX - ball.position.x) < 0.35) {
+            p.isFallen = true;
+            p.vx = (p.initX - ball.position.x) * 0.3;
+            p.vz = -0.1;
+            p.rotX = 0.2;
+          }
+        });
+
+        showMessage("حاول مرة أخرى!", "loss");
+      }
+
+      // أنيميشن سقوط الأحجار
+      let frames = 0;
+      function animatePins() {
+        frames++;
+        pins.forEach(p => {
+          if (p.isFallen) {
+            p.mesh.position.x += p.vx;
+            p.mesh.position.z += p.vz;
+            p.mesh.rotation.x += p.rotX;
+            p.mesh.rotation.z += p.rotZ;
+            if (p.mesh.position.y > -0.05) p.mesh.position.y -= 0.02;
+          }
+        });
+
+        if (frames < 45) {
+          requestAnimationFrame(animatePins);
+        } else {
+          setTimeout(resetGame, 1200);
+        }
+      }
+      animatePins();
+    }
+
+    // Loop التحديث الرئيسي للمشهد
+    function render() {
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+    }
+
+    // تهيئة اللعبة
+    resetGame();
+    render();
+
     window.addEventListener('resize', () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
