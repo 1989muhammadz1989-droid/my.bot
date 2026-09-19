@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بلينكو VIP - Plinko NPS</title>
+    <title>بلينكو VIP الملكية - Plinko Casino VIP</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-color: #080b12;
-            --card-bg: #121824;
+            --bg-color: #050811;
+            --card-bg: #0d1322;
+            --card-border: rgba(255, 215, 0, 0.15);
             --accent-gold: #ffd700;
+            --accent-gold-glow: rgba(255, 215, 0, 0.4);
             --accent-cyan: #00f2fe;
+            --accent-purple: #9d4edd;
             --accent-green: #00e676;
             --accent-red: #ff2a5f;
             --text-main: #ffffff;
-            --text-muted: #7e8b9b;
+            --text-muted: #8c9baebd;
         }
 
         * {
@@ -37,139 +40,156 @@
             align-items: center;
             justify-content: flex-start;
             overflow-x: hidden;
-            background: radial-gradient(circle at top, #182238 0%, #080b12 75%);
+            background: radial-gradient(circle at 50% 0%, #1a2642 0%, #080c18 60%, #03050a 100%);
         }
 
+        /* الهيدر الملكي */
         .header {
             width: 100%;
             max-width: 480px;
-            padding: 12px 18px;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(18, 24, 36, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(13, 19, 34, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .game-title {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 900;
-            background: linear-gradient(45deg, var(--accent-gold), var(--accent-cyan));
+            background: linear-gradient(135deg, #ffe066, #ffd700, #ff9100);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
         .balance-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            border-radius: 20px;
-            padding: 5px 14px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--accent-gold);
+            border-radius: 25px;
+            padding: 6px 16px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
-        .balance-box i { color: var(--accent-gold); font-size: 1rem; }
-        .balance-amount { font-size: 1.05rem; font-weight: 800; color: #fff; }
-        .currency-tag { color: var(--accent-gold); font-size: 0.8rem; font-weight: 700; }
+        .balance-box i { color: var(--accent-gold); font-size: 1.1rem; }
+        .balance-amount { font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+        .currency-tag { color: var(--accent-gold); font-size: 0.85rem; font-weight: 800; }
 
+        /* الحاوية الرئيسية */
         .game-container {
             width: 100%;
             max-width: 480px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
         }
 
+        /* شريط السجل الفاخر */
         .history-bar {
             width: 100%;
-            height: 34px;
+            height: 38px;
             display: flex;
             gap: 6px;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
-            overflow-x: hidden;
-            padding: 0 5px;
-            margin-bottom: 8px;
+            overflow-x: auto;
+            padding: 0 6px;
+            margin-bottom: 10px;
+            scrollbar-width: none;
         }
+        .history-bar::-webkit-scrollbar { display: none; }
 
         .history-badge {
-            padding: 3px 9px;
-            border-radius: 6px;
-            font-size: 0.78rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
             font-weight: 800;
-            animation: slideIn 0.25s ease-out;
+            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
         @keyframes slideIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: scale(0.3) translateY(-10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
 
+        /* إطار الكانفاس المشوق */
         .canvas-wrapper {
             position: relative;
             width: 100%;
-            background: rgba(10, 14, 23, 0.75);
-            border-radius: 22px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.9), 0 12px 35px rgba(0, 0, 0, 0.6);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(7, 11, 20, 0.95) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.95), 0 15px 35px rgba(0, 0, 0, 0.7);
             overflow: hidden;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
 
-        canvas { display: block; max-width: 100%; }
+        canvas { display: block; max-width: 100%; height: auto; }
 
+        /* لوحة التحكم والرهانات */
         .controls-panel {
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            border-radius: 22px 22px 0 0;
-            padding: 18px;
-            margin-top: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            margin-top: 12px;
+            border-top: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
         }
 
-        .control-group { margin-bottom: 12px; }
+        .control-group { margin-bottom: 14px; }
 
         .control-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .bet-input-box {
             display: flex;
             align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 3px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 14px;
+            padding: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .bet-input-box:focus-within {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
         }
 
         .btn-adjust {
-            width: 42px;
-            height: 42px;
-            background: #1c2434;
-            border: none;
+            width: 44px;
+            height: 44px;
+            background: #1a2336;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: #fff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.15s;
             display: flex;
@@ -177,13 +197,13 @@
             justify-content: center;
         }
 
-        .btn-adjust:active { transform: scale(0.92); background: var(--accent-cyan); color: #000; }
+        .btn-adjust:active { transform: scale(0.92); background: var(--accent-gold); color: #000; }
 
         .bet-amount-display {
             flex: 1;
             text-align: center;
-            font-size: 1.25rem;
-            font-weight: 800;
+            font-size: 1.35rem;
+            font-weight: 900;
             color: var(--accent-gold);
             border: none;
             background: transparent;
@@ -194,76 +214,82 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .btn-quick {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-main);
-            padding: 7px 0;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 700;
+            padding: 8px 0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.15s;
         }
 
-        .btn-quick:active { background: rgba(0, 242, 254, 0.2); border-color: var(--accent-cyan); }
+        .btn-quick:active { background: rgba(255, 215, 0, 0.2); border-color: var(--accent-gold); color: var(--accent-gold); }
 
+        /* زر إسقاط الكرة الذهبي الحماسي */
         .btn-play {
             width: 100%;
-            height: 52px;
-            background: linear-gradient(135deg, #00e676, #00b0ff);
+            height: 56px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff9100 50%, #ff3d00 100%);
             border: none;
-            border-radius: 14px;
-            color: #050a10;
-            font-size: 1.25rem;
+            border-radius: 16px;
+            color: #000;
+            font-size: 1.35rem;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0, 230, 118, 0.35);
-            transition: all 0.15s;
+            box-shadow: 0 6px 25px rgba(255, 145, 0, 0.4);
+            transition: all 0.15s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
         }
 
-        .btn-play:active { transform: translateY(2px); box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2); }
-        .btn-play:disabled { background: #222c3d; color: #505f75; box-shadow: none; cursor: not-allowed; }
+        .btn-play:active { transform: translateY(3px); box-shadow: 0 2px 10px rgba(255, 145, 0, 0.3); }
+        .btn-play:disabled { background: #1c2536; color: #4a576d; box-shadow: none; cursor: not-allowed; text-shadow: none; }
 
+        /* النوافذ والـ Toasts التشويقية */
         .result-toast {
             position: absolute;
-            top: 42%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: rgba(8, 12, 20, 0.94);
+            background: rgba(6, 10, 18, 0.96);
             border: 2px solid var(--accent-gold);
-            border-radius: 16px;
-            padding: 12px 26px;
+            border-radius: 20px;
+            padding: 16px 32px;
             text-align: center;
-            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
-            z-index: 20;
+            box-shadow: 0 0 45px rgba(255, 215, 0, 0.5);
+            z-index: 50;
             pointer-events: none;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .result-toast.show { transform: translate(-50%, -50%) scale(1); }
-        .result-toast .title { font-size: 0.85rem; color: var(--text-muted); }
-        .result-toast .value { font-size: 1.7rem; font-weight: 900; color: var(--accent-gold); }
+        .result-toast .title { font-size: 0.9rem; color: var(--text-muted); font-weight: 700; }
+        .result-toast .value { font-size: 1.9rem; font-weight: 900; color: var(--accent-gold); margin-top: 2px; }
 
+        /* ألوان الفئات للمضاعفات */
         .tier-loss { background: rgba(255, 42, 95, 0.18); color: #ff2a5f; border: 1px solid #ff2a5f; }
         .tier-normal { background: rgba(255, 170, 0, 0.18); color: #ffaa00; border: 1px solid #ffaa00; }
         .tier-medium { background: rgba(0, 230, 118, 0.18); color: #00e676; border: 1px solid #00e676; }
-        .tier-high { background: rgba(0, 242, 254, 0.18); color: #00f2fe; border: 1px solid #00f2fe; }
-        .tier-mega { background: rgba(255, 215, 0, 0.25); color: #ffd700; border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .tier-high { background: rgba(0, 242, 254, 0.2); color: #00f2fe; border: 1px solid #00f2fe; }
+        .tier-mega { background: rgba(157, 78, 221, 0.25); color: #c77dff; border: 1px solid #9d4edd; box-shadow: 0 0 10px rgba(157, 78, 221, 0.4); }
+        .tier-jackpot { background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,61,0,0.3)); color: #ffd700; border: 1px solid #ffd700; box-shadow: 0 0 18px rgba(255, 215, 0, 0.6); }
     </style>
 </head>
 <body>
 
+    <!-- هيدر اللعبة -->
     <div class="header">
         <div class="game-title">
-            <i class="fa-solid fa-circle-nodes"></i> بلينكو VIP
+            <i class="fa-solid fa-crown"></i> بلينكو VIP
         </div>
         <div class="balance-box">
             <i class="fa-solid fa-coins"></i>
@@ -272,24 +298,26 @@
         </div>
     </div>
 
+    <!-- حاوية اللوحة والكانفاس -->
     <div class="game-container">
         <div class="history-bar" id="historyBar"></div>
 
         <div class="canvas-wrapper">
-            <canvas id="plinkoCanvas" width="420" height="460"></canvas>
+            <canvas id="plinkoCanvas" width="440" height="500"></canvas>
             
             <div class="result-toast" id="resultToast">
-                <div class="title" id="toastTitle">ربح جديد!</div>
+                <div class="title" id="toastTitle">جولة مكتملة!</div>
                 <div class="value" id="toastValue">+0.00 NPS</div>
             </div>
         </div>
     </div>
 
+    <!-- لوحة أزرار الرهان والتفاعل -->
     <div class="controls-panel">
         <div class="control-group">
             <div class="control-label">
                 <span>مبلغ الرهان (NPS)</span>
-                <span>الحد الأدنى: 5 | الأقصى: 1000</span>
+                <span>الأدنى: 5 | الأقصى: 1000</span>
             </div>
             <div class="bet-input-box">
                 <button class="btn-adjust" id="btnMinus"><i class="fa-solid fa-minus"></i></button>
@@ -306,11 +334,12 @@
         </div>
 
         <button class="btn-play" id="btnPlay" onclick="playGame()">
-            <i class="fa-solid fa-play"></i> إسقاط الكرة
+            <i class="fa-solid fa-circle-dot"></i> إطلاق الكرة VIP
         </button>
     </div>
 
     <script>
+        // إعدادات اللعبة المعرفات والحدود
         const GAME_ID = "plinko";
         const MIN_BET = 5;
         const MAX_BET = 1000;
@@ -321,10 +350,10 @@
         let currentBalance = 0;
         let isPlaying = false;
 
-        // توليد الأصوات ديناميكياً بواسطة Web Audio API
+        // نظام الصوتيات عبر Web Audio API
         const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        function playSound(type) {
+        function playSound(type, pitchModifier = 1) {
             try {
                 if (AudioCtx.state === 'suspended') AudioCtx.resume();
                 const osc = AudioCtx.createOscillator();
@@ -333,45 +362,64 @@
                 gain.connect(AudioCtx.destination);
 
                 if (type === 'bounce') {
-                    osc.frequency.setValueAtTime(350 + Math.random() * 250, AudioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.04, AudioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.04);
+                    const freq = (320 + Math.random() * 180) * pitchModifier;
+                    osc.frequency.setValueAtTime(freq, AudioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.05);
                     osc.start();
-                    osc.stop(AudioCtx.currentTime + 0.04);
+                    osc.stop(AudioCtx.currentTime + 0.05);
+                } else if (type === 'near_miss') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(900, AudioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.08, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(AudioCtx.currentTime + 0.15);
                 } else if (type === 'win') {
-                    osc.frequency.setValueAtTime(400, AudioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(850, AudioCtx.currentTime + 0.25);
-                    gain.gain.setValueAtTime(0.15, AudioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.3);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, AudioCtx.currentTime + 0.35);
+                    gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.35);
                     osc.start();
-                    osc.stop(AudioCtx.currentTime + 0.3);
+                    osc.stop(AudioCtx.currentTime + 0.35);
                 } else if (type === 'loss') {
-                    osc.frequency.setValueAtTime(220, AudioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(110, AudioCtx.currentTime + 0.2);
-                    gain.gain.setValueAtTime(0.12, AudioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.2);
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(90, AudioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.25);
                     osc.start();
-                    osc.stop(AudioCtx.currentTime + 0.2);
+                    osc.stop(AudioCtx.currentTime + 0.25);
                 }
             } catch (e) {}
         }
 
-        // إعدادات اللوحة والـ Canvas
+        // إعدادات لوحة الكانفاس وسلال المضاعفات
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
 
-        const ROWS = 8;
+        const ROWS = 10; // عدد صفوف الدبابيس
         const PEGS = [];
+
+        // قائمة السلال مرتبة لتضع الأرقام الضخمة المحظورة بجانب أصغر الأرقام لإعطاء التشويق الأقصى Near-Miss
         const BUCKETS = [
-            { label: '5x',   tier: 'mega', mult: 5 },
-            { label: '2x',   tier: 'high', mult: 2 },
-            { label: '1.2x', tier: 'medium', mult: 1.2 },
-            { label: '0.5x', tier: 'normal', mult: 0.5 },
-            { label: '0.1x', tier: 'loss', mult: 0.1 },
-            { label: '0.2x', tier: 'loss', mult: 0.2 },
-            { label: '1.2x', tier: 'medium', mult: 1.2 },
-            { label: '2x',   tier: 'high', mult: 2 },
-            { label: '5x',   tier: 'mega', mult: 5 }
+            { label: '500x', tier: 'jackpot', mult: 500, prob: 0 },
+            { label: '0.1x', tier: 'loss',    mult: 0.1, prob: 0.60 },
+            { label: '10x',  tier: 'high',    mult: 10,  prob: 0.02 },
+            { label: '0.2x', tier: 'loss',    mult: 0.2, prob: 0.40 },
+            { label: '3x',   tier: 'medium',  mult: 3,   prob: 0.10 },
+            { label: '0.5x', tier: 'normal',  mult: 0.5, prob: 0.30 },
+            { label: '1x',   tier: 'even',    mult: 1,   prob: 0.20 },
+            { label: '0.1x', tier: 'loss',    mult: 0.1, prob: 0.60 },
+            { label: '2x',   tier: 'medium',  mult: 2,   prob: 0.15 },
+            { label: '0.5x', tier: 'normal',  mult: 0.5, prob: 0.30 },
+            { label: '5x',   tier: 'high',    mult: 5,   prob: 0.05 },
+            { label: '0.2x', tier: 'loss',    mult: 0.2, prob: 0.40 },
+            { label: '50x',  tier: 'jackpot', mult: 50,  prob: 0 },
+            { label: '0.1x', tier: 'loss',    mult: 0.1, prob: 0.60 },
+            { label: '100x', tier: 'jackpot', mult: 100, prob: 0 }
         ];
 
         let activeBalls = [];
@@ -379,19 +427,19 @@
 
         function initBoard() {
             PEGS.length = 0;
-            const startY = 55;
-            const rowSpacing = 42;
+            const startY = 48;
+            const rowSpacing = 38;
 
             for (let r = 0; r < ROWS; r++) {
                 const count = r + 3;
-                const spacing = 36;
+                const spacing = 29;
                 const startX = (canvas.width - (count - 1) * spacing) / 2;
 
                 for (let c = 0; c < count; c++) {
                     PEGS.push({
                         x: startX + c * spacing,
                         y: startY + r * rowSpacing,
-                        radius: 4.5,
+                        radius: 4,
                         glow: 0
                     });
                 }
@@ -400,15 +448,15 @@
 
         initBoard();
 
-        // محرك الشرارات والجرافيكس
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 14; i++) {
+        // نظام مؤشرات والشرارات عند الارتطام
+        function createParticles(x, y, color, count = 16) {
+            for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6 - 2,
-                    radius: Math.random() * 3 + 1,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: (Math.random() - 0.5) * 7 - 2,
+                    radius: Math.random() * 3.5 + 1,
                     alpha: 1,
                     color: color
                 });
@@ -418,25 +466,25 @@
         function drawBoard() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // رسم شبكة خلفية ملونة ناعمة
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.02)";
+            // شبكة خلفية سينمائية
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.03)";
             ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 20) {
+            for (let i = 0; i < canvas.width; i += 25) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
             }
 
-            // رسم الدبابيس (Pegs)
+            // رسم الدبابيس المضيئة (Pegs)
             PEGS.forEach(peg => {
                 ctx.beginPath();
-                ctx.arc(peg.x, peg.y, peg.glow > 0 ? 6.5 : 4.5, 0, Math.PI * 2);
+                ctx.arc(peg.x, peg.y, peg.glow > 0 ? 6 : 4, 0, Math.PI * 2);
                 
                 if (peg.glow > 0) {
-                    ctx.fillStyle = "#00f2fe";
-                    ctx.shadowColor = "#00f2fe";
-                    ctx.shadowBlur = 18;
+                    ctx.fillStyle = "#ffd700";
+                    ctx.shadowColor = "#ffd700";
+                    ctx.shadowBlur = 15;
                     peg.glow--;
                 } else {
-                    ctx.fillStyle = "#8aa0b8";
+                    ctx.fillStyle = "#637b9d";
                     ctx.shadowBlur = 0;
                 }
                 
@@ -444,12 +492,12 @@
                 ctx.shadowBlur = 0;
             });
 
-            // رسم السلال
-            const bucketWidth = 38;
-            const bucketGap = 4;
+            // رسم سلال المضاعفات المبتكرة
+            const bucketWidth = 26;
+            const bucketGap = 3;
             const totalBucketWidth = (BUCKETS.length * bucketWidth) + ((BUCKETS.length - 1) * bucketGap);
             const startX = (canvas.width - totalBucketWidth) / 2;
-            const bucketY = canvas.height - 45;
+            const bucketY = canvas.height - 42;
 
             BUCKETS.forEach((b, i) => {
                 const x = startX + i * (bucketWidth + bucketGap);
@@ -458,31 +506,32 @@
                 let borderColor = "#ff2a5f";
                 let textColor = "#ff2a5f";
 
-                if (b.tier === 'normal') { bgColor = "rgba(255, 170, 0, 0.18)"; borderColor = "#ffaa00"; textColor = "#ffaa00"; }
-                if (b.tier === 'medium') { bgColor = "rgba(0, 230, 118, 0.18)"; borderColor = "#00e676"; textColor = "#00e676"; }
-                if (b.tier === 'high') { bgColor = "rgba(0, 242, 254, 0.18)"; borderColor = "#00f2fe"; textColor = "#00f2fe"; }
-                if (b.tier === 'mega') { bgColor = "rgba(255, 215, 0, 0.25)"; borderColor = "#ffd700"; textColor = "#ffd700"; }
+                if (b.tier === 'normal')  { bgColor = "rgba(255, 170, 0, 0.18)"; borderColor = "#ffaa00"; textColor = "#ffaa00"; }
+                if (b.tier === 'even')    { bgColor = "rgba(255, 255, 255, 0.15)"; borderColor = "#ffffff"; textColor = "#ffffff"; }
+                if (b.tier === 'medium')  { bgColor = "rgba(0, 230, 118, 0.18)"; borderColor = "#00e676"; textColor = "#00e676"; }
+                if (b.tier === 'high')    { bgColor = "rgba(0, 242, 254, 0.2)";  borderColor = "#00f2fe"; textColor = "#00f2fe"; }
+                if (b.tier === 'jackpot') { bgColor = "rgba(255, 215, 0, 0.3)";   borderColor = "#ffd700"; textColor = "#ffd700"; }
 
                 ctx.fillStyle = bgColor;
                 ctx.beginPath();
-                ctx.roundRect(x, bucketY, bucketWidth, 32, 6);
+                ctx.roundRect(x, bucketY, bucketWidth, 30, 5);
                 ctx.fill();
 
                 ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = 1.2;
                 ctx.stroke();
 
                 ctx.fillStyle = textColor;
-                ctx.font = "bold 11px Cairo";
+                ctx.font = "bold 9.5px Cairo";
                 ctx.textAlign = "center";
-                ctx.fillText(b.label, x + bucketWidth / 2, bucketY + 20);
+                ctx.fillText(b.label, x + bucketWidth / 2, bucketY + 19);
             });
 
-            // تحديث ورسم الشرارات
+            // تحديث الشرارات
             particles.forEach((p, index) => {
                 p.x += p.vx;
                 p.y += p.vy;
-                p.alpha -= 0.03;
+                p.alpha -= 0.035;
 
                 if (p.alpha <= 0) {
                     particles.splice(index, 1);
@@ -497,27 +546,27 @@
                 }
             });
 
-            // رسم وتحديث الكرات مع ذيل الحركة (Trail)
+            // رسم حركة الكرة مع التأثير الفيزيائي والانعطاف المثير (Near-Miss)
             activeBalls.forEach((ball, index) => {
                 ball.trail.push({ x: ball.x, y: ball.y });
-                if (ball.trail.length > 8) ball.trail.shift();
+                if (ball.trail.length > 9) ball.trail.shift();
 
-                // ذيل الحركة
+                // رسم ذيل النيون المضيء للكرة
                 for (let t = 0; t < ball.trail.length; t++) {
                     const pt = ball.trail[t];
                     const alpha = (t + 1) / ball.trail.length;
                     ctx.beginPath();
-                    ctx.arc(pt.x, pt.y, ball.radius * (alpha * 0.7), 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.4})`;
+                    ctx.arc(pt.x, pt.y, ball.radius * (alpha * 0.75), 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.45})`;
                     ctx.fill();
                 }
 
-                // جسم الكرة
+                // جسم الكرة الملكية الذهبية
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
                 ctx.fillStyle = "#ffd700";
                 ctx.shadowColor = "#ffd700";
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 16;
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
@@ -527,12 +576,10 @@
             requestAnimationFrame(drawBoard);
         }
 
+        // تحديث المسار بفيزيائية طبيعية ومشوقة
         function updateBallPath(ball, index) {
             if (ball.step >= ball.path.length) {
-                const targetBucketX = ball.x;
-                const targetBucketY = ball.y;
-                createParticles(targetBucketX, targetBucketY, ball.resultData.win_amount > 0 ? "#ffd700" : "#ff2a5f");
-                
+                createParticles(ball.x, ball.y, ball.resultData.win_amount > 0 ? "#ffd700" : "#ff2a5f", 20);
                 activeBalls.splice(index, 1);
                 onBallLanded(ball.resultData);
                 return;
@@ -543,10 +590,10 @@
             const dy = target.y - ball.y;
             const dist = Math.hypot(dx, dy);
 
-            // إعطاء تأثير التشويق عبر تخفيف سرعة الكرة قليلاً عند الاقتراب من النهاية
-            let speed = 7.5;
+            // سرعة الكرة المتغيرة تلقائياً لإعطاء شعور الترقب قبل السقوط
+            let speed = 7.2;
             if (ball.step >= ball.path.length - 3) {
-                speed = 5.2; // إبطاء تشويقي قبل السقوط النهائي
+                speed = 4.8; // إبطاء تشويقي عند الاقتراب من السلال
             }
 
             if (dist < speed) {
@@ -555,8 +602,13 @@
                 ball.step++;
 
                 if (target.pegRef) {
-                    target.pegRef.glow = 10;
-                    playSound('bounce');
+                    target.pegRef.glow = 12;
+                    playSound('bounce', 0.9 + (ball.step / ball.path.length) * 0.4);
+                    
+                    if (target.isNearMiss) {
+                        playSound('near_miss');
+                        createParticles(target.x, target.y, "#00f2fe", 8);
+                    }
                 }
             } else {
                 ball.x += (dx / dist) * speed;
@@ -566,14 +618,16 @@
 
         requestAnimationFrame(drawBoard);
 
-        // توليد مسار انسيابي طردي يطابق نتيجة السيرفر
-        function generatePathForTier(targetTier) {
+        // خوارزمية توليد المسار التشويقي (Near-Miss)
+        // تقرب الكرة من الخانات الكبيرة (مثل 500x أو 100x) ثم تنحرف بحركة فيزيائية طبيعية نحو الرقم الصغير المجاور
+        function generateSuspensePath(targetMultiplier) {
             let validIndices = [];
             BUCKETS.forEach((b, idx) => {
-                if (b.tier === targetTier) validIndices.push(idx);
+                if (b.mult === targetMultiplier) validIndices.push(idx);
             });
 
-            const targetBucketIdx = validIndices[Math.floor(Math.random() * validIndices.length)] || 4;
+            let targetBucketIdx = validIndices[Math.floor(Math.random() * validIndices.length)];
+            if (targetBucketIdx === undefined) targetBucketIdx = 7; // افتراضي في المنتصف
 
             const path = [];
             let currentX = canvas.width / 2;
@@ -581,6 +635,7 @@
 
             path.push({ x: currentX, y: currentY });
 
+            // حساب عدد التحركات
             let rightMovesNeeded = targetBucketIdx;
             let totalSteps = BUCKETS.length - 1;
 
@@ -588,11 +643,16 @@
             for (let i = 0; i < rightMovesNeeded; i++) moves.push(1);
             while (moves.length < totalSteps) moves.push(0);
 
+            // خلط الترتيب
             moves.sort(() => Math.random() - 0.5);
 
-            const startY = 55;
-            const rowSpacing = 42;
-            const spacing = 36;
+            // إذا كان الهدف رقم صغير بجانب رقم ضخم، لنجعل الانحراف يحدث في الصفوف الأخيرة لإثارة اللاعب
+            const jackpotIndices = [0, 12, 14]; // 500x, 50x, 100x
+            let buildSuspense = jackpotIndices.some(jIdx => Math.abs(jIdx - targetBucketIdx) === 1);
+
+            const startY = 48;
+            const rowSpacing = 38;
+            const spacing = 29;
 
             let colIndex = 0;
 
@@ -600,29 +660,36 @@
                 const count = r + 3;
                 const rowStartX = (canvas.width - (count - 1) * spacing) / 2;
                 
-                const pegX = rowStartX + (colIndex + moves[r]) * spacing;
+                let move = moves[r];
+
+                const pegX = rowStartX + (colIndex + move) * spacing;
                 const pegY = startY + r * rowSpacing;
 
-                const pegObj = PEGS.find(p => Math.abs(p.x - pegX) < 5 && Math.abs(p.y - pegY) < 5);
+                const pegObj = PEGS.find(p => Math.abs(p.x - pegX) < 6 && Math.abs(p.y - pegY) < 6);
 
-                path.push({ x: pegX, y: pegY - 7, pegRef: pegObj });
+                let isNearMissPoint = false;
+                if (buildSuspense && r >= ROWS - 3) {
+                    isNearMissPoint = true; // علامة للتأثير المضيء والتشويق
+                }
 
-                if (moves[r] === 1) colIndex++;
+                path.push({ x: pegX, y: pegY - 6, pegRef: pegObj, isNearMiss: isNearMissPoint });
+
+                if (move === 1) colIndex++;
             }
 
-            const bucketWidth = 38;
-            const bucketGap = 4;
+            const bucketWidth = 26;
+            const bucketGap = 3;
             const totalBucketWidth = (BUCKETS.length * bucketWidth) + ((BUCKETS.length - 1) * bucketGap);
             const startX = (canvas.width - totalBucketWidth) / 2;
             const finalX = startX + targetBucketIdx * (bucketWidth + bucketGap) + bucketWidth / 2;
-            const finalY = canvas.height - 28;
+            const finalY = canvas.height - 25;
 
             path.push({ x: finalX, y: finalY });
 
             return path;
         }
 
-        // الربط المباشر مع APIs السيرفر (app-٩.py)
+        // الربط المباشر مع API السيرفر (app.py / app-٩.py)
         async function fetchUserData() {
             try {
                 const res = await fetch(`/api/user/get?user_id=${userId}`);
@@ -632,7 +699,7 @@
                     updateUIBalance();
                 }
             } catch (err) {
-                console.error("خطأ في جلب البيانات:", err);
+                console.error("خطأ في جلب بيانات المستخدم:", err);
             }
         }
 
@@ -640,6 +707,7 @@
             document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
         }
 
+        // بدء اللعب ودفع الرهان
         async function playGame() {
             if (isPlaying) return;
 
@@ -652,7 +720,7 @@
             }
 
             if (currentBalance < betAmount) {
-                alert("رصيدك غير كافٍ للعب!");
+                alert("رصيدك غير كافٍ لإجراء هذا الرهان!");
                 return;
             }
 
@@ -660,6 +728,7 @@
             document.getElementById('btnPlay').disabled = true;
 
             try {
+                // خصم الرهان وإرسال الطلب للباك إند
                 const response = await fetch('/api/play', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -679,15 +748,17 @@
                     return;
                 }
 
+                // تحديث رصيد اللاعب بعد استجابة السيرفر الفورية
                 currentBalance = result.new_balance;
                 updateUIBalance();
 
-                const generatedPath = generatePathForTier(result.tier);
+                // توليد مسار الحركة بناءً على نتيجة المضاعف
+                const generatedPath = generateSuspensePath(result.multiplier);
 
                 activeBalls.push({
                     x: canvas.width / 2,
                     y: 15,
-                    radius: 6.5,
+                    radius: 6,
                     step: 0,
                     trail: [],
                     path: generatedPath,
@@ -695,13 +766,14 @@
                 });
 
             } catch (err) {
-                console.error("خطأ بالسيرفر:", err);
-                alert("تعذر الاتصال بالسيرفر!");
+                console.error("خطأ في الاتصال بالسيرفر:", err);
+                alert("تعذر الاتصال بالسيرفر! يرجى التحقق من الشبكة.");
                 isPlaying = false;
                 document.getElementById('btnPlay').disabled = false;
             }
         }
 
+        // عند هبوط الكرة وحساب النتيجة النهائية
         function onBallLanded(data) {
             isPlaying = false;
             document.getElementById('btnPlay').disabled = false;
@@ -710,11 +782,18 @@
             const toastTitle = document.getElementById('toastTitle');
             const toastValue = document.getElementById('toastValue');
 
+            // احتساب العائد: سعر الرهان * المضاعف
             if (data.win_amount > 0) {
-                toastTitle.innerText = `عائد (${data.multiplier}x)!`;
+                toastTitle.innerText = `عائد مضاعف (${data.multiplier}x)!`;
                 toastValue.innerText = `+${data.win_amount.toFixed(2)} NPS`;
-                toastValue.style.color = data.multiplier >= 1.0 ? "var(--accent-gold)" : "var(--accent-cyan)";
-                playSound('win');
+                
+                if (data.multiplier >= 1.0) {
+                    toastValue.style.color = "var(--accent-gold)";
+                    playSound('win');
+                } else {
+                    toastValue.style.color = "var(--accent-cyan)";
+                    playSound('loss');
+                }
             } else {
                 toastTitle.innerText = "لم تحالفك الحظ!";
                 toastValue.innerText = `0.00 NPS`;
@@ -723,11 +802,12 @@
             }
 
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 1800);
+            setTimeout(() => toast.classList.remove('show'), 2000);
 
             addHistoryBadge(data.multiplier, data.tier);
         }
 
+        // إضافة الشارة للوحة السجل
         function addHistoryBadge(mult, tier) {
             const bar = document.getElementById('historyBar');
             const badge = document.createElement('div');
@@ -736,7 +816,7 @@
 
             bar.insertBefore(badge, bar.firstChild);
 
-            if (bar.children.length > 7) {
+            if (bar.children.length > 8) {
                 bar.removeChild(bar.lastChild);
             }
         }
@@ -757,6 +837,7 @@
             if (val > MIN_BET) input.value = Math.max(MIN_BET, val - 5);
         });
 
+        // جلب رصيد المستخدم عند التحميل الأول
         fetchUserData();
     </script>
 </body>
