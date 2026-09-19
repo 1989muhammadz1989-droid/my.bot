@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>آلة الرافعة الكبرى - Neo Claw Machine 3D</title>
+    <title>آلة الرافعة النيون 3D - Neo Claw Machine</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- مكتبة الاحتفالات للربح -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --primary-neon: #ff007f;
+            --primary-neon: #ff0055;
             --secondary-neon: #00f2fe;
             --gold-accent: #ffd700;
-            --bg-dark: #090414;
-            --glass-border: rgba(255, 255, 255, 0.15);
+            --bg-dark: #06020e;
+            --glass-border: rgba(255, 255, 255, 0.18);
         }
 
         * {
@@ -24,19 +26,19 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #1b0c36 0%, var(--bg-dark) 100%);
+            background: radial-gradient(circle at center, #18092e 0%, var(--bg-dark) 100%);
             color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 12px;
+            padding: 8px;
             overflow: hidden;
             position: relative;
         }
 
-        /* خلفية جزئيات متحركة Canvas */
+        /* خلفية الجسيمات */
         #bgCanvas {
             position: absolute;
             top: 0;
@@ -47,41 +49,39 @@
             z-index: 0;
         }
 
-        /* شريط معلومات المستخدم علوي high-tech */
+        /* الشريط العلوي */
         .top-bar {
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(20, 10, 38, 0.75);
+            background: rgba(18, 8, 38, 0.85);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-bottom: 2px solid var(--secondary-neon);
-            padding: 10px 18px;
-            border-radius: 18px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 242, 254, 0.1);
+            padding: 8px 16px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
             z-index: 10;
         }
 
         .user-info {
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
 
         .user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e2e8f0;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
         }
 
         .currency-badge {
             font-size: 10px;
             color: var(--secondary-neon);
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.5px;
         }
 
@@ -89,119 +89,147 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 6px 14px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(30, 15, 50, 0.6) 100%);
+            padding: 5px 14px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            font-size: 17px;
-            font-weight: 800;
+            border: 1px solid var(--gold-accent);
+            font-size: 16px;
+            font-weight: 900;
             color: var(--gold-accent);
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
         }
 
-        /* الهيكل الخارجي للكابينة (Arcade Frame) */
+        /* الشعار واللافتة العلوية */
+        .arcade-marquee {
+            text-align: center;
+            margin: 4px 0;
+            z-index: 5;
+        }
+
+        .arcade-title {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, #ff007f, #ffd700, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { filter: drop-shadow(0 0 2px rgba(255, 0, 127, 0.6)); }
+            100% { filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.9)); }
+        }
+
+        /* الكابينة الرئيسية (Arcade Cabinet) */
         .machine-container {
             position: relative;
             width: 100%;
-            max-width: 430px;
-            height: 440px;
-            background: linear-gradient(180deg, #2a1147 0%, #110724 100%);
-            border-radius: 24px;
+            max-width: 410px;
+            height: 400px;
+            background: linear-gradient(180deg, #1f0a38 0%, #0a0318 100%);
+            border-radius: 22px;
             border: 3px solid #3d1c68;
             box-shadow: 
                 0 0 0 2px var(--primary-neon),
-                0 0 30px rgba(255, 0, 127, 0.3),
-                inset 0 0 20px rgba(0, 0, 0, 0.9);
+                0 0 35px rgba(255, 0, 127, 0.35),
+                inset 0 0 25px rgba(0, 0, 0, 0.95);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             z-index: 5;
+            transition: transform 0.1s ease;
+        }
+
+        .machine-container.shake {
+            animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shakeAnim {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
         }
 
         /* زجاج الكابينة والإضاءة الداخلية */
         .glass-window {
             position: relative;
             width: 100%;
-            height: 350px;
+            height: 100%;
             background: 
-                radial-gradient(ellipse at 50% 10%, rgba(0, 242, 254, 0.15) 0%, rgba(10, 3, 25, 0.85) 80%),
-                linear-gradient(180deg, rgba(255,0,127,0.05) 0%, rgba(0,0,0,0) 100%);
+                radial-gradient(ellipse at 50% 0%, rgba(0, 242, 254, 0.2) 0%, rgba(5, 2, 15, 0.9) 85%),
+                linear-gradient(180deg, rgba(255,0,127,0.08) 0%, rgba(0,0,0,0) 100%);
             border-bottom: 3px solid var(--secondary-neon);
             overflow: hidden;
         }
 
-        /* انعكاس زجاجي realism overlay */
         .glass-glare {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.03) 100%);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.04) 100%);
             pointer-events: none;
             z-index: 12;
         }
 
-        /* سكة الحركة العلوية */
+        /* السكة والعربة */
         .rail {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 18px;
-            background: linear-gradient(180deg, #555 0%, #222 100%);
-            border-bottom: 2px solid #777;
+            top: 0; left: 0; width: 100%; height: 16px;
+            background: linear-gradient(180deg, #666 0%, #111 100%);
+            border-bottom: 2px solid #888;
             box-shadow: 0 4px 10px rgba(0,0,0,0.8);
             z-index: 8;
         }
 
-        /* عربة الحركة الأفقية */
         .trolley {
             position: absolute;
-            top: 8px;
+            top: 6px;
             left: 50%;
-            width: 54px;
+            width: 50px;
             height: 16px;
-            background: linear-gradient(180deg, #ffd700, #996515);
+            background: linear-gradient(180deg, #ffd700, #8a5a00);
             border-radius: 4px;
             transform: translateX(-50%);
-            transition: left 0.05s linear;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
             z-index: 9;
+            transition: left 0.1s ease-out;
         }
 
-        /* حبل الصلب للرافعة */
         .cable {
             position: absolute;
-            top: 22px;
+            top: 20px;
             left: 50%;
             width: 3px;
-            height: 35px;
-            background: linear-gradient(90deg, #aaa, #fff, #666);
+            height: 30px;
+            background: linear-gradient(90deg, #888, #fff, #444);
             transform: translateX(-50%);
             z-index: 7;
-            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+            box-shadow: 0 0 6px rgba(255,255,255,0.6);
+            transition: left 0.1s ease-out;
         }
 
         /* رأس الرافعة والمخالب */
         .claw-assembly {
             position: absolute;
-            top: 57px;
+            top: 50px;
             left: 50%;
-            width: 60px;
-            height: 55px;
+            width: 58px;
+            height: 50px;
             transform: translateX(-50%);
             z-index: 10;
-            transition: top 0.05s linear, left 0.05s linear;
+            transition: left 0.1s ease-out;
         }
 
         .claw-base {
-            width: 34px;
-            height: 18px;
-            background: linear-gradient(180deg, #ff007f, #800040);
+            width: 32px;
+            height: 16px;
+            background: linear-gradient(180deg, #ff0055, #660022);
             margin: 0 auto;
             border-radius: 6px;
-            border: 1px solid #ff99cc;
+            border: 1px solid #ff80ab;
             box-shadow: 0 0 12px var(--primary-neon);
             position: relative;
         }
@@ -209,110 +237,79 @@
         .claw-base::after {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 6px; height: 6px;
             background: var(--secondary-neon);
             border-radius: 50%;
-            top: 5px;
-            left: 13px;
+            top: 5px; left: 12px;
             box-shadow: 0 0 8px var(--secondary-neon);
         }
 
         .claw-arms {
             position: relative;
             width: 100%;
-            height: 36px;
+            height: 34px;
         }
 
         .claw-arm {
             position: absolute;
             top: -2px;
-            width: 10px;
-            height: 36px;
-            background: linear-gradient(180deg, #e0e0e0 0%, #666 100%);
+            width: 9px;
+            height: 34px;
+            background: linear-gradient(180deg, #f0f0f0 0%, #555 100%);
             border-radius: 4px;
             border: 1px solid #fff;
             transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .claw-arm.left {
-            left: 10px;
+            left: 9px;
             transform-origin: top center;
-            transform: rotate(-30deg);
+            transform: rotate(-32deg);
         }
 
         .claw-arm.right {
-            right: 10px;
+            right: 9px;
             transform-origin: top center;
-            transform: rotate(30deg);
+            transform: rotate(32deg);
         }
 
-        .claw-arm::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            width: 8px;
-            height: 8px;
-            background: #ffd700;
-            border-radius: 50%;
-        }
+        .claw-assembly.closed .claw-arm.left { transform: rotate(10deg); }
+        .claw-assembly.closed .claw-arm.right { transform: rotate(-10deg); }
 
-        /* إغلاق المخالب عند الالتقاط */
-        .claw-assembly.closed .claw-arm.left {
-            transform: rotate(8deg);
-        }
-        .claw-assembly.closed .claw-arm.right {
-            transform: rotate(-8deg);
-        }
-
-        /* أحواض الصناديق الكنز */
+        /* حوض الصناديق */
         .chest-pit {
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 85px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            bottom: 0; width: 100%; height: 80px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 6;
         }
 
         .treasure-chest {
             position: absolute;
-            bottom: 12px;
-            width: 48px;
-            height: 40px;
-            background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
+            bottom: 10px;
+            width: 44px;
+            height: 38px;
+            background: linear-gradient(180deg, #ffd700 0%, #996515 100%);
             border: 2px solid #fff8dc;
             border-radius: 8px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.8), 0 0 12px rgba(255, 215, 0, 0.4);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.8), 0 0 10px rgba(255, 215, 0, 0.3);
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
-        }
-
-        .treasure-chest::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 8px;
-            background: #4a2c00;
-            top: 14px;
-            border-top: 1px solid #ffd700;
-            border-bottom: 1px solid #ffd700;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .treasure-chest::after {
             content: '💎';
-            font-size: 16px;
-            z-index: 2;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            font-size: 15px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
         }
 
-        /* الصندوق الملتصق بالرافعة */
+        /* الصندوق الممسوك بالرافعة */
         .grabbed-chest {
             position: absolute;
-            top: 28px;
+            top: 26px;
             left: 50%;
             transform: translateX(-50%);
             display: none;
@@ -322,15 +319,13 @@
         /* فتحة إلقاء الجوائز (Chute) */
         .chute {
             position: absolute;
-            bottom: 0;
-            right: 12px;
-            width: 75px;
-            height: 60px;
+            bottom: 0; right: 10px;
+            width: 70px; height: 60px;
             background: radial-gradient(circle, #151515 0%, #050505 100%);
             border: 2px dashed var(--secondary-neon);
             border-bottom: none;
             border-radius: 12px 12px 0 0;
-            box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.3);
+            box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.4);
             z-index: 5;
             display: flex;
             align-items: center;
@@ -338,116 +333,158 @@
         }
 
         .chute-label {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--secondary-neon);
             font-weight: bold;
-            text-shadow: 0 0 5px var(--secondary-neon);
+            text-align: center;
+            text-shadow: 0 0 6px var(--secondary-neon);
         }
 
-        /* لوحة التحكم السفلية modern controls */
+        /* نافذة النتيجة */
+        .status-modal {
+            position: absolute;
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: rgba(12, 5, 25, 0.95);
+            border: 2px solid var(--gold-accent);
+            padding: 18px 25px;
+            border-radius: 18px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.5);
+            width: 82%;
+            max-width: 300px;
+        }
+
+        .status-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .status-title { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+        .status-win { color: #00ff88; text-shadow: 0 0 12px #00ff88; }
+        .status-loss { color: #ff3366; text-shadow: 0 0 12px #ff3366; }
+        .status-msg { font-size: 14px; color: #cbd5e1; font-weight: 600; }
+        .status-payout { margin-top: 6px; font-size: 18px; font-weight: 900; color: var(--gold-accent); }
+
+        /* لوحة التحكم والتحريك */
         .control-panel {
             width: 100%;
-            max-width: 430px;
-            background: rgba(18, 9, 36, 0.95);
-            backdrop-filter: blur(10px);
+            max-width: 410px;
+            background: rgba(15, 7, 30, 0.95);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-top: 2px solid var(--primary-neon);
-            border-radius: 20px;
-            padding: 14px 16px;
-            margin-top: 10px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.9);
+            border-radius: 18px;
+            padding: 12px 14px;
+            margin-top: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             z-index: 10;
         }
 
-        .bet-row {
+        /* أزرار توجيه الرافعة يمين ويسار */
+        .claw-position-controls {
             display: flex;
-            align-items: center;
+            gap: 10px;
             justify-content: space-between;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .bet-btn-adjust {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(180deg, #333852 0%, #1a1d2e 100%);
-            border: 1px solid #525a80;
-            color: #fff;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 10px;
+        .btn-move {
+            flex: 1;
+            height: 44px;
+            background: linear-gradient(180deg, #2a1b4e 0%, #140b29 100%);
+            border: 1px solid var(--secondary-neon);
+            border-radius: 12px;
+            color: var(--secondary-neon);
+            font-size: 18px;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(0, 242, 254, 0.2);
             transition: all 0.1s ease;
         }
 
-        .bet-btn-adjust:active {
-            transform: scale(0.92);
-            background: var(--primary-neon);
-        }
-
-        .bet-info-display {
-            text-align: center;
-        }
-
-        .bet-title {
-            font-size: 11px;
-            color: #a0aec0;
-            font-weight: 500;
-        }
-
-        .bet-value-text {
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--secondary-neon);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
-        }
-
-        .preset-bets {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-preset {
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            font-size: 11px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-preset:active {
-            background: var(--gold-accent);
+        .btn-move:active:not(:disabled) {
+            transform: scale(0.95);
+            background: var(--secondary-neon);
             color: #000;
         }
 
-        /* زر التشغيل الكبير المغري */
+        .btn-move:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #444;
+            color: #777;
+        }
+
+        /* صف التحكم بالرهان */
+        .bet-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .bet-btn-adjust {
+            width: 38px; height: 38px;
+            background: linear-gradient(180deg, #333852 0%, #1a1d2e 100%);
+            border: 1px solid #525a80;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bet-btn-adjust:active { background: var(--primary-neon); }
+
+        .bet-info-display { text-align: center; }
+        .bet-title { font-size: 10px; color: #94a3b8; font-weight: 600; }
+        .bet-value-text { font-size: 19px; font-weight: 900; color: var(--gold-accent); }
+
+        .preset-bets { display: flex; gap: 4px; }
+        .btn-preset {
+            padding: 6px 9px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-preset:active { background: var(--gold-accent); color: #000; }
+
+        /* زر التشغيل والإسقاط الكبير */
         .btn-action-play {
             width: 100%;
-            height: 56px;
-            background: linear-gradient(180deg, #ff007f 0%, #99004d 100%);
-            border: 1px solid #ff66b2;
-            border-radius: 16px;
+            height: 50px;
+            background: linear-gradient(180deg, #ff0055 0%, #990033 100%);
+            border: 1px solid #ff6699;
+            border-radius: 14px;
             color: #fff;
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
+            font-size: 18px;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5);
             transition: all 0.15s ease;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -455,63 +492,16 @@
         }
 
         .btn-action-play:disabled {
-            background: linear-gradient(180deg, #444 0%, #222 100%);
-            border-color: #555;
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            border-color: #444;
             box-shadow: none;
             cursor: not-allowed;
-            color: #777;
+            color: #666;
         }
 
         .btn-action-play:not(:disabled):active {
-            transform: translateY(3px);
-            box-shadow: 0 3px 12px rgba(255, 0, 127, 0.4);
-        }
-
-        /* شاشة إعلان النتيجة والجوائز */
-        .status-modal {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.7);
-            background: rgba(10, 5, 20, 0.95);
-            border: 2px solid var(--gold-accent);
-            padding: 20px 30px;
-            border-radius: 20px;
-            text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 30;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.2);
-            width: 80%;
-            max-width: 320px;
-        }
-
-        .status-modal.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .status-title {
-            font-size: 26px;
-            font-weight: 900;
-            margin-bottom: 6px;
-        }
-
-        .status-win { color: #00ff88; text-shadow: 0 0 15px #00ff88; }
-        .status-loss { color: #ff3366; text-shadow: 0 0 15px #ff3366; }
-
-        .status-msg {
-            font-size: 15px;
-            color: #e2e8f0;
-            font-weight: 600;
-        }
-
-        .status-payout {
-            margin-top: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--gold-accent);
+            transform: translateY(2px);
+            box-shadow: 0 2px 10px rgba(255, 0, 85, 0.4);
         }
     </style>
 </head>
@@ -519,7 +509,7 @@
 
     <canvas id="bgCanvas"></canvas>
 
-    <!-- شريط معلومات الرصيد والمستخدم -->
+    <!-- الشريط العلوي -->
     <div class="top-bar">
         <div class="user-info">
             <span class="user-name" id="userName">لاعب متخفي</span>
@@ -527,61 +517,65 @@
         </div>
         <div class="balance-box">
             <span id="userBalance">0.00</span>
-            <span style="font-size:12px;">NPS</span>
+            <span style="font-size:11px;">NPS</span>
         </div>
     </div>
 
-    <!-- كابينة آلة الرافعة -->
-    <div class="machine-container">
-        <div class="glass-window" id="glassWindow">
+    <!-- عنوان الصالة -->
+    <div class="arcade-marquee">
+        <div class="arcade-title">🏗️ NEO CLAW MACHINE 3D 💎</div>
+    </div>
+
+    <!-- كابينة الرافعة -->
+    <div class="machine-container" id="machineCabinet">
+        <div class="glass-window">
             <div class="glass-glare"></div>
             <div class="rail"></div>
             
-            <!-- عربة الحركة الأفقية -->
             <div class="trolley" id="trolley"></div>
-            
-            <!-- حبل الرافعة الصلب -->
             <div class="cable" id="cable"></div>
             
-            <!-- رأس الرافعة والمخالب -->
             <div class="claw-assembly" id="clawAssembly">
                 <div class="claw-base"></div>
                 <div class="claw-arms">
                     <div class="claw-arm left"></div>
                     <div class="claw-arm right"></div>
                 </div>
-                <!-- الصندوق الملتصق بالرافعة أثناء الرفع -->
                 <div class="treasure-chest grabbed-chest" id="grabbedChest"></div>
             </div>
 
-            <!-- فتحة إلقاء الجوائز -->
             <div class="chute">
-                <span class="chute-label">فتحة الجوائز</span>
+                <span class="chute-label">فتحة الجوائز<br>CHUTE</span>
             </div>
 
-            <!-- حوض الصناديق السفلية -->
             <div class="chest-pit" id="chestPit">
-                <div class="treasure-chest" style="left: 10%;" data-x="10"></div>
+                <div class="treasure-chest" style="left: 12%;" data-x="12"></div>
                 <div class="treasure-chest" style="left: 32%;" data-x="32"></div>
-                <div class="treasure-chest" style="left: 55%;" data-x="55"></div>
-                <div class="treasure-chest" style="left: 76%;" data-x="76"></div>
+                <div class="treasure-chest" style="left: 52%;" data-x="52"></div>
+                <div class="treasure-chest" style="left: 72%;" data-x="72"></div>
             </div>
 
-            <!-- نافذة عرض النتيجة -->
             <div class="status-modal" id="statusModal">
                 <div class="status-title" id="statusTitle">مبروك!</div>
-                <div class="status-msg" id="statusMsg">نجحت الرافعة في التقاط الصندوق</div>
+                <div class="status-msg" id="statusMsg">نجحت الرافعة في التقاط الكنز</div>
                 <div class="status-payout" id="statusPayout"></div>
             </div>
         </div>
     </div>
 
-    <!-- لوحة التحكم والرهان -->
+    <!-- لوحة التحكم -->
     <div class="control-panel">
+        <!-- أزرار التوجيه المباشر -->
+        <div class="claw-position-controls">
+            <button class="btn-move" id="btnMoveLeft">◀️ يسار</button>
+            <button class="btn-move" id="btnMoveRight">يمين ▶️</button>
+        </div>
+
+        <!-- أزرار الرهان -->
         <div class="bet-row">
             <button class="bet-btn-adjust" id="btnMinus">-</button>
             <div class="bet-info-display">
-                <div class="bet-title">مبلغ الرهان (مضاعفة 2X)</div>
+                <div class="bet-title">مبلغ الرهان (ربح مضاعف 2X)</div>
                 <div class="bet-value-text"><span id="betAmount">5</span> NPS</div>
             </div>
             <button class="bet-btn-adjust" id="btnPlus">+</button>
@@ -592,37 +586,34 @@
             </div>
         </div>
 
+        <!-- زر التشغيل والإسقاط -->
         <button class="btn-action-play" id="btnPlay">
-            <span>إنزال الرافعة</span> 🏗️
+            <span>إسقاط الرافعة والرهان</span> 🏗️
         </button>
     </div>
 
     <script>
-        // --- 1. تهيئة تليجرام وبنية البيانات الأساسية ---
+        // --- 1. تهيئة تليجرام والمعرفات ---
         const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) {
-            tg.expand();
-            tg.ready();
-        }
+        if (tg) { tg.expand(); tg.ready(); }
 
         const urlParams = new URLSearchParams(window.location.search);
         let userId = urlParams.get('user_id') || urlParams.get('telegram_id');
         if (!userId && tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id;
         }
-        if (!userId) {
-            userId = "10001"; // معرف افتراضي للتجربة
-        }
+        if (!userId) userId = "10001";
 
-        // متغيرات الرهان والرصيد
+        // متغيرات الحالة والرهان
         let currentBet = 5;
         const MIN_BET = 5;
         const MAX_BET = 1000;
         const BET_STEP = 5;
         let isPlaying = false;
         let userBalance = 0.0;
+        let clawXPercent = 50; // الموقف الحالي للرافعة (12% إلى 78%)
 
-        // عناصر الواجهة DOM
+        // عناصر DOM
         const elBalance = document.getElementById('userBalance');
         const elUserName = document.getElementById('userName');
         const elBetAmount = document.getElementById('betAmount');
@@ -631,120 +622,96 @@
         const btnMin = document.getElementById('btnMin');
         const btnMax = document.getElementById('btnMax');
         const btnPlay = document.getElementById('btnPlay');
+        const btnMoveLeft = document.getElementById('btnMoveLeft');
+        const btnMoveRight = document.getElementById('btnMoveRight');
         
         const trolley = document.getElementById('trolley');
         const cable = document.getElementById('cable');
         const clawAssembly = document.getElementById('clawAssembly');
         const grabbedChest = document.getElementById('grabbedChest');
+        const machineCabinet = document.getElementById('machineCabinet');
         const statusModal = document.getElementById('statusModal');
         const statusTitle = document.getElementById('statusTitle');
         const statusMsg = document.getElementById('statusMsg');
         const statusPayout = document.getElementById('statusPayout');
 
-        // --- 2. المؤثرات الصوتية الصوتية الفائقة (Web Audio API) ---
-        function createAudioContext() {
-            return new (window.AudioContext || window.webkitAudioContext)();
-        }
+        // --- 2. المؤثرات الصوتية (Web Audio API) ---
         let audioCtx = null;
-
         function playSound(type) {
             try {
-                if (!audioCtx) audioCtx = createAudioContext();
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-
                 const now = audioCtx.currentTime;
 
                 if (type === 'move') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(120, now);
-                    osc.frequency.linearRampToValueAtTime(180, now + 0.15);
-                    gain.gain.setValueAtTime(0.04, now);
-                    gain.gain.linearRampToValueAtTime(0, now + 0.15);
-                    osc.start(now);
-                    osc.stop(now + 0.15);
-                } else if (type === 'grab') {
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(200, now);
-                    osc.frequency.exponentialRampToValueAtTime(80, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now);
+                    osc.frequency.setValueAtTime(140, now);
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'grab') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(90, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
                     gain.gain.linearRampToValueAtTime(0, now + 0.2);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
                 } else if (type === 'win') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.setValueAtTime(400, now + 0.1);
-                    osc.frequency.setValueAtTime(523.25, now + 0.2);
-                    osc.frequency.setValueAtTime(659.25, now + 0.3);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-                    osc.start(now);
-                    osc.stop(now + 0.6);
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(523.25, now + 0.12);
+                    osc.frequency.setValueAtTime(659.25, now + 0.24);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now); osc.stop(now + 0.5);
                 } else if (type === 'drop') {
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+                    osc.frequency.setValueAtTime(130, now);
+                    osc.frequency.exponentialRampToValueAtTime(35, now + 0.3);
                     gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0, now + 0.25);
-                    osc.start(now);
-                    osc.stop(now + 0.25);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
                 }
             } catch (e) {}
         }
 
-        // --- 3. خلفية الجسيمات المضيئة (Particle Canvas) ---
+        // --- 3. خلفية الجسيمات المتحركة ---
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
         class Particle {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speedY = -(Math.random() * 0.8 + 0.2);
+                this.speedY = -(Math.random() * 0.7 + 0.2);
                 this.opacity = Math.random() * 0.5 + 0.2;
-                this.color = Math.random() > 0.5 ? '#ff007f' : '#00f2fe';
+                this.color = Math.random() > 0.5 ? '#ff0055' : '#00f2fe';
             }
-            update() {
-                this.y += this.speedY;
-                if (this.y < 0) this.reset();
-            }
+            update() { this.y += this.speedY; if (this.y < 0) this.reset(); }
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.globalAlpha = this.opacity;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-
-        for (let i = 0; i < 35; i++) particles.push(new Particle());
-
+        for (let i = 0; i < 30; i++) particles.push(new Particle());
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
+            particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animateParticles);
         }
         animateParticles();
 
-        // --- 4. جلب بيانات المستخدم وتحديث الواجهة ---
+        // --- 4. جلب بيانات المستخدم وإدارتها ---
         async function fetchUserData() {
             try {
                 const response = await fetch(`/api/user/get?user_id=${userId}`);
@@ -752,9 +719,7 @@
                 if (data.success) {
                     userBalance = data.balance;
                     elBalance.innerText = userBalance.toFixed(2);
-                    if (data.full_name) {
-                        elUserName.innerText = data.full_name;
-                    }
+                    if (data.full_name) elUserName.innerText = data.full_name;
                 }
             } catch (err) {
                 console.error("خطأ جلب البيانات:", err);
@@ -773,51 +738,63 @@
         btnMin.addEventListener('click', () => updateBet(MIN_BET));
         btnMax.addEventListener('click', () => updateBet(MAX_BET));
 
-        function hideStatus() {
-            statusModal.classList.remove('show');
+        // تحريك الرافعة يدويًا
+        function updateClawPosition(newPos) {
+            if (isPlaying) return;
+            clawXPercent = Math.max(12, Math.min(78, newPos));
+            trolley.style.left = `${clawXPercent}%`;
+            cable.style.left = `${clawXPercent}%`;
+            clawAssembly.style.left = `${clawXPercent}%`;
+            playSound('move');
         }
+
+        btnMoveLeft.addEventListener('click', () => updateClawPosition(clawXPercent - 8));
+        btnMoveRight.addEventListener('click', () => updateClawPosition(clawXPercent + 8));
+
+        function hideStatus() { statusModal.classList.remove('show'); }
 
         function showStatus(isWin, winAmount) {
             if (isWin) {
-                statusTitle.innerText = "مبروك! 🪙";
+                statusTitle.innerText = "فوز ساحق! 💎";
                 statusTitle.className = "status-title status-win";
-                statusMsg.innerText = "نجحت الرافعة في إيصال الكنز!";
-                statusPayout.innerText = `الأرباح (2X): +${winAmount.toFixed(2)} NPS`;
+                statusMsg.innerText = "نجحت الرافعة في إيصال الكنز للفتحة!";
+                statusPayout.innerText = `المكافأة (2X): +${winAmount.toFixed(2)} NPS`;
                 playSound('win');
+                if (window.confetti) {
+                    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+                }
             } else {
                 statusTitle.innerText = "للأسف! 💥";
                 statusTitle.className = "status-title status-loss";
-                statusMsg.innerText = "انزلقت القبضة وسقط الصندوق!";
+                statusMsg.innerText = "انزلق الصندوق من القبضة وسقط!";
                 statusPayout.innerText = "";
                 playSound('drop');
+                machineCabinet.classList.add('shake');
+                setTimeout(() => machineCabinet.classList.remove('shake'), 400);
             }
             statusModal.classList.add('show');
         }
 
-        // --- 5. أنيميشن الرافعة والربط بالسيرفر (Game Engine) ---
+        // --- 5. محرك اللعبة والاتصال بالسيرفر ---
         async function startClawGame() {
             if (isPlaying) return;
 
             if (userBalance < currentBet) {
-                alert("رصيدك غير كافٍ لإجراء الرهان!");
+                alert("رصيدك غير كافٍ لإجراء هذا الرهان!");
                 return;
             }
 
             isPlaying = true;
-            btnPlay.disabled = true;
-            btnMinus.disabled = true;
-            btnPlus.disabled = true;
-            btnMin.disabled = true;
-            btnMax.disabled = true;
+            setControlsDisabled(true);
             hideStatus();
 
-            // خصم رصيد الرهان فوراً محلياً لإشعار اللاعب بالاستجابة
+            // خصم مبلغ الرهان فوراً محلياً
             userBalance -= currentBet;
             elBalance.innerText = userBalance.toFixed(2);
 
             let playResult = null;
 
-            // طلب النتيجة من السيرفر
+            // طلب النتيجة الحتمية من السيرفر
             try {
                 const response = await fetch('/api/play', {
                     method: 'POST',
@@ -833,102 +810,115 @@
                 console.error("خطأ الاتصال بالسيرفر:", err);
             }
 
-            // إذا فشل الاتصال، استبدله بحدث محلي للتجربة وعدم تعليق اللعبة
+            // نظام احتياطي في حال عدم الاتصال بالسيرفر للمعاينة
             if (!playResult || !playResult.success) {
-                const isWinSim = Math.random() < 0.45; // نسبة فوز تجريبية
+                const isWinSim = Math.random() < 0.45;
+                const winAmountStrict = isWinSim ? currentBet * 2 : 0; // نظام صارم: 2X فقط عند الربح
                 playResult = {
                     success: true,
                     is_win: isWinSim,
-                    win_amount: isWinSim ? currentBet * 2 : 0,
-                    new_balance: userBalance + (isWinSim ? currentBet * 2 : 0)
+                    win_amount: winAmountStrict,
+                    new_balance: userBalance + winAmountStrict
                 };
+            } else {
+                // التأكيد الصارم على مضاعفة الرهان 2X فقط في حالة الفوز
+                if (playResult.is_win) {
+                    playResult.win_amount = currentBet * 2;
+                } else {
+                    playResult.win_amount = 0;
+                }
             }
 
-            // اختيار صندوق عشوائي مستهدف
+            // العثور على أقرب صندوق للموقع الذي اختاره اللاعب
             const chests = document.querySelectorAll('#chestPit .treasure-chest');
-            const targetIndex = Math.floor(Math.random() * chests.length);
-            const targetChest = chests[targetIndex];
-            const targetX = parseFloat(targetChest.getAttribute('data-x'));
+            let targetChest = chests[0];
+            let minDiff = 999;
+            chests.forEach(c => {
+                const cx = parseFloat(c.getAttribute('data-x'));
+                const diff = Math.abs(cx - clawXPercent);
+                if (diff < minDiff) { minDiff = diff; targetChest = c; }
+            });
 
-            // مرحلة 1: تحريك الرافعة أفقياً فوق الصندوق
-            await animateHorizontal(targetX);
+            // مرحلة 1: إنزال الرافعة للقاع
+            await animateCableDown(215);
 
-            // مرحلة 2: نزول الرافعة إلى القاع
-            await animateCableDown(230);
-
-            // مرحلة 3: إغلاق المخالب والتقاط الصندوق
+            // مرحلة 2: إغلاق المخالب والإمساك بالصندوق
             playSound('grab');
             clawAssembly.classList.add('closed');
-            await sleep(300);
+            await sleep(250);
 
-            targetChest.style.opacity = '0'; // إخفاء الصندوق السفي
-            grabbedChest.style.display = 'block'; // إظهار الصندوق الممسوك
+            targetChest.style.opacity = '0';
+            grabbedChest.style.display = 'block';
 
             if (playResult.is_win) {
                 // --- سيناريو الفوز ---
-                // 1. صعود بالصندوق للقمة
-                await animateCableUp(35);
-                
-                // 2. تحريك الرافعة أفقياً باتجاه فتحة الجوائز (أقصى اليمين)
+                // 1. صعود بالصندوق لأعلى الكابينة
+                await animateCableUp(30);
+
+                // 2. التحريك الأفقياً نحو فتحة الجوائز (أقصى اليمين)
                 await animateHorizontal(82);
 
-                // 3. فتح الرافعة وإسقاط الصندوق في الفتحة
+                // 3. إسقاط الصندوق في الفتحة
                 clawAssembly.classList.remove('closed');
                 grabbedChest.style.display = 'none';
                 playSound('drop');
                 await sleep(300);
 
-                // 4. تحديث الرصيد النهائي
+                // 4. تحديث الرصيد وإظهار شاشة الفوز
                 userBalance = playResult.new_balance;
                 elBalance.innerText = userBalance.toFixed(2);
                 showStatus(true, playResult.win_amount);
 
             } else {
                 // --- سيناريو الخسارة ---
-                // 1. صعود جزئي ثم الانزلاق والسقوط
-                await animateCableUp(120);
-                
-                // انزلاق الصندوق
+                // 1. الصعود بالصندوق جزئياً لمنتصف المسافة
+                await animateCableUp(110);
+
+                // 2. انزلاق الصندوق وسقوطه الدراماتيكي
                 clawAssembly.classList.remove('closed');
                 grabbedChest.style.display = 'none';
                 targetChest.style.opacity = '1';
                 playSound('drop');
 
-                // تأثير اهتزاز بسيط
-                targetChest.style.transform = 'translateY(-10px)';
+                // تأثير ارتداد الصندوق عند السقوط
+                targetChest.style.transform = 'translateY(-12px)';
                 setTimeout(() => { targetChest.style.transform = 'translateY(0)'; }, 150);
 
-                // صعود الرافعة فارغة للقمة
-                await animateCableUp(35);
+                // 3. صعود الرافعة فارغة للقمة
+                await animateCableUp(30);
 
-                // تحديث الرصيد
+                // 4. تحديث الرصيد وإظهار الخسارة
                 userBalance = playResult.new_balance;
                 elBalance.innerText = userBalance.toFixed(2);
                 showStatus(false, 0);
             }
 
-            // إعادة الرافعة للمنتصف
+            // إعادة الرافعة إلى منتصف الكابينة وإتاحة اللعب مجدداً
             await animateHorizontal(50);
+            clawXPercent = 50;
             targetChest.style.opacity = '1';
 
-            // إعادة تفعيل الأزرار
             isPlaying = false;
-            btnPlay.disabled = false;
-            btnMinus.disabled = false;
-            btnPlus.disabled = false;
-            btnMin.disabled = false;
-            btnMax.disabled = false;
+            setControlsDisabled(false);
         }
 
-        // --- 6. دال المساعدة للحركة والتوقيت (Animation Helpers) ---
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        // --- 6. دال مساعدة للتحريك والتوقيت ---
+        function setControlsDisabled(disabled) {
+            btnPlay.disabled = disabled;
+            btnMinus.disabled = disabled;
+            btnPlus.disabled = disabled;
+            btnMin.disabled = disabled;
+            btnMax.disabled = disabled;
+            btnMoveLeft.disabled = disabled;
+            btnMoveRight.disabled = disabled;
         }
+
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
         function animateHorizontal(targetPercent) {
             return new Promise(resolve => {
-                let currentPos = parseFloat(trolley.style.left) || 50;
-                const step = targetPercent > currentPos ? 1.5 : -1.5;
+                let currentPos = clawXPercent;
+                const step = targetPercent > currentPos ? 2 : -2;
 
                 const interval = setInterval(() => {
                     currentPos += step;
@@ -937,6 +927,7 @@
                         clearInterval(interval);
                         resolve();
                     }
+                    clawXPercent = currentPos;
                     trolley.style.left = `${currentPos}%`;
                     cable.style.left = `${currentPos}%`;
                     clawAssembly.style.left = `${currentPos}%`;
@@ -947,7 +938,7 @@
 
         function animateCableDown(targetHeight) {
             return new Promise(resolve => {
-                let currentH = parseFloat(cable.style.height) || 35;
+                let currentH = parseFloat(cable.style.height) || 30;
                 const interval = setInterval(() => {
                     currentH += 5;
                     if (currentH >= targetHeight) {
@@ -956,14 +947,14 @@
                         resolve();
                     }
                     cable.style.height = `${currentH}px`;
-                    clawAssembly.style.top = `${22 + currentH}px`;
-                }, 15);
+                    clawAssembly.style.top = `${20 + currentH}px`;
+                }, 12);
             });
         }
 
         function animateCableUp(targetHeight) {
             return new Promise(resolve => {
-                let currentH = parseFloat(cable.style.height) || 230;
+                let currentH = parseFloat(cable.style.height) || 215;
                 const interval = setInterval(() => {
                     currentH -= 5;
                     if (currentH <= targetHeight) {
@@ -972,8 +963,8 @@
                         resolve();
                     }
                     cable.style.height = `${currentH}px`;
-                    clawAssembly.style.top = `${22 + currentH}px`;
-                }, 15);
+                    clawAssembly.style.top = `${20 + currentH}px`;
+                }, 12);
             });
         }
 
