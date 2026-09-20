@@ -444,20 +444,22 @@
     // Telegram User & API Integration
     const urlParams = new URLSearchParams(window.location.search);
     let userId = urlParams.get('user_id') || urlParams.get('telegram_id');
+    const GAME_ID = "knight_joust"; // معرف اللعبة المربوط بقاعدة البيانات
     
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
         userId = userId || window.Telegram.WebApp.initDataUnsafe.user.id;
     }
     if (!userId) userId = "1000";
 
-    let currentBalance = 100.00; // Default fallback balance
+    let currentBalance = 0.00;
     let betAmount = 10;
     const minBet = 5;
     const maxBet = 1000;
-    const WIN_MULTIPLIER = 2.0; // STRICT 2X MULTIPLIER RULE
+    const WIN_MULTIPLIER = 2.0;
     
     // Betting Side States: null, 'BLUE', 'RED'
     let chosenSideForBet = null;
+    let lastApiResult = null; // لتخزين النتيجة القادمة من السيرفر
 
     // Round States: 'COUNTDOWN', 'CHARGING', 'MELEE_COMBAT', 'FINAL_STRIKE', 'RESULT'
     let roundState = 'COUNTDOWN';
@@ -483,7 +485,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Procedural Sound Effects Engine
+    // Sound Effects Engine
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
@@ -553,7 +555,7 @@
         } catch(e) {}
     }
 
-    // Objects & Physics Setup
+    // Objects & Physics
     let particles = [];
     let cameraShake = { x: 0, y: 0, intensity: 0 };
 
@@ -613,7 +615,7 @@
         document.getElementById('winEst').innerText = (betAmount * WIN_MULTIPLIER).toFixed(2);
     }
 
-    // Bet Side Selection Mechanics
+    // Bet Side Selection
     function placeBetOnSide(side) {
         initAudio();
         if (roundState !== 'COUNTDOWN') return;
@@ -624,7 +626,6 @@
         }
 
         if (chosenSideForBet === side) {
-            // Cancel bet
             chosenSideForBet = null;
         } else {
             chosenSideForBet = side;
@@ -656,7 +657,7 @@
         }
     }
 
-    // Advanced Particle Engine
+    // Particle Engine
     function createDust(x, y) {
         for (let i = 0; i < 4; i++) {
             particles.push({
@@ -723,9 +724,8 @@
         }
     }
 
-    // High Quality Cinematic Visual Renderer
+    // Canvas Background
     function drawBackground() {
-        // Sunset Cinematic Sky
         let skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.65);
         skyGrad.addColorStop(0, '#040205');
         skyGrad.addColorStop(0.35, '#220a06');
@@ -734,7 +734,6 @@
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, width, height * 0.65);
 
-        // Volumetric Sun Rays
         let sunX = width * 0.5;
         let sunY = height * 0.38;
         let sunGrad = ctx.createRadialGradient(sunX, sunY, 15, sunX, sunY, width * 0.6);
@@ -744,7 +743,6 @@
         ctx.fillStyle = sunGrad;
         ctx.fillRect(0, 0, width, height * 0.65);
 
-        // Parallax Mountain Silhouettes
         ctx.fillStyle = '#140804';
         ctx.beginPath();
         ctx.moveTo(0, height * 0.65);
@@ -759,7 +757,6 @@
         ctx.lineTo(0, height);
         ctx.fill();
 
-        // Arena Dirt Ground Gradient
         let groundGrad = ctx.createLinearGradient(0, height * 0.65, 0, height);
         groundGrad.addColorStop(0, '#422713');
         groundGrad.addColorStop(0.3, '#2a170a');
@@ -767,7 +764,6 @@
         ctx.fillStyle = groundGrad;
         ctx.fillRect(0, height * 0.65, width, height * 0.35);
 
-        // Arena Wooden Railings / Fence
         ctx.strokeStyle = '#614022';
         ctx.lineWidth = 5;
         ctx.beginPath();
@@ -775,61 +771,52 @@
         ctx.lineTo(width, height * 0.68);
         ctx.stroke();
 
-        // Fence Pillars
         for (let x = 0; x <= width; x += width * 0.15) {
             ctx.fillStyle = '#422b16';
             ctx.fillRect(x - 4, height * 0.65, 8, height * 0.08);
         }
     }
 
-    // Ultra Realistic Mounted Knight & Horse Renderer
+    // Mounted Knight Visuals
     function drawMountedKnight(knight, isBlue) {
         ctx.save();
-        
         const dir = isBlue ? 1 : -1;
         const scale = height * 0.0019;
         
         ctx.translate(knight.x, knight.y);
 
-        // Gallop Sine Motion
         const gallopPhase = combatTimer * 18;
         const bounceY = (roundState === 'CHARGING' || roundState === 'MELEE_COMBAT') ? Math.abs(Math.sin(gallopPhase)) * 8 : 0;
         
         ctx.translate(0, -bounceY);
         ctx.scale(scale * dir, scale);
 
-        // Dynamic Horse Shadow
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.beginPath();
         ctx.ellipse(0, 10, 50, 14, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // 1. HORSE LEGS (Galloping Animation)
         ctx.strokeStyle = knight.horseColor;
         ctx.lineWidth = 10;
         ctx.lineCap = 'round';
 
         const legSwing = Math.sin(gallopPhase) * 0.6;
 
-        // Back Legs
         ctx.beginPath();
         ctx.moveTo(-30, -20);
         ctx.lineTo(-30 - legSwing * 30, 10);
         ctx.stroke();
 
-        // Front Legs
         ctx.beginPath();
         ctx.moveTo(30, -20);
         ctx.lineTo(30 + legSwing * 30, 10);
         ctx.stroke();
 
-        // 2. HORSE BODY & MUSCLES
         ctx.fillStyle = knight.horseColor;
         ctx.beginPath();
         ctx.ellipse(0, -25, 45, 22, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Horse Neck & Head
         ctx.beginPath();
         ctx.moveTo(25, -35);
         ctx.lineTo(45, -65);
@@ -838,12 +825,10 @@
         ctx.closePath();
         ctx.fill();
 
-        // Horse Head Snout
         ctx.beginPath();
         ctx.arc(52, -62, 8, 0, Math.PI * 2);
         ctx.fill();
 
-        // Horse Mane & Tail
         ctx.strokeStyle = '#111';
         ctx.lineWidth = 6;
         ctx.beginPath();
@@ -851,20 +836,16 @@
         ctx.quadraticCurveTo(-60, -10, -55, 10);
         ctx.stroke();
 
-        // Horse Caparison / Decorative Banner Cloth
         ctx.fillStyle = knight.color;
         ctx.fillRect(-25, -35, 50, 25);
 
-        // 3. KNIGHT RIDER (Plate Armor)
         if (!knight.fallen) {
             ctx.save();
             ctx.translate(0, -42);
 
-            // Legs on Saddle
             ctx.fillStyle = '#64748b';
             ctx.fillRect(-10, 0, 12, 22);
 
-            // Torso Plate Armor
             let armorGrad = ctx.createLinearGradient(-15, -40, 15, 0);
             armorGrad.addColorStop(0, '#cbd5e1');
             armorGrad.addColorStop(0.5, '#64748b');
@@ -879,21 +860,17 @@
             ctx.closePath();
             ctx.fill();
 
-            // Colored Surcoat / Tabard
             ctx.fillStyle = knight.color;
             ctx.fillRect(-10, -36, 20, 26);
 
-            // Helmet & Metallic Visor
             ctx.fillStyle = '#94a3b8';
             ctx.beginPath();
             ctx.arc(0, -48, 13, 0, Math.PI * 2);
             ctx.fill();
 
-            // Visor Eye Slot
             ctx.fillStyle = '#020617';
             ctx.fillRect(2, -50, 10, 3);
 
-            // Plume Feather
             ctx.fillStyle = knight.banner;
             ctx.beginPath();
             ctx.moveTo(0, -60);
@@ -901,7 +878,6 @@
             ctx.lineTo(-2, -56);
             ctx.fill();
 
-            // Jousting Shield
             ctx.fillStyle = knight.color;
             ctx.strokeStyle = '#ffd700';
             ctx.lineWidth = 2;
@@ -914,12 +890,10 @@
             ctx.fill();
             ctx.stroke();
 
-            // Epic Jousting Lance
             ctx.save();
             ctx.translate(5, -25);
             ctx.rotate(knight.lanceAngle);
 
-            // Long Shaft Gradient
             let lanceGrad = ctx.createLinearGradient(0, -6, 90, 0);
             lanceGrad.addColorStop(0, '#854d0e');
             lanceGrad.addColorStop(0.8, '#fef08a');
@@ -934,16 +908,14 @@
             ctx.closePath();
             ctx.fill();
 
-            // Lance Guard Shield
             ctx.fillStyle = '#ffd700';
             ctx.beginPath();
             ctx.arc(0, 0, 10, 0, Math.PI*2);
             ctx.fill();
 
-            ctx.restore(); // Restore Lance
-            ctx.restore(); // Restore Rider
+            ctx.restore();
+            ctx.restore();
         } else {
-            // UNHORSED KNIGHT FALLEN ON GROUND
             ctx.save();
             ctx.translate(isBlue ? -30 : 30, 0);
             ctx.rotate(knight.fallAngle);
@@ -953,7 +925,6 @@
             ctx.fillStyle = knight.color;
             ctx.fillRect(-10, -10, 20, 12);
 
-            // Fallen Helmet
             ctx.fillStyle = '#475569';
             ctx.beginPath();
             ctx.arc(15, -5, 10, 0, Math.PI*2);
@@ -962,7 +933,6 @@
             ctx.restore();
         }
 
-        // Health Bar Indicator
         if (roundState === 'MELEE_COMBAT' || roundState === 'FINAL_STRIKE') {
             ctx.fillStyle = 'rgba(0,0,0,0.8)';
             ctx.fillRect(-30, -95, 60, 7);
@@ -973,7 +943,6 @@
         ctx.restore();
     }
 
-    // Particle FX Rendering
     function updateParticles() {
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
@@ -982,7 +951,7 @@
             p.life -= 0.025;
 
             if (p.type === 'SPARK' || p.type === 'BLOOD' || p.type === 'WOOD') {
-                p.vy += 0.35; // Gravity
+                p.vy += 0.35;
             }
 
             if (p.life <= 0) {
@@ -996,6 +965,57 @@
         }
     }
 
+    // المعالجة الفورية واستدعاء الخوارزميات عبر السيرفر
+    async function triggerBattleWithBackend() {
+        lastApiResult = null;
+
+        if (chosenSideForBet !== null) {
+            try {
+                const response = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        game_id: GAME_ID,
+                        bet_amount: betAmount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    lastApiResult = data;
+                    currentBalance = data.new_balance; // التحديث الفوري للرصيد
+                    document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
+
+                    // خوارزمية الربح والخسارة وتوجيه الفارس الفائز بصرياً
+                    if (data.tier === 'loss') {
+                        // في الخسارة: يفوز الفارس المنافس للمراهنة
+                        winnerSide = (chosenSideForBet === 'BLUE') ? 'RED' : 'BLUE';
+                    } else {
+                        // في الربح: يفوز الفارس المراهَن عليه
+                        winnerSide = chosenSideForBet;
+                    }
+                } else {
+                    alert(data.message || 'خطأ في معالجة الرهان');
+                    chosenSideForBet = null;
+                    updateSideSelectorUI();
+                    winnerSide = Math.random() >= 0.5 ? 'BLUE' : 'RED';
+                }
+            } catch (e) {
+                console.error("API Play Error:", e);
+                chosenSideForBet = null;
+                updateSideSelectorUI();
+                winnerSide = Math.random() >= 0.5 ? 'BLUE' : 'RED';
+            }
+        } else {
+            // بدون رهان -> معركة عشوائية للعرض
+            winnerSide = Math.random() >= 0.5 ? 'BLUE' : 'RED';
+        }
+
+        start15SecBattle();
+    }
+
     // Main 15-Second Combat Simulation
     function start15SecBattle() {
         roundState = 'CHARGING';
@@ -1003,10 +1023,6 @@
         document.getElementById('liveStatusText').innerText = "المعركة جارية والفرسان ينطلقون!";
         document.getElementById('combatProgressBg').style.display = 'block';
 
-        // Strict 50/50 Chance Outcome
-        winnerSide = Math.random() >= 0.5 ? 'BLUE' : 'RED';
-
-        // Reset Knights Physics
         blueKnight.hp = 100;
         redKnight.hp = 100;
         blueKnight.fallen = false;
@@ -1033,7 +1049,6 @@
             document.getElementById('combatProgressFill').style.width = `${progressPct}%`;
             document.getElementById('timerVal').innerText = `${Math.ceil(TOTAL_COMBAT_DURATION - combatTimer)}ث`;
 
-            // PHASE 1: JOUST CHARGING (0s - 4.5s)
             if (combatTimer < 4.5) {
                 roundState = 'CHARGING';
                 blueKnight.x += (width * 0.42 - blueKnight.x) * 0.04;
@@ -1044,11 +1059,9 @@
 
                 if (Math.random() < 0.35) playGallopSound();
             }
-            // PHASE 2: JOUST IMPACT & MELEE DUEL (4.5s - 12s)
             else if (combatTimer >= 4.5 && combatTimer < 12) {
                 roundState = 'MELEE_COMBAT';
 
-                // Initial Joust Impact Shatter
                 if (combatTimer < 4.8) {
                     const clashX = (blueKnight.x + redKnight.x) / 2;
                     const clashY = blueKnight.y - 40;
@@ -1059,7 +1072,6 @@
                     cameraShake.intensity = 10;
                 }
 
-                // Dynamic Sword / Lance Angle Swing
                 blueKnight.lanceAngle = Math.sin(combatTimer * 7) * 0.4;
                 redKnight.lanceAngle = -Math.sin(combatTimer * 7) * 0.4;
 
@@ -1077,7 +1089,6 @@
                     }
                 }
             }
-            // PHASE 3: UNHORSING DECISIVE STRIKE (12s - 15s)
             else if (combatTimer >= 12 && combatTimer < TOTAL_COMBAT_DURATION) {
                 roundState = 'FINAL_STRIKE';
 
@@ -1098,7 +1109,6 @@
                     cameraShake.intensity = 16;
                 }
             }
-            // COMBAT COMPLETE -> SETTLE
             else {
                 clearInterval(combatInterval);
                 finishRound();
@@ -1107,7 +1117,7 @@
         }, 50);
     }
 
-    // Round Settle & Balance Math
+    // عرض النتيجة النهائية وتطبيق الحسابات
     function finishRound() {
         roundState = 'RESULT';
         document.getElementById('combatProgressBg').style.display = 'none';
@@ -1116,19 +1126,16 @@
         const title = document.getElementById('resultTitle');
         const sub = document.getElementById('resultSub');
 
-        if (chosenSideForBet !== null) {
-            if (chosenSideForBet === winnerSide) {
-                const winPayout = betAmount * WIN_MULTIPLIER; // STRICT 2X WIN
-                currentBalance += winPayout;
+        if (chosenSideForBet !== null && lastApiResult) {
+            if (lastApiResult.tier !== 'loss') {
                 title.innerText = 'انتصار ملحمي! ⚔️';
                 title.className = 'result-title result-win';
-                sub.innerText = `+${winPayout.toFixed(2)} NPS`;
+                sub.innerText = `+${lastApiResult.win_amount.toFixed(2)} NPS`;
                 sub.style.color = '#4ef037';
             } else {
-                currentBalance -= betAmount; // LOSS DEDUCTION
                 title.innerText = 'هزيمة في المبارزة! 🛡️';
                 title.className = 'result-title result-loss';
-                sub.innerText = `-${betAmount.toFixed(2)} NPS`;
+                sub.innerText = `-${lastApiResult.bet_amount.toFixed(2)} NPS`;
                 sub.style.color = '#ff3333';
             }
             document.getElementById('userBalance').innerText = currentBalance.toFixed(2);
@@ -1141,11 +1148,9 @@
 
         overlay.classList.add('active');
 
-        // Reset Bet Selection
         chosenSideForBet = null;
         updateSideSelectorUI();
 
-        // Wait 4s then restart countdown
         setTimeout(() => {
             overlay.classList.remove('active');
             startCountdown();
@@ -1167,7 +1172,7 @@
 
             if (countdownTime <= 0) {
                 clearInterval(countdownInterval);
-                start15SecBattle();
+                triggerBattleWithBackend();
             }
         }, 1000);
     }
