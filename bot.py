@@ -41,7 +41,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # التوكن الجديد المطلوب
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8704181888:AAG2fMdYfLYtX6i4AVzZz8EW3y921Acgbzs")
+BOT_TOKEN = os.getenv("8704181888:AAGf1iuRI9ZTSN6_lkCzELMyrQzU_lAsWec")
 DEFAULT_ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 RAW_SERVER_URL = os.getenv("SERVER_URL", "https://my-bot-j658.onrender.com")
