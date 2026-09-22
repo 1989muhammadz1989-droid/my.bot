@@ -6,6 +6,7 @@ import random
 import threading
 import logging
 import sys
+import re
 from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -17,14 +18,73 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------
-# 1. تهيئة قاعدة البيانات الموحدة مع البوت
+# 0. تهيئة الاتصال بقاعدة البيانات (PostgreSQL / Supabase أو SQLite)
 # ----------------------------------------------------
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+IS_POSTGRES = False
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    if DATABASE_URL:
+        IS_POSTGRES = True
+        logger.info("تم اكتشاف DATABASE_URL: سيتم الاتصال بقاعدة بيانات PostgreSQL / Supabase")
+except ImportError:
+    if DATABASE_URL:
+        logger.warning("DATABASE_URL موجود ولكن مكتبة psycopg2 غير مثبتة! سيتم التراجع إلى SQLite. تأكد من إضافة psycopg2-binary إلى requirements.txt")
+
+class PGWrapperCursor:
+    def __init__(self, pg_cursor):
+        self._cursor = pg_cursor
+
+    def execute(self, sql, params=()):
+        adapted_sql = sql.replace("?", "%s")
+        adapted_sql = re.sub(r'\bmax\s*\(\s*0\s*,', 'GREATEST(0,', adapted_sql, flags=re.IGNORECASE)
+        adapted_sql = adapted_sql.replace("round(balance + %s, 2)", "ROUND(CAST(balance + %s AS NUMERIC), 2)")
+        self._cursor.execute(adapted_sql, params)
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+class PGWrapperConn:
+    def __init__(self, pg_conn):
+        self._conn = pg_conn
+
+    def cursor(self):
+        return PGWrapperCursor(self._conn.cursor(cursor_factory=RealDictCursor))
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()
+
 def get_db():
+    if IS_POSTGRES and DATABASE_URL:
+        try:
+            pg_conn = psycopg2.connect(DATABASE_URL)
+            return PGWrapperConn(pg_conn)
+        except Exception as e:
+            logger.error(f"خطأ في الاتصال بـ PostgreSQL ({e})، جاري التراجع إلى SQLite...")
+    
     conn = sqlite3.connect(DB_FILE, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
     return conn
 
+# ----------------------------------------------------
+# 1. تهيئة قاعدة البيانات الموحدة مع البوت
+# ----------------------------------------------------
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
@@ -32,7 +92,7 @@ def init_db():
     # جدول مستخدمي تلجرام الموحد
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
+            user_id BIGINT PRIMARY KEY,
             full_name TEXT,
             phone TEXT,
             balance REAL DEFAULT 0.0,
@@ -64,9 +124,10 @@ def init_db():
     """)
     
     # جدول سجلات العمليات والألعاب
-    cursor.execute("""
+    logs_id_type = "SERIAL PRIMARY KEY" if (IS_POSTGRES and DATABASE_URL) else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {logs_id_type},
             user_id TEXT,
             action TEXT,
             amount REAL,
@@ -123,8 +184,9 @@ def load_games():
                         "mega_rate": 0.5
                     })
                     cursor.execute("""
-                        INSERT OR IGNORE INTO game_settings (game_id, loss_rate, normal_rate, medium_rate, high_rate, mega_rate)
+                        INSERT INTO game_settings (game_id, loss_rate, normal_rate, medium_rate, high_rate, mega_rate)
                         VALUES (?, ?, ?, ?, ?, ?)
+                        ON CONFLICT (game_id) DO NOTHING
                     """, (g_id, default_algo["loss_rate"], default_algo["normal_rate"],
                           default_algo["medium_rate"], default_algo["high_rate"], default_algo["mega_rate"]))
                     conn.commit()
